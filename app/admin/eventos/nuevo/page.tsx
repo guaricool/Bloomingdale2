@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function NuevoEventoPage() {
   const session = await auth();
   if (!session?.user) redirect("/login?callbackUrl=/admin/eventos/nuevo");
-  if (session.user.role !== "admin") redirect("/dashboard");
+  if (session.user.role !== "admin") redirect("/");
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">

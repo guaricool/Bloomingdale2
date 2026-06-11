@@ -2,7 +2,7 @@
 -- Snapshot of the current database schema.
 -- Generated automatically by scripts/db-migrate.ts.
 -- DO NOT EDIT BY HAND — edit db/migrations/*.sql and run `npm run db:migrate`.
--- Generated at: 2026-06-11T12:55:18.319Z
+-- Generated at: 2026-06-11T13:35:08.975Z
 
 PRAGMA foreign_keys = ON;
 
@@ -72,6 +72,16 @@ CREATE TABLE Member (
   FOREIGN KEY (familyGroupId) REFERENCES FamilyGroup(id) ON DELETE SET NULL
 );
 
+CREATE TABLE Post (
+  id        INTEGER PRIMARY KEY AUTOINCREMENT,
+  authorId  INTEGER NOT NULL,
+  title     TEXT,
+  body      TEXT    NOT NULL,
+  pinned    INTEGER NOT NULL DEFAULT 0,
+  createdAt TEXT    NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (authorId) REFERENCES User(id) ON DELETE CASCADE
+);
+
 CREATE TABLE User (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
   email         TEXT NOT NULL UNIQUE,
@@ -116,6 +126,12 @@ CREATE INDEX idx_member_familyGroupId ON Member(familyGroupId);
 CREATE INDEX idx_member_firstName ON Member(firstName);
 
 CREATE INDEX idx_member_lastName ON Member(lastName);
+
+CREATE INDEX idx_post_author
+  ON Post (authorId);
+
+CREATE INDEX idx_post_pinned_created
+  ON Post (pinned DESC, createdAt DESC);
 
 CREATE INDEX idx_user_email ON User(email);
 

@@ -26,7 +26,8 @@ interface NavbarProps {
 }
 
 const baseLinks = [
-  { href: "/dashboard", label: "Inicio" },
+  { href: "/", label: "Inicio" },
+  { href: "/inicio", label: "Mi panel" },
   { href: "/miembros", label: "Miembros" },
   { href: "/agendas", label: "Agendas" },
   { href: "/eventos", label: "Eventos" },
@@ -58,6 +59,7 @@ export function Navbar({ user }: NavbarProps) {
 
   function isActive(link: { href: string; match?: (p: string) => boolean }): boolean {
     if (link.match) return link.match(pathname);
+    if (link.href === "/") return pathname === "/";
     return pathname === link.href || pathname.startsWith(link.href + "/");
   }
 
@@ -73,7 +75,7 @@ export function Navbar({ user }: NavbarProps) {
       )}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
-        <Link href="/dashboard" className="group flex items-end gap-3 leading-none">
+        <Link href="/" className="group flex items-end gap-3 leading-none">
           {/* Pequeño sello decorativo — la inicial "B" en un círculo de color sage */}
           <span
             aria-hidden

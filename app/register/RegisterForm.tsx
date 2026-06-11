@@ -45,13 +45,13 @@ export function RegisterForm() {
         email: email.trim().toLowerCase(),
         password,
         redirect: false,
-        callbackUrl: "/dashboard",
+        callbackUrl: "/",
       });
       if (signin?.error) {
         setError("Cuenta creada, pero falló el inicio de sesión automático. Intenta iniciar sesión.");
         return;
       }
-      router.push("/dashboard");
+      router.push("/");
       router.refresh();
     } catch {
       setError("Error de red. Intenta de nuevo.");

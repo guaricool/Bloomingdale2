@@ -21,7 +21,7 @@ function parseId(idStr: string): number | null {
 export default async function EditarEventoPage({ params }: PageProps) {
   const session = await auth();
   if (!session?.user) redirect(`/login?callbackUrl=/admin/eventos/${params.id}/editar`);
-  if (session.user.role !== "admin") redirect("/dashboard");
+  if (session.user.role !== "admin") redirect("/");
 
   const id = parseId(params.id);
   if (id === null) notFound();

@@ -28,7 +28,7 @@ function parseType(raw: string | undefined): EventType | undefined {
 export default async function AdminEventosPage({ searchParams }: PageProps) {
   const session = await auth();
   if (!session?.user) redirect("/login?callbackUrl=/admin/eventos");
-  if (session.user.role !== "admin") redirect("/dashboard");
+  if (session.user.role !== "admin") redirect("/");
 
   const range = parseRange(searchParams.range);
   const type = parseType(searchParams.type);
