@@ -8,6 +8,7 @@ import { fullName, type MemberRow } from "@/lib/member-types";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { EmptyState, IconUsers } from "@/components/ui/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -57,11 +58,11 @@ export default async function MembersDirectoryPage() {
 
       {rows.length === 0 ? (
         <Card>
-          <CardBody>
-            <p className="text-center font-sans text-sm text-ink-500">
-              Aún no hay miembros registrados en el directorio.
-            </p>
-          </CardBody>
+          <EmptyState
+            icon={<IconUsers />}
+            title="Aún no hay miembros"
+            description="Cuando un administrador agregue hermanos al directorio, aparecerán aquí agrupados por familia."
+          />
         </Card>
       ) : (
         <div className="space-y-6">

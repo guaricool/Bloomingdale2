@@ -34,6 +34,7 @@ import { PostForm } from "@/components/PostForm";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { EmptyState, IconFeed, IconSparkle } from "@/components/ui/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -180,22 +181,21 @@ export default async function HomePage() {
             />
           ) : (
             <Card>
-              <CardBody className="text-center">
-                <p className="font-display text-base text-ink-700">
-                  Inicia sesión para publicar y comentar
-                </p>
-                <p className="mt-1 font-sans text-sm text-ink-500">
-                  La lectura es libre; para participar necesitas una cuenta.
-                </p>
-                <div className="mt-4 flex flex-wrap justify-center gap-2">
-                  <Button as="a" href="/login" variant="primary" size="sm">
-                    Iniciar sesión
-                  </Button>
-                  <Button as="a" href="/register" variant="secondary" size="sm">
-                    Crear cuenta
-                  </Button>
-                </div>
-              </CardBody>
+              <EmptyState
+                icon={<IconSparkle />}
+                title="Únete a la conversación"
+                description="La lectura es libre; para publicar y comentar necesitas una cuenta."
+                action={
+                  <div className="flex flex-wrap justify-center gap-2">
+                    <Button as="a" href="/login" variant="primary" size="sm">
+                      Iniciar sesión
+                    </Button>
+                    <Button as="a" href="/register" variant="secondary" size="sm">
+                      Crear cuenta
+                    </Button>
+                  </div>
+                }
+              />
             </Card>
           )}
 
@@ -210,11 +210,11 @@ export default async function HomePage() {
 
           {posts.length === 0 ? (
             <Card>
-              <CardBody>
-                <p className="text-center font-sans text-sm text-ink-500">
-                  Aún no hay publicaciones. ¡Sé el primero en compartir algo!
-                </p>
-              </CardBody>
+              <EmptyState
+                icon={<IconFeed />}
+                title="Aún no hay publicaciones"
+                description="La presidencia y los miembros pueden compartir noticias, anuncios o pensamientos aquí."
+              />
             </Card>
           ) : (
             <div className="space-y-4">

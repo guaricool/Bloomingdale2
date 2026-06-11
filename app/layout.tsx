@@ -24,7 +24,7 @@ export default async function RootLayout({
 
   return (
     <html lang="es-MX">
-      <body className="min-h-full font-sans antialiased">
+      <body className="paper-grain min-h-full font-sans antialiased">
         <SessionProvider session={session}>
           <div className="flex min-h-screen flex-col">
             {session?.user ? (

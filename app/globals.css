@@ -38,6 +38,20 @@ body {
   border-radius: 4px;
 }
 
+/* Textura de papel — SVG noise inline, no requiere assets externos.
+   Aplicada a un pseudo-elemento fixed para no repintar en scroll. */
+.paper-grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.45  0 0 0 0 0.40  0 0 0 0 0.32  0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 160px 160px;
+}
+
 /* Reveal escalonado — al cargar, los hijos aparecen uno tras otro */
 .reveal > * {
   opacity: 0;
@@ -63,10 +77,43 @@ body {
   }
 }
 
+/* Shimmer para loading states — gradiente cálido moviéndose */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(239, 228, 204, 0.4) 0%,
+    rgba(239, 228, 204, 0.8) 50%,
+    rgba(239, 228, 204, 0.4) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* Pulse sutil para día de hoy en calendario */
+@keyframes pulse-today {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(107, 138, 74, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(107, 138, 74, 0);
+  }
+}
+.cell-today {
+  animation: pulse-today 2.4s ease-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal > * {
     animation: none;
     opacity: 1;
+  }
+  .skeleton-shimmer,
+  .cell-today {
+    animation: none;
   }
   *,
   *::before,

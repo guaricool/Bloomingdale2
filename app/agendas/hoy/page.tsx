@@ -17,6 +17,7 @@ import { AgendaViewer } from "./AgendaViewer";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { EmptyState, IconHymn } from "@/components/ui/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -79,24 +80,25 @@ export default async function HoyPage() {
           </Card>
         ) : (
           <Card>
-            <CardBody>
-              <div className="text-center">
-                <p className="font-display text-lg italic text-ink-500">
-                  «Todo tiene su tiempo debajo del cielo.»
-                </p>
-                <p className="mt-2 font-sans text-[0.7rem] uppercase tracking-wider text-ink-400">
-                  — Eclesiastés 3:1
-                </p>
-                <p className="mt-6 text-sm text-ink-500">
-                  Pídele a un administrador que cree la agenda del próximo domingo.
-                </p>
-                <div className="mt-6">
-                  <Button as="a" href="/agendas" variant="secondary" size="sm">
-                    Ver historial
-                  </Button>
-                </div>
-              </div>
-            </CardBody>
+            <EmptyState
+              icon={<IconHymn />}
+              title="Aún no hay agenda para este domingo"
+              description={
+                <>
+                  <span className="font-display italic text-ink-500">
+                    «Todo tiene su tiempo debajo del cielo».
+                  </span>{" "}
+                  <span className="font-sans text-[0.7rem] uppercase tracking-wider text-ink-400">
+                    — Eclesiastés 3:1
+                  </span>
+                </>
+              }
+              action={
+                <Button as="a" href="/agendas" variant="secondary" size="sm">
+                  Ver historial
+                </Button>
+              }
+            />
           </Card>
         )}
       </div>

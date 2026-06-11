@@ -15,7 +15,7 @@ export function Card({ children, className, interactive, ribbon, ...rest }: Card
       className={clsx(
         "paper-card relative overflow-hidden",
         interactive &&
-          "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lift",
+          "transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lift hover:border-sage-300 active:scale-[0.99]",
         className,
       )}
       {...rest}

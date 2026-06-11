@@ -16,6 +16,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { clsx } from "clsx";
+import { IconCalendar } from "@/components/ui/EmptyState";
 
 export interface CalendarEvent {
   id: number;
@@ -181,9 +182,9 @@ export function MonthCalendar({
               type="button"
               onClick={() => setOpenDay(cell.iso)}
               className={clsx(
-                "relative h-9 border-b border-cream-200/60 font-sans text-xs transition-colors",
-                "hover:bg-sage-50 focus-visible:bg-sage-50",
-                isToday && "ring-1 ring-inset ring-sage-400",
+                "relative h-9 border-b border-cream-200/60 font-sans text-xs transition-all duration-200",
+                "hover:bg-sage-50 hover:scale-110 hover:z-10 hover:shadow-soft focus-visible:bg-sage-50",
+                isToday && "ring-1 ring-inset ring-sage-400 cell-today",
                 has && "font-semibold text-ink-900",
                 !has && "text-ink-500",
               )}
@@ -241,9 +242,17 @@ export function MonthCalendar({
             </div>
             <div className="px-5 py-4">
               {openEvents.length === 0 ? (
-                <p className="font-sans text-sm text-ink-500">
-                  No hay eventos programados para este día.
-                </p>
+                <div className="flex flex-col items-center py-6 text-center">
+                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-sage-50 text-sage-600" aria-hidden>
+                    <IconCalendar />
+                  </div>
+                  <p className="font-display text-base text-ink-700">
+                    Día libre
+                  </p>
+                  <p className="mt-1 font-sans text-xs text-ink-500">
+                    No hay eventos programados para este día.
+                  </p>
+                </div>
               ) : (
                 <ul className="space-y-3">
                   {openEvents.map((ev) => (

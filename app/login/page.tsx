@@ -47,12 +47,18 @@ export default async function LoginPage() {
           </div>
 
           <div className="reveal max-w-md">
-            <p className="font-display text-2xl italic text-sage-100">
+            <div className="divider-leaf mb-6 text-sage-200/70">
+              <span className="font-display italic text-sage-100">«Hagamos todo</span>
+            </div>
+            <p className="font-display text-2xl italic leading-snug text-sage-100">
               «Hagamos todo lo que el Señor nos ha mandado».
             </p>
             <p className="mt-2 font-sans text-xs uppercase tracking-wider text-sage-200/70">
               — 1 Nefi 3:7
             </p>
+            <div className="divider-leaf mt-6 text-sage-200/70">
+              <span className="font-display italic text-sage-100">lo que Él nos ha mandado».</span>
+            </div>
           </div>
 
           <div className="space-y-1 text-sm text-sage-100/80">

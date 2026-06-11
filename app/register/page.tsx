@@ -77,12 +77,18 @@ export default async function RegisterPage() {
           </div>
 
           <div className="reveal max-w-md">
-            <p className="font-display text-2xl italic text-sage-100">
+            <div className="divider-leaf mb-6 text-sage-200/70">
+              <span className="font-display italic text-sage-100">«Así alumbre</span>
+            </div>
+            <p className="font-display text-2xl italic leading-snug text-sage-100">
               «Así alumbre vuestra luz delante de los hombres».
             </p>
             <p className="mt-2 font-sans text-xs uppercase tracking-wider text-sage-200/70">
               — Mateo 5:16
             </p>
+            <div className="divider-leaf mt-6 text-sage-200/70">
+              <span className="font-display italic text-sage-100">vuestra luz».</span>
+            </div>
           </div>
 
           <p className="font-display text-base text-cream-50/90">

@@ -11,6 +11,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { EmptyState, IconEvents } from "@/components/ui/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -56,11 +57,11 @@ export default async function EventosPage() {
 
       {eventos.length === 0 ? (
         <Card>
-          <CardBody>
-            <p className="text-center font-sans text-sm text-ink-500">
-              No hay eventos próximos programados. Vuelve a revisar más adelante.
-            </p>
-          </CardBody>
+          <EmptyState
+            icon={<IconEvents />}
+            title="Sin eventos próximos"
+            description="No hay actividades programadas. Vuelve a revisar pronto."
+          />
         </Card>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
