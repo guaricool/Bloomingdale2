@@ -85,7 +85,7 @@ export function Navbar({ user }: NavbarProps) {
           </span>
           <span className="flex flex-col">
             <span className="font-display text-lg font-medium tracking-tight text-ink-900">
-              Bloomingdale
+              Bloomingdale 2nd
             </span>
             <span className="font-sans text-[0.65rem] uppercase tracking-[0.18em] text-ink-500">
               Rama · La Iglesia de Jesucristo

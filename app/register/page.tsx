@@ -5,7 +5,7 @@ import { RegisterForm } from "./RegisterForm";
 
 export const metadata: Metadata = {
   title: "Crear cuenta",
-  description: "Únete a la plataforma comunitaria de la Rama Bloomingdale 2.",
+  description: "Únete a la plataforma comunitaria de la Rama Bloomingdale 2nd.",
 };
 
 export default async function RegisterPage() {
@@ -68,7 +68,7 @@ export default async function RegisterPage() {
                 B
               </span>
               <span className="font-display text-xl font-medium tracking-tight">
-                Bloomingdale
+                Bloomingdale 2nd
               </span>
             </div>
             <p className="mt-1 font-sans text-xs uppercase tracking-[0.2em] text-sage-200">

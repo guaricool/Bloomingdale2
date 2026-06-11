@@ -44,7 +44,7 @@ export default async function EventosPage() {
       <PageHeader
         eyebrow="Calendario"
         title="Eventos próximos"
-        description="Las actividades y eventos de la Rama Bloomingdale 2."
+        description="Las actividades y eventos de la Rama Bloomingdale 2nd."
         actions={
           isAdmin ? (
             <Button as="a" href="/admin/eventos" variant="secondary" size="sm">

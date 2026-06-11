@@ -5,7 +5,7 @@ import { LoginForm } from "./LoginForm";
 
 export const metadata: Metadata = {
   title: "Iniciar sesión",
-  description: "Accede a la plataforma comunitaria de la Rama Bloomingdale 2.",
+  description: "Accede a la plataforma comunitaria de la Rama Bloomingdale 2nd.",
 };
 
 export default async function LoginPage() {
@@ -38,7 +38,7 @@ export default async function LoginPage() {
                 B
               </span>
               <span className="font-display text-xl font-medium tracking-tight">
-                Bloomingdale
+                Bloomingdale 2nd
               </span>
             </div>
             <p className="mt-1 font-sans text-xs uppercase tracking-[0.2em] text-sage-200">

@@ -8,11 +8,11 @@ import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
   title: {
-    template: "%s · Bloomingdale 2",
-    default: "Bloomingdale 2 — Plataforma comunitaria",
+    template: "%s · Bloomingdale 2nd",
+    default: "Bloomingdale 2nd — Plataforma comunitaria",
   },
   description:
-    "Plataforma comunitaria para la Rama Bloomingdale 2 de La Iglesia de Jesucristo de los Santos de los Últimos Días",
+    "Plataforma comunitaria para la Rama Bloomingdale 2nd de La Iglesia de Jesucristo de los Santos de los Últimos Días",
 };
 
 export default async function RootLayout({
@@ -42,7 +42,7 @@ export default async function RootLayout({
             <footer className="mt-16 border-t border-cream-200 bg-cream-50/60">
               <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-6 py-8 sm:flex-row">
                 <p className="font-sans text-xs text-ink-500">
-                  Bloomingdale 2 · Plataforma comunitaria · Rama local
+                  Bloomingdale 2nd · Plataforma comunitaria · Rama local
                 </p>
                 <p className="font-display text-xs italic text-ink-400">
                   «Sed uno; y si no sois uno, no sois míos». — Mosiah 18:21
@@ -69,7 +69,7 @@ function PublicHeader() {
           </span>
           <span className="flex flex-col">
             <span className="font-display text-lg font-medium tracking-tight text-ink-900">
-              Bloomingdale
+              Bloomingdale 2nd
             </span>
             <span className="font-sans text-[0.65rem] uppercase tracking-[0.18em] text-ink-500">
               Rama · La Iglesia de Jesucristo

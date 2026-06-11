@@ -112,7 +112,7 @@ export default async function HomePage() {
               {session?.user ? "Bienvenido de vuelta" : "Bienvenido"}
             </p>
             <h1 className="mt-2 font-display text-4xl font-medium tracking-tight text-ink-900 sm:text-5xl">
-              {session?.user ? currentUserName : "Rama Bloomingdale 2"}
+              {session?.user ? currentUserName : "Rama Bloomingdale 2nd"}
             </h1>
             <p className="mt-3 max-w-xl font-display text-lg italic text-ink-500">
               {session?.user
