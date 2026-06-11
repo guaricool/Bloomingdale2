@@ -66,3 +66,4 @@ data/
 # One-shot rewrite author / trash helper artifacts (trash-MCP self-args)
 scripts/.trash*.json
 scripts/fix-author.js
+.vercel
