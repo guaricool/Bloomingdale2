@@ -40,7 +40,7 @@ export default async function AdminMembersPage({ searchParams }: PageProps) {
   const groups = await listFamilyGroups();
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10">
+    <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-10">
       <PageHeader
         eyebrow="Administración"
         title="Miembros"

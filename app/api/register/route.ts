@@ -66,7 +66,17 @@ export async function POST(req: NextRequest) {
     const memberResult = await db
       .prepare(`INSERT INTO "Member" (firstName, lastName) VALUES (?, ?)`)
       .run(firstName, lastName);
-    const memberId = Number(memberResult.lastInsertRowid);
+    let memberId = Number(memberResult.lastInsertRowid);
+    if (!Number.isFinite(memberId) || memberId <= 0) {
+      // Postgres path: re-SELECT the freshly inserted member row.
+      const row = (await db
+        .prepare(`SELECT id FROM "Member" WHERE firstName = ? AND lastName = ? ORDER BY id DESC LIMIT 1`)
+        .get(firstName, lastName)) as { id: number } | undefined;
+      if (!row) {
+        throw new Error("No se pudo obtener el ID del miembro recién creado");
+      }
+      memberId = row.id;
+    }
 
     await db.prepare(
       `INSERT INTO "User" (email, passwordHash, role, memberId) VALUES (?, ?, ?, ?)`,

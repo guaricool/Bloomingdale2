@@ -74,7 +74,7 @@ export function Navbar({ user }: NavbarProps) {
           : "border-b border-transparent bg-cream-50/70",
       )}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
+      <div className="mx-auto flex max-w-screen-2xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8 py-4">
         <Link href="/" className="group flex items-end gap-3 leading-none">
           {/* Pequeño sello decorativo — la inicial "B" en un círculo de color sage */}
           <span

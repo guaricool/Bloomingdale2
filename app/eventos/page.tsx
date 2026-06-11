@@ -41,7 +41,7 @@ export default async function EventosPage() {
   const isAdmin = session.user.role === "admin";
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
       <PageHeader
         eyebrow="Calendario"
         title="Eventos próximos"
@@ -64,7 +64,7 @@ export default async function EventosPage() {
           />
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {eventos.map((ev: EventRow) => (
             <Card key={ev.id} interactive>
               <CardBody>

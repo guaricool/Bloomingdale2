@@ -38,7 +38,7 @@ export default async function AdminEventosPage({ searchParams }: PageProps) {
   });
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-10">
+    <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-10">
       <PageHeader
         eyebrow="Administración"
         title="Eventos"

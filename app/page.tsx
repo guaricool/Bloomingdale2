@@ -99,7 +99,7 @@ export default async function HomePage() {
   ).n;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
       {/* HERO */}
       <section className="reveal relative overflow-hidden rounded-card border border-cream-200 bg-sunrise px-6 py-10 sm:px-10 sm:py-14">
         <div
@@ -165,7 +165,7 @@ export default async function HomePage() {
       </section>
 
       {/* GRID PRINCIPAL */}
-      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)_280px]">
+      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)_300px]">
         {/* Sidebar izquierdo */}
         <aside className="space-y-4">
           <SundayAgendaCard

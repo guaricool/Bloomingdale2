@@ -93,7 +93,14 @@ export async function createMember(input: {
     );
   let id = Number(result.lastInsertRowid);
   if (!Number.isFinite(id) || id <= 0) {
-    throw new Error("No se pudo crear el miembro");
+    // Postgres path: re-SELECT the freshly inserted member row.
+    const row = (await db
+      .prepare(`SELECT id FROM "Member" WHERE firstName = ? AND lastName = ? ORDER BY id DESC LIMIT 1`)
+      .get(input.firstName, input.lastName)) as { id: number } | undefined;
+    id = row ? row.id : 0;
+    if (id <= 0) {
+      throw new Error("No se pudo crear el miembro");
+    }
   }
   const created = await getMemberById(id);
   if (!created) {

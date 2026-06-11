@@ -49,7 +49,7 @@ export default async function MembersDirectoryPage() {
   orphan.sort((a, b) => fullName(a).localeCompare(fullName(b), "es", { sensitivity: "base" }));
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
       <PageHeader
         eyebrow="Comunidad"
         title="Miembros de la rama"
@@ -77,7 +77,7 @@ export default async function MembersDirectoryPage() {
                     {b.members.length} miembro{b.members.length === 1 ? "" : "s"}
                   </Badge>
                 </div>
-                <ul className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
+                <ul className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                   {b.members.map((m) => (
                     <li
                       key={m.id}
@@ -102,7 +102,7 @@ export default async function MembersDirectoryPage() {
                     {orphan.length} miembro{orphan.length === 1 ? "" : "s"}
                   </Badge>
                 </div>
-                <ul className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
+                <ul className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                   {orphan.map((m) => (
                     <li key={m.id} className="font-sans text-sm text-ink-700">
                       {fullName(m)}

@@ -64,7 +64,7 @@ export default async function DashboardPage() {
   const todayNote = notes[new Date().getUTCDate() % notes.length];
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10">
+    <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-10">
       <div className="reveal space-y-3">
         <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-sage-600">
           {greeting}

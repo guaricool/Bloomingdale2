@@ -32,7 +32,7 @@ export default async function AdminAgendasPage({ searchParams }: PageProps) {
   const agendas = await listAgendas({ range, today: todayIso() });
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10">
+    <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-10">
       <PageHeader
         eyebrow="Administración"
         title="Agendas dominicales"
