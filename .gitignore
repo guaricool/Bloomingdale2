@@ -51,6 +51,12 @@ test-results/
 .mavis/scratchpads/
 .mavis/sessions/
 
+# OpenCode (AI agent runtime)
+.opencode/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
 # Database
 *.db
 *.sqlite
