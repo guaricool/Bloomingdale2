@@ -25,11 +25,12 @@ export default async function HoyPage() {
   await requireSessionForPage();
   const today = todayIso();
   const target = isSunday(today) ? today : nextSunday(today);
-  const byDate = getAgendaByDate(target);
-  const agenda = byDate ?? (() => {
-    const next = getNextPublishedAgenda(today);
-    return next ? getAgendaById(next.id) : null;
-  })();
+  const byDate = await getAgendaByDate(target);
+  let agenda = byDate;
+  if (!agenda) {
+    const next = await getNextPublishedAgenda(today);
+    agenda = next ? await getAgendaById(next.id) : null;
+  }
 
   const isToday = target === today;
   const isPast = target < today;

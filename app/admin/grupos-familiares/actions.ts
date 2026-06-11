@@ -58,7 +58,7 @@ export async function listFamilyGroupsAction(): Promise<{
     throw err;
   }
   try {
-    return { ok: true, groups: listFamilyGroups() };
+    return { ok: true, groups: await listFamilyGroups() };
   } catch (err) {
     return {
       ok: false,
@@ -84,7 +84,7 @@ export async function createFamilyGroupAction(
     return { ok: false, error: message, fieldErrors };
   }
   try {
-    const group = createFamilyGroup({
+    const group = await createFamilyGroup({
       name: parsed.data.name,
       headMemberId: parsed.data.headMemberId ?? null,
     });
@@ -116,11 +116,11 @@ export async function updateFamilyGroupAction(
     const { message, fieldErrors } = flattenZod(parsed.error);
     return { ok: false, error: message, fieldErrors };
   }
-  if (!getFamilyGroupById(parsed.data.id)) {
+  if (!(await getFamilyGroupById(parsed.data.id))) {
     return { ok: false, error: "Grupo familiar no encontrado" };
   }
   try {
-    const group = updateFamilyGroup({
+    const group = await updateFamilyGroup({
       id: parsed.data.id,
       name: parsed.data.name,
       headMemberId: parsed.data.headMemberId ?? null,
@@ -151,7 +151,7 @@ export async function deleteFamilyGroupAction(
     return { ok: false, error: "Identificador inválido" };
   }
   try {
-    const res = deleteFamilyGroup(id);
+    const res = await deleteFamilyGroup(id);
     if (!res.ok) return { ok: false, error: res.reason ?? "No se pudo eliminar" };
     revalidatePath("/admin/grupos-familiares");
     revalidatePath("/admin/miembros");

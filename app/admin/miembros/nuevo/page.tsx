@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 
 export default async function NewMemberPage() {
   await requireAdminForPage();
-  const groups = listFamilyGroups().map((g) => ({ id: g.id, name: g.name }));
+  const groups = (await listFamilyGroups()).map((g) => ({ id: g.id, name: g.name }));
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">

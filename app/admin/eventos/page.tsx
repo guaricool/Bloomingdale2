@@ -33,7 +33,7 @@ export default async function AdminEventosPage({ searchParams }: PageProps) {
   const range = parseRange(searchParams.range);
   const type = parseType(searchParams.type);
 
-  const eventos = listEvents({
+  const eventos = await listEvents({
     filters: { range, type },
   });
 

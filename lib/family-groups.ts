@@ -3,6 +3,10 @@
  *
  * Pure DB functions. Authorization and validation happen in the
  * server action / API route that calls these helpers.
+ *
+ * Async: all functions return Promises. The DB layer can be SQLite (sync
+ * semantics wrapped in a resolved Promise) or Postgres (native async). The
+ * call sites `await` everything uniformly.
  */
 import { getDb } from "@/lib/db";
 
@@ -30,23 +34,23 @@ const SELECT_JOIN = `
     fg.name            AS name,
     fg.headMemberId    AS headMemberId,
     h.firstName || ' ' || h.lastName AS headMemberName,
-    (SELECT COUNT(*) FROM Member m WHERE m.familyGroupId = fg.id) AS memberCount,
+    (SELECT COUNT(*) FROM "Member" m WHERE m.familyGroupId = fg.id) AS memberCount,
     fg.createdAt       AS createdAt
-  FROM FamilyGroup fg
-  LEFT JOIN Member h ON h.id = fg.headMemberId
+  FROM "FamilyGroup" fg
+  LEFT JOIN "Member" h ON h.id = fg.headMemberId
 `;
 
-export function getFamilyGroupById(id: number): FamilyGroupRow | null {
-  const row = getDb()
+export async function getFamilyGroupById(id: number): Promise<FamilyGroupRow | null> {
+  const row = (await getDb()
     .prepare(`${SELECT_JOIN} WHERE fg.id = ?`)
-    .get(id) as RawFamilyGroupRow | undefined;
+    .get(id)) as RawFamilyGroupRow | undefined;
   return row ?? null;
 }
 
-export function listFamilyGroups(): FamilyGroupRow[] {
-  return getDb()
+export async function listFamilyGroups(): Promise<FamilyGroupRow[]> {
+  return (await getDb()
     .prepare(`${SELECT_JOIN} ORDER BY fg.name COLLATE NOCASE ASC`)
-    .all() as RawFamilyGroupRow[];
+    .all()) as RawFamilyGroupRow[];
 }
 
 export interface CreateFamilyGroupInput {
@@ -54,13 +58,23 @@ export interface CreateFamilyGroupInput {
   headMemberId: number | null;
 }
 
-export function createFamilyGroup(input: CreateFamilyGroupInput): FamilyGroupRow {
+export async function createFamilyGroup(
+  input: CreateFamilyGroupInput,
+): Promise<FamilyGroupRow> {
   const db = getDb();
-  const result = db
-    .prepare(`INSERT INTO FamilyGroup (name, headMemberId) VALUES (?, ?)`)
+  const result = await db
+    .prepare(`INSERT INTO "FamilyGroup" (name, headMemberId) VALUES (?, ?)`)
     .run(input.name.trim(), input.headMemberId);
-  const id = Number(result.lastInsertRowid);
-  const row = getFamilyGroupById(id);
+  let id = Number(result.lastInsertRowid);
+  if (!Number.isFinite(id) || id <= 0) {
+    // Postgres path: re-SELECT the most recent matching row.
+    const recent = (await listFamilyGroups()).find(
+      (g) => g.name === input.name.trim(),
+    );
+    if (!recent) throw new Error("No se pudo crear el grupo familiar");
+    return recent;
+  }
+  const row = await getFamilyGroupById(id);
   if (!row) throw new Error("No se pudo crear el grupo familiar");
   return row;
 }
@@ -71,19 +85,24 @@ export interface UpdateFamilyGroupInput {
   headMemberId: number | null;
 }
 
-export function updateFamilyGroup(input: UpdateFamilyGroupInput): FamilyGroupRow {
+export async function updateFamilyGroup(
+  input: UpdateFamilyGroupInput,
+): Promise<FamilyGroupRow> {
   const db = getDb();
-  const result = db
+  const result = await db
     .prepare(
-      `UPDATE FamilyGroup
+      `UPDATE "FamilyGroup"
        SET name = ?, headMemberId = ?
        WHERE id = ?`,
     )
     .run(input.name.trim(), input.headMemberId, input.id);
   if (result.changes === 0) {
-    throw new Error("Grupo familiar no encontrado");
+    // Postgres path: 0 changes can mean a no-op update or a missing row.
+    const existing = await getFamilyGroupById(input.id);
+    if (!existing) throw new Error("Grupo familiar no encontrado");
+    return existing;
   }
-  const row = getFamilyGroupById(input.id);
+  const row = await getFamilyGroupById(input.id);
   if (!row) throw new Error("Grupo familiar no encontrado");
   return row;
 }
@@ -93,9 +112,10 @@ export function updateFamilyGroup(input: UpdateFamilyGroupInput): FamilyGroupRow
  * members, since ON DELETE SET NULL on Member.familyGroupId would silently
  * unlink them; we prefer to be explicit and ask the admin to reassign first.
  */
-export function deleteFamilyGroup(id: number): { ok: boolean; reason?: string } {
-  const db = getDb();
-  const group = getFamilyGroupById(id);
+export async function deleteFamilyGroup(
+  id: number,
+): Promise<{ ok: boolean; reason?: string }> {
+  const group = await getFamilyGroupById(id);
   if (!group) return { ok: false, reason: "Grupo familiar no encontrado" };
   if (group.memberCount > 0) {
     return {
@@ -103,6 +123,11 @@ export function deleteFamilyGroup(id: number): { ok: boolean; reason?: string } 
       reason: `El grupo tiene ${group.memberCount} miembro(s) asignado(s). Reasígnalos antes de eliminarlo.`,
     };
   }
-  const result = db.prepare("DELETE FROM FamilyGroup WHERE id = ?").run(id);
-  return { ok: result.changes > 0 };
+  const result = await getDb().prepare(`DELETE FROM "FamilyGroup" WHERE id = ?`).run(id);
+  if (result.changes === 0) {
+    // Postgres: 0 changes with a confirmed existing row is unusual; report
+    // as a soft failure so the caller can re-check.
+    return { ok: false, reason: "No se pudo eliminar el grupo" };
+  }
+  return { ok: true };
 }

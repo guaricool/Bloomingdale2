@@ -4,6 +4,10 @@
  * Used by the public landing page (`/`) and the member dashboard. Posts
  * can be created by any signed-in user; admins (presidency / bishopric)
  * can additionally pin a post to the top of the feed.
+ *
+ * Async: all functions return Promises. The DB layer can be SQLite (sync
+ * semantics wrapped in a resolved Promise) or Postgres (native async). The
+ * call sites `await` everything uniformly.
  */
 import { getDb } from "@/lib/db";
 import type { PostRow } from "@/lib/post-types";
@@ -46,41 +50,41 @@ const SELECT_JOIN = `
     u.name        AS authorName,
     u.email       AS authorEmail,
     u.role        AS authorRole
-  FROM Post p
-  JOIN User u ON u.id = p.authorId
+  FROM "Post" p
+  JOIN "User" u ON u.id = p.authorId
 `;
 
 /** Public read: latest 50 posts, pinned first. */
-export function listPosts(limit = 50): PostRow[] {
+export async function listPosts(limit = 50): Promise<PostRow[]> {
   const db = getDb();
-  const rows = db
+  const rows = (await db
     .prepare(
       `${SELECT_JOIN}
        ORDER BY p.pinned DESC, p.createdAt DESC
        LIMIT ?`,
     )
-    .all(Math.max(1, Math.min(200, limit))) as RawPostRow[];
+    .all(Math.max(1, Math.min(200, limit)))) as RawPostRow[];
   return rows.map(toPost);
 }
 
-export function getPostById(id: number): PostRow | null {
+export async function getPostById(id: number): Promise<PostRow | null> {
   const db = getDb();
-  const row = db
+  const row = (await db
     .prepare(`${SELECT_JOIN} WHERE p.id = ?`)
-    .get(id) as RawPostRow | undefined;
+    .get(id)) as RawPostRow | undefined;
   return row ? toPost(row) : null;
 }
 
-export function createPost(input: {
+export async function createPost(input: {
   authorId: number;
   title?: string | null;
   body: string;
   pinned?: boolean;
-}): PostRow {
+}): Promise<PostRow> {
   const db = getDb();
-  const result = db
+  const result = await db
     .prepare(
-      "INSERT INTO Post (authorId, title, body, pinned) VALUES (?, ?, ?, ?)",
+      `INSERT INTO "Post" (authorId, title, body, pinned) VALUES (?, ?, ?, ?)`,
     )
     .run(
       input.authorId,
@@ -88,24 +92,34 @@ export function createPost(input: {
       input.body.trim(),
       input.pinned ? 1 : 0,
     );
-  const created = getPostById(Number(result.lastInsertRowid));
+  let id = Number(result.lastInsertRowid);
+  if (!Number.isFinite(id) || id <= 0) {
+    // Postgres path: re-SELECT the most recent matching row.
+    const recent = (await listPosts(1))[0];
+    if (!recent) throw new Error("No se pudo crear el post");
+    return recent;
+  }
+  const created = await getPostById(id);
   if (!created) throw new Error("Failed to load newly-created Post");
   return created;
 }
 
-export function deletePost(id: number): boolean {
+export async function deletePost(id: number): Promise<boolean> {
   const db = getDb();
-  const result = db.prepare("DELETE FROM Post WHERE id = ?").run(id);
+  // Confirm the row exists first so the return value is accurate.
+  const existing = await getPostById(id);
+  if (!existing) return false;
+  const result = await db.prepare(`DELETE FROM "Post" WHERE id = ?`).run(id);
   return result.changes > 0;
 }
 
-export function togglePostPinned(id: number): boolean {
+export async function togglePostPinned(id: number): Promise<boolean> {
   const db = getDb();
-  const current = db.prepare("SELECT pinned FROM Post WHERE id = ?").get(id) as
-    | { pinned: number }
-    | undefined;
+  const current = (await db
+    .prepare(`SELECT pinned FROM "Post" WHERE id = ?`)
+    .get(id)) as { pinned: number } | undefined;
   if (!current) return false;
   const next = current.pinned === 1 ? 0 : 1;
-  db.prepare("UPDATE Post SET pinned = ? WHERE id = ?").run(next, id);
+  await db.prepare(`UPDATE "Post" SET pinned = ? WHERE id = ?`).run(next, id);
   return true;
 }

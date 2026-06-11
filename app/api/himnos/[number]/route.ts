@@ -20,7 +20,7 @@ export async function GET(
       { status: 404 },
     );
   }
-  const hymn = getHymn(num);
+  const hymn = await getHymn(num);
   if (!hymn) {
     return NextResponse.json(
       { error: `Himno ${num} no encontrado` },

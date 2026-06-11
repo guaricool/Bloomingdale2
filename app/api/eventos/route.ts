@@ -93,7 +93,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: params.error }, { status: 400 });
   }
   const { limit, ...filters } = params;
-  const eventos = listEvents({ filters, limit });
+  const eventos = await listEvents({ filters, limit });
   return NextResponse.json({ eventos });
 }
 
@@ -116,11 +116,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const evento = createEvent(parsed.data, guard.value);
+  const evento = await createEvent(parsed.data, guard.value);
 
   // Auto-insert announcement into existing draft/published Sunday agendas
   // in [today, eventDate]. Best-effort; never fails the POST.
-  const integracion = insertAnnouncementIntoExistingAgendas(evento.id, evento.eventDate);
+  const integracion = await insertAnnouncementIntoExistingAgendas(evento.id, evento.eventDate);
 
   return NextResponse.json({ evento, integracion }, { status: 201 });
 }

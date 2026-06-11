@@ -1,5 +1,9 @@
 /**
  * DB access layer for the Hymn table.
+ *
+ * Async: all functions return Promises. The DB layer can be SQLite (sync
+ * semantics wrapped in a resolved Promise) or Postgres (native async). The
+ * call sites `await` everything uniformly.
  */
 import { getDb } from "@/lib/db";
 import type { HymnRow } from "./types";
@@ -14,11 +18,11 @@ function toHymn(r: RawHymn): HymnRow {
   return { number: r.number, titleEs: r.titleEs, titleEn: r.titleEn };
 }
 
-export function getHymn(number: number): HymnRow | null {
+export async function getHymn(number: number): Promise<HymnRow | null> {
   const db = getDb();
-  const row = db
-    .prepare("SELECT number, titleEs, titleEn FROM Hymn WHERE number = ?")
-    .get(number) as RawHymn | undefined;
+  const row = (await db
+    .prepare(`SELECT number, titleEs, titleEn FROM "Hymn" WHERE number = ?`)
+    .get(number)) as RawHymn | undefined;
   return row ? toHymn(row) : null;
 }
 
@@ -27,7 +31,7 @@ export function getHymn(number: number): HymnRow | null {
  * Returns up to `limit` matches, ordered by exact-number-match first, then
  * number-asc, then title-asc.
  */
-export function searchHymns(q: string, limit = 10): HymnRow[] {
+export async function searchHymns(q: string, limit = 10): Promise<HymnRow[]> {
   const db = getDb();
   const trimmed = q.trim();
   if (!trimmed) return [];
@@ -49,7 +53,7 @@ export function searchHymns(q: string, limit = 10): HymnRow[] {
   params.push(`%${trimmed.toLowerCase()}%`);
 
   const sql = `
-    SELECT number, titleEs, titleEn FROM Hymn
+    SELECT number, titleEs, titleEn FROM "Hymn"
     WHERE ${conditions.join(" OR ")}
     ORDER BY
       CASE WHEN number = ? THEN 0 ELSE 1 END,
@@ -58,6 +62,8 @@ export function searchHymns(q: string, limit = 10): HymnRow[] {
     LIMIT ?
   `;
   // First ? is the exact-match hint, repeated for ORDER BY.
-  const rows = db.prepare(sql).all(num, ...params, Math.max(1, Math.min(50, limit))) as RawHymn[];
+  const rows = (await db
+    .prepare(sql)
+    .all(num, ...params, Math.max(1, Math.min(50, limit)))) as RawHymn[];
   return rows.map(toHymn);
 }

@@ -27,26 +27,28 @@ interface HymnRow {
 
 const insert = (db: ReturnType<typeof getDb>) =>
   db.prepare(
-    `INSERT INTO Hymn (number, titleEs, titleEn)
+    `INSERT INTO "Hymn" (number, titleEs, titleEn)
      VALUES (@number, @titleEs, @titleEn)
      ON CONFLICT(number) DO UPDATE SET
        titleEs = excluded.titleEs,
        titleEn = excluded.titleEn`,
   );
 
-function main(): void {
+async function main(): Promise<void> {
   const db = getDb();
-  const tx = db.transaction((rows: HymnRow[]) => {
+  const tx = db.transaction(async (rows: HymnRow[]) => {
     const stmt = insert(db);
     let n = 0;
     for (const row of rows) {
-      stmt.run({ number: row.number, titleEs: row.titleEs, titleEn: row.titleEn ?? null });
+      await stmt.run({ number: row.number, titleEs: row.titleEs, titleEn: row.titleEn ?? null });
       n += 1;
     }
     return n;
   });
-  const inserted = tx(HYMNS);
-  const total = (db.prepare("SELECT COUNT(*) AS c FROM Hymn").get() as { c: number }).c;
+  const inserted = await tx(HYMNS);
+  const total = (
+    (await db.prepare(`SELECT COUNT(*) AS c FROM "Hymn"`).get()) as { c: number }
+  ).c;
   console.log(`[seed] hymns: wrote/updated ${inserted}, total in DB: ${total}`);
   if (total < 341) {
     console.warn(

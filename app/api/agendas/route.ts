@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
       { status: 400 },
     );
   }
-  const rows = listAgendas({ ...parsed.data, today: todayIso() });
+  const rows = await listAgendas({ ...parsed.data, today: todayIso() });
   return NextResponse.json({ agendas: rows });
 }
 
@@ -70,9 +70,9 @@ export async function POST(req: NextRequest) {
 
   // Uniqueness: one agenda per Sunday. The DB has UNIQUE(date) on Agenda.
   const db = getDb();
-  const existing = db.prepare("SELECT id FROM Agenda WHERE date = ?").get(date) as
-    | { id: number }
-    | undefined;
+  const existing = (await db
+    .prepare(`SELECT id FROM "Agenda" WHERE date = ?`)
+    .get(date)) as { id: number } | undefined;
   if (existing) {
     return NextResponse.json(
       { error: "Ya existe una agenda para ese domingo" },
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const agenda = createAgenda({ date, createdBy: userId });
+    const agenda = await createAgenda({ date, createdBy: userId });
     return NextResponse.json({ agenda }, { status: 201 });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Error al crear la agenda";

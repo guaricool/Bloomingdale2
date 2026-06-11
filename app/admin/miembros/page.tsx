@@ -31,13 +31,13 @@ export default async function AdminMembersPage({ searchParams }: PageProps) {
   const pageSize = 20;
   const offset = (page - 1) * pageSize;
 
-  const { rows, total } = listMembers({
+  const { rows, total } = await listMembers({
     search,
     familyGroupId,
     limit: pageSize,
     offset,
   });
-  const groups = listFamilyGroups();
+  const groups = await listFamilyGroups();
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">

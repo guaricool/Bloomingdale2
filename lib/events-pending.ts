@@ -36,10 +36,10 @@ export interface PendingAnnouncement {
   type: string;
 }
 
-export function getPendingAnnouncementsForSunday(
+export async function getPendingAnnouncementsForSunday(
   sundayIso: string,
   horizonDays: number = DEFAULT_HORIZON_DAYS,
-): PendingAnnouncement[] {
+): Promise<PendingAnnouncement[]> {
   // Defensive: clamp the horizon. Bad input never crashes the endpoint.
   const clampedHorizon = Math.min(
     MAX_HORIZON_DAYS,
@@ -64,7 +64,7 @@ export function getPendingAnnouncementsForSunday(
     return [];
   }
 
-  const events = listEvents({
+  const events = await listEvents({
     filters: {
       from: effectiveLower,
       to: upperBound,

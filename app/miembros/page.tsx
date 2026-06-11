@@ -24,7 +24,7 @@ export default async function MembersDirectoryPage() {
     redirect("/login?callbackUrl=%2Fmiembros");
   }
 
-  const { rows } = listMembers({ unpaged: true });
+  const { rows } = await listMembers({ unpaged: true });
   const buckets: GroupBucket[] = [];
   const orphan: MemberRow[] = [];
 

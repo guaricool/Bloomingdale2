@@ -31,7 +31,7 @@ export async function GET(_req: NextRequest, ctx: RouteContext) {
   if (id === null) {
     return NextResponse.json({ error: "ID inválido" }, { status: 400 });
   }
-  const evento = getEventById(id);
+  const evento = await getEventById(id);
   if (!evento) {
     return NextResponse.json({ error: "Evento no encontrado" }, { status: 404 });
   }
@@ -46,7 +46,7 @@ export async function PUT(req: NextRequest, ctx: RouteContext) {
   if (id === null) {
     return NextResponse.json({ error: "ID inválido" }, { status: 400 });
   }
-  const existing = getEventById(id);
+  const existing = await getEventById(id);
   if (!existing) {
     return NextResponse.json({ error: "Evento no encontrado" }, { status: 404 });
   }
@@ -67,7 +67,7 @@ export async function PUT(req: NextRequest, ctx: RouteContext) {
     );
   }
 
-  const updated = updateEvent(id, parsed.data);
+  const updated = await updateEvent(id, parsed.data);
   if (!updated) {
     return NextResponse.json({ error: "Evento no encontrado" }, { status: 404 });
   }
@@ -82,14 +82,14 @@ export async function DELETE(_req: NextRequest, ctx: RouteContext) {
   if (id === null) {
     return NextResponse.json({ error: "ID inválido" }, { status: 400 });
   }
-  const existing = getEventById(id);
+  const existing = await getEventById(id);
   if (!existing) {
     return NextResponse.json({ error: "Evento no encontrado" }, { status: 404 });
   }
   // Manual cascade: remove AgendaItem rows that reference this event.
   // We do this BEFORE the delete so the FK-ish link is broken first.
-  const itemsRemoved = removeAnnouncementFromAllAgendas(id);
-  const result = deleteEvent(id);
+  const itemsRemoved = await removeAnnouncementFromAllAgendas(id);
+  const result = await deleteEvent(id);
   if (!result.ok) {
     return NextResponse.json({ error: "No se pudo eliminar" }, { status: 500 });
   }

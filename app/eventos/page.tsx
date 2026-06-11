@@ -33,7 +33,7 @@ export default async function EventosPage() {
   const session = await auth();
   if (!session?.user) redirect("/login?callbackUrl=/eventos");
 
-  const eventos = listEvents({
+  const eventos = await listEvents({
     filters: { range: "upcoming" },
     ascending: true,
   });

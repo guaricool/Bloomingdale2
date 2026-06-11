@@ -42,7 +42,7 @@ export async function createPostAction(
   const pinned = user.role === "admin" && parsed.data.pinned === true;
 
   try {
-    createPost({
+    await createPost({
       authorId,
       title: parsed.data.title ?? null,
       body: parsed.data.body,
@@ -66,7 +66,7 @@ export async function deletePostAction(
   const user = session?.user;
   if (!user) return { ok: false, error: "No has iniciado sesión" };
 
-  const ok = deletePost(id);
+  const ok = await deletePost(id);
   if (!ok) return { ok: false, error: "Post no encontrado" };
 
   revalidatePath("/");
@@ -84,7 +84,7 @@ export async function togglePostPinnedAction(
     return { ok: false, error: "Solo la presidencia puede fijar posts" };
   }
 
-  const ok = togglePostPinned(id);
+  const ok = await togglePostPinned(id);
   if (!ok) return { ok: false, error: "Post no encontrado" };
 
   revalidatePath("/");
@@ -97,7 +97,7 @@ export async function listPostsAction(
   limit?: number,
 ): Promise<{ ok: boolean; posts?: Awaited<ReturnType<typeof listPosts>>; error?: string }> {
   try {
-    return { ok: true, posts: listPosts(limit ?? 50) };
+    return { ok: true, posts: await listPosts(limit ?? 50) };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Error" };
   }

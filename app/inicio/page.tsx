@@ -24,9 +24,9 @@ export default async function DashboardPage() {
 
   let displayName = session.user.email ?? "hermano/a";
   if (session.user.memberId) {
-    const row = getDb()
-      .prepare("SELECT firstName, lastName FROM Member WHERE id = ?")
-      .get(session.user.memberId) as { firstName: string; lastName: string } | undefined;
+    const row = (await getDb()
+      .prepare(`SELECT firstName, lastName FROM "Member" WHERE id = ?`)
+      .get(session.user.memberId)) as { firstName: string; lastName: string } | undefined;
     if (row) displayName = `${row.firstName} ${row.lastName}`;
   } else if (session.user.email) {
     displayName = session.user.email.split("@")[0] ?? displayName;
@@ -43,15 +43,15 @@ export default async function DashboardPage() {
   // Quick stats for the dashboard tiles
   const today = todayIso();
   const target = isSunday(today) ? today : nextSunday(today);
-  const nextAgenda = getNextPublishedAgenda(today);
+  const nextAgenda = await getNextPublishedAgenda(today);
 
   const memberCount = (
-    getDb().prepare("SELECT COUNT(*) AS n FROM Member").get() as { n: number }
+    (await getDb().prepare(`SELECT COUNT(*) AS n FROM "Member"`).get()) as { n: number }
   ).n;
   const eventCount = (
-    getDb()
-      .prepare("SELECT COUNT(*) AS n FROM Event WHERE eventDate >= ?")
-      .get(today) as { n: number }
+    (await getDb()
+      .prepare(`SELECT COUNT(*) AS n FROM "Event" WHERE eventDate >= ?`)
+      .get(today)) as { n: number }
   ).n;
 
   // "Spiritual note" for the day — a small rotating line of scripture-like reflection.

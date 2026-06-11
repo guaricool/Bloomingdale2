@@ -73,7 +73,7 @@ export async function createMemberAction(
   }
 
   try {
-    const member = createMember({
+    const member = await createMember({
       firstName: parsed.data.firstName,
       lastName: parsed.data.lastName,
       membershipNumber: parsed.data.membershipNumber ?? null,
@@ -108,11 +108,11 @@ export async function updateMemberAction(
     return { ok: false, error: message, fieldErrors };
   }
 
-  const existing = getMemberById(parsed.data.id);
+  const existing = await getMemberById(parsed.data.id);
   if (!existing) return { ok: false, error: "Miembro no encontrado" };
 
   try {
-    const member = updateMember({
+    const member = await updateMember({
       id: parsed.data.id,
       firstName: parsed.data.firstName,
       lastName: parsed.data.lastName,
@@ -148,7 +148,7 @@ export async function deleteMemberAction(
   }
 
   try {
-    const ok = deleteMember(id);
+    const ok = await deleteMember(id);
     if (!ok) return { ok: false, error: "Miembro no encontrado" };
     revalidatePath("/admin/miembros");
     revalidatePath("/admin/grupos-familiares");
@@ -193,7 +193,7 @@ export async function listMembersAction(input: {
   const page = Math.max(1, input.page ?? 1);
   const offset = (page - 1) * pageSize;
 
-  const result = listMembers({
+  const result = await listMembers({
     search: input.search ?? null,
     familyGroupId: input.familyGroupId ?? null,
     limit: pageSize,

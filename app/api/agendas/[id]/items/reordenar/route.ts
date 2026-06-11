@@ -22,7 +22,7 @@ export async function POST(
   if (!Number.isInteger(agendaId) || agendaId < 1) {
     return NextResponse.json({ error: "ID inválido" }, { status: 400 });
   }
-  const agenda = getAgendaById(agendaId);
+  const agenda = await getAgendaById(agendaId);
   if (!agenda) {
     return NextResponse.json({ error: "Agenda no encontrada" }, { status: 404 });
   }
@@ -41,7 +41,7 @@ export async function POST(
     );
   }
 
-  const ok = reorderAgendaItems(agendaId, parsed.data.items);
+  const ok = await reorderAgendaItems(agendaId, parsed.data.items);
   if (!ok) {
     return NextResponse.json(
       { error: "Algún item no pertenece a la agenda" },

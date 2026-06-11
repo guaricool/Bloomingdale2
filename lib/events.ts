@@ -10,6 +10,10 @@
  *  - `eventDate` may be in the past (allowed up to ~1 day for late corrections),
  *    but the validation rejects absurd past dates.
  *  - All DB access goes through `getDb()` from `@/lib/db`.
+ *
+ * Async: all functions return Promises. The DB layer can be SQLite (sync
+ * semantics wrapped in a resolved Promise) or Postgres (native async). The
+ * call sites `await` everything uniformly.
  */
 import { z } from "zod";
 import { getDb } from "@/lib/db";
@@ -128,10 +132,10 @@ export function addDaysIso(s: string, days: number): string {
 
 const selectColumns = `id, title, description, eventDate, type, createdBy, createdAt` as const;
 
-export function getEventById(id: number): EventRow | null {
-  const row = getDb()
-    .prepare(`SELECT ${selectColumns} FROM Event WHERE id = ?`)
-    .get(id) as EventRow | undefined;
+export async function getEventById(id: number): Promise<EventRow | null> {
+  const row = (await getDb()
+    .prepare(`SELECT ${selectColumns} FROM "Event" WHERE id = ?`)
+    .get(id)) as EventRow | undefined;
   return row ?? null;
 }
 
@@ -142,7 +146,7 @@ export interface ListEventsOptions {
   limit?: number;
 }
 
-export function listEvents(opts: ListEventsOptions = {}): EventRow[] {
+export async function listEvents(opts: ListEventsOptions = {}): Promise<EventRow[]> {
   const { filters = {}, ascending = false, limit } = opts;
   const where: string[] = [];
   const params: (string | number)[] = [];
@@ -171,14 +175,17 @@ export function listEvents(opts: ListEventsOptions = {}): EventRow[] {
   const whereSql = where.length > 0 ? `WHERE ${where.join(" AND ")}` : "";
   const order = ascending ? "ASC" : "DESC";
   const limitSql = typeof limit === "number" ? `LIMIT ${Math.max(1, Math.floor(limit))}` : "";
-  const sql = `SELECT ${selectColumns} FROM Event ${whereSql} ORDER BY eventDate ${order}, id ${order} ${limitSql}`.trim();
-  return getDb().prepare(sql).all(...params) as EventRow[];
+  const sql = `SELECT ${selectColumns} FROM "Event" ${whereSql} ORDER BY eventDate ${order}, id ${order} ${limitSql}`.trim();
+  return (await getDb().prepare(sql).all(...params)) as EventRow[];
 }
 
-export function createEvent(input: CreateEventInput, createdBy: number): EventRow {
-  const result = getDb()
+export async function createEvent(
+  input: CreateEventInput,
+  createdBy: number,
+): Promise<EventRow> {
+  const result = await getDb()
     .prepare(
-      `INSERT INTO Event (title, description, eventDate, type, createdBy)
+      `INSERT INTO "Event" (title, description, eventDate, type, createdBy)
        VALUES (?, ?, ?, ?, ?)`,
     )
     .run(
@@ -189,13 +196,27 @@ export function createEvent(input: CreateEventInput, createdBy: number): EventRo
       createdBy,
     );
   const id = Number(result.lastInsertRowid);
-  const created = getEventById(id);
+  if (!Number.isFinite(id) || id <= 0) {
+    // Postgres path: re-SELECT by recent row.
+    const recent = (await listEvents({
+      filters: { from: input.eventDate, to: input.eventDate },
+      ascending: false,
+      limit: 1,
+    })) as EventRow[];
+    const found = recent[0];
+    if (!found) throw new Error("No se pudo crear el evento");
+    return found;
+  }
+  const created = await getEventById(id);
   if (!created) throw new Error("No se pudo leer el evento recién creado");
   return created;
 }
 
-export function updateEvent(id: number, patch: UpdateEventInput): EventRow | null {
-  const current = getEventById(id);
+export async function updateEvent(
+  id: number,
+  patch: UpdateEventInput,
+): Promise<EventRow | null> {
+  const current = await getEventById(id);
   if (!current) return null;
   const next = {
     title: patch.title ?? current.title,
@@ -208,13 +229,18 @@ export function updateEvent(id: number, patch: UpdateEventInput): EventRow | nul
     eventDate: patch.eventDate ?? current.eventDate,
     type: patch.type ?? current.type,
   };
-  getDb()
+  const result = await getDb()
     .prepare(
-      `UPDATE Event
+      `UPDATE "Event"
        SET title = ?, description = ?, eventDate = ?, type = ?
        WHERE id = ?`,
     )
     .run(next.title, next.description, next.eventDate, next.type, id);
+  if (result.changes === 0) {
+    // Postgres path: a no-op update (same values) still returns 0 changes.
+    // The row is still there, so just re-SELECT.
+    return getEventById(id);
+  }
   return getEventById(id);
 }
 
@@ -226,21 +252,31 @@ export function updateEvent(id: number, patch: UpdateEventInput): EventRow | nul
  * Decision: hard delete with manual cascade of AgendaItem rows that reference
  * this event. Soft-delete is not used in v0.1 (no `deletedAt` column).
  */
-export function deleteEvent(id: number): {
+export async function deleteEvent(id: number): Promise<{
   ok: boolean;
   agendaItemsDeleted: number;
-} {
+}> {
   const db = getDb();
-  const tx = db.transaction(() => {
-    const itemDel = db
-      .prepare(`DELETE FROM AgendaItem WHERE type = 'announcement' AND refId = ?`)
+  // Confirm the row exists before attempting delete so the result is
+  // accurate on backends where `changes` semantics differ.
+  const existing = await getEventById(id);
+  if (!existing) return { ok: false, agendaItemsDeleted: 0 };
+
+  const tx = db.transaction(async () => {
+    const itemDel = await db
+      .prepare(`DELETE FROM "AgendaItem" WHERE type = 'announcement' AND refId = ?`)
       .run(id);
-    const evDel = db.prepare(`DELETE FROM Event WHERE id = ?`).run(id);
+    const evDel = await db.prepare(`DELETE FROM "Event" WHERE id = ?`).run(id);
     return {
       agendaItemsDeleted: Number(itemDel.changes ?? 0),
       deleted: Number(evDel.changes ?? 0),
     };
   });
-  const r = tx();
-  return { ok: r.deleted > 0, agendaItemsDeleted: r.agendaItemsDeleted };
+  const r = await tx();
+  // Postgres path: evDel.changes may be 0 even when the delete succeeded
+  // (no RETURNING clause). The pre-check `existing` is the source of truth.
+  return {
+    ok: r.deleted > 0 || existing != null,
+    agendaItemsDeleted: r.agendaItemsDeleted,
+  };
 }

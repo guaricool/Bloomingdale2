@@ -29,7 +29,7 @@ export default async function AdminAgendasPage({ searchParams }: PageProps) {
   await requireAdminForPage();
   const range = parseRange(searchParams.range);
   const status = parseStatus(searchParams.status);
-  const agendas = listAgendas({ range, today: todayIso() });
+  const agendas = await listAgendas({ range, today: todayIso() });
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">

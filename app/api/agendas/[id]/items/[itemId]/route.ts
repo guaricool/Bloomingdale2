@@ -32,11 +32,11 @@ export async function PUT(
   if (!Number.isInteger(agendaId) || agendaId < 1 || !Number.isInteger(itemId) || itemId < 1) {
     return NextResponse.json({ error: "ID inválido" }, { status: 400 });
   }
-  const agenda = getAgendaById(agendaId);
+  const agenda = await getAgendaById(agendaId);
   if (!agenda) {
     return NextResponse.json({ error: "Agenda no encontrada" }, { status: 404 });
   }
-  const existing = getAgendaItem(agendaId, itemId);
+  const existing = await getAgendaItem(agendaId, itemId);
   if (!existing) {
     return NextResponse.json({ error: "Item no encontrado" }, { status: 404 });
   }
@@ -65,7 +65,7 @@ export async function PUT(
         { status: 400 },
       );
     }
-    if (!getHymn(nextRefId)) {
+    if (!(await getHymn(nextRefId))) {
       return NextResponse.json(
         { error: `Himno ${nextRefId} no encontrado` },
         { status: 400 },
@@ -79,9 +79,9 @@ export async function PUT(
       );
     }
     const db = getDb();
-    const member = db
-      .prepare("SELECT id FROM Member WHERE id = ?")
-      .get(nextRefId) as { id: number } | undefined;
+    const member = (await db
+      .prepare(`SELECT id FROM "Member" WHERE id = ?`)
+      .get(nextRefId)) as { id: number } | undefined;
     if (!member) {
       return NextResponse.json(
         { error: `Miembro ${nextRefId} no encontrado` },
@@ -96,9 +96,9 @@ export async function PUT(
       );
     }
     const db = getDb();
-    const event = db
-      .prepare("SELECT id FROM Event WHERE id = ?")
-      .get(nextRefId) as { id: number } | undefined;
+    const event = (await db
+      .prepare(`SELECT id FROM "Event" WHERE id = ?`)
+      .get(nextRefId)) as { id: number } | undefined;
     if (!event) {
       return NextResponse.json(
         { error: `Evento ${nextRefId} no encontrado` },
@@ -107,7 +107,7 @@ export async function PUT(
     }
   }
 
-  const updated = updateAgendaItem(agendaId, itemId, {
+  const updated = await updateAgendaItem(agendaId, itemId, {
     type: parsed.data.type,
     refId: parsed.data.refId,
     note: parsed.data.note,
@@ -134,11 +134,11 @@ export async function DELETE(
   if (!Number.isInteger(agendaId) || agendaId < 1 || !Number.isInteger(itemId) || itemId < 1) {
     return NextResponse.json({ error: "ID inválido" }, { status: 400 });
   }
-  const agenda = getAgendaById(agendaId);
+  const agenda = await getAgendaById(agendaId);
   if (!agenda) {
     return NextResponse.json({ error: "Agenda no encontrada" }, { status: 404 });
   }
-  const ok = deleteAgendaItem(agendaId, itemId);
+  const ok = await deleteAgendaItem(agendaId, itemId);
   if (!ok) {
     return NextResponse.json({ error: "Item no encontrado" }, { status: 404 });
   }

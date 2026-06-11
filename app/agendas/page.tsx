@@ -14,9 +14,9 @@ export const dynamic = "force-dynamic";
 export default async function PublicAgendasPage() {
   await requireSessionForPage();
   const today = todayIso();
-  const next = getNextPublishedAgenda(today);
-  const upcoming = listAgendas({ range: "upcoming", today });
-  const recent = listAgendas({ range: "past", today, limit: 10 });
+  const next = await getNextPublishedAgenda(today);
+  const upcoming = await listAgendas({ range: "upcoming", today });
+  const recent = await listAgendas({ range: "past", today, limit: 10 });
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">

@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     );
   }
   try {
-    const member = createMember({
+    const member = await createMember({
       firstName: parsed.data.firstName,
       lastName: parsed.data.lastName,
       membershipNumber: parsed.data.membershipNumber ?? null,

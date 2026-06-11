@@ -24,9 +24,9 @@ export default async function EditMemberPage({ params }: PageProps) {
   const id = Number(params.id);
   if (!Number.isFinite(id) || id <= 0) notFound();
 
-  const member = getMemberById(id);
+  const member = await getMemberById(id);
   if (!member) notFound();
-  const groups = listFamilyGroups().map((g) => ({ id: g.id, name: g.name }));
+  const groups = (await listFamilyGroups()).map((g) => ({ id: g.id, name: g.name }));
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">

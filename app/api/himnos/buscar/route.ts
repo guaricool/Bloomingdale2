@@ -23,6 +23,6 @@ export async function GET(req: NextRequest) {
       { status: 400 },
     );
   }
-  const results = searchHymns(parsed.data.q, parsed.data.limit);
+  const results = await searchHymns(parsed.data.q, parsed.data.limit);
   return NextResponse.json({ results });
 }

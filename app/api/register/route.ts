@@ -38,7 +38,9 @@ export async function POST(req: NextRequest) {
   const db = getDb();
 
   // Reject duplicate email
-  const existing = db.prepare("SELECT id FROM User WHERE email = ?").get(normalizedEmail);
+  const existing = await db
+    .prepare(`SELECT id FROM "User" WHERE email = ?`)
+    .get(normalizedEmail);
   if (existing) {
     return NextResponse.json(
       { error: "Ya existe una cuenta con ese correo electrónico" },
@@ -49,7 +51,9 @@ export async function POST(req: NextRequest) {
   const passwordHash = await bcrypt.hash(password, 10);
 
   // First user wins admin; everyone else is member.
-  const userCountRow = db.prepare("SELECT COUNT(*) AS c FROM User").get() as { c: number };
+  const userCountRow = (await db
+    .prepare(`SELECT COUNT(*) AS c FROM "User"`)
+    .get()) as { c: number };
   const isFirstUser = userCountRow.c === 0;
   const role: "admin" | "member" = isFirstUser ? "admin" : "member";
 
@@ -58,20 +62,20 @@ export async function POST(req: NextRequest) {
   const firstName = parts[0] ?? name.trim();
   const lastName = parts.length > 1 ? parts.slice(1).join(" ") : "—";
 
-  const tx = db.transaction(() => {
-    const memberResult = db
-      .prepare("INSERT INTO Member (firstName, lastName) VALUES (?, ?)")
+  const tx = db.transaction(async () => {
+    const memberResult = await db
+      .prepare(`INSERT INTO "Member" (firstName, lastName) VALUES (?, ?)`)
       .run(firstName, lastName);
     const memberId = Number(memberResult.lastInsertRowid);
 
-    db.prepare(
-      "INSERT INTO User (email, passwordHash, role, memberId) VALUES (?, ?, ?, ?)",
+    await db.prepare(
+      `INSERT INTO "User" (email, passwordHash, role, memberId) VALUES (?, ?, ?, ?)`,
     ).run(normalizedEmail, passwordHash, role, memberId);
 
     return memberId;
   });
 
-  const memberId = tx();
+  const memberId = await tx();
 
   return NextResponse.json(
     {

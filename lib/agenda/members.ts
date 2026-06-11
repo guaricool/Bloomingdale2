@@ -5,6 +5,10 @@
  * queries locally and re-use them so the editor works standalone. The
  * members-module will eventually own these and we can swap the
  * implementation transparently.
+ *
+ * Async: all functions return Promises. The DB layer can be SQLite (sync
+ * semantics wrapped in a resolved Promise) or Postgres (native async). The
+ * call sites `await` everything uniformly.
  */
 import { getDb } from "@/lib/db";
 import type { MemberRow } from "./types";
@@ -31,15 +35,15 @@ function toMember(r: RawMember): MemberRow {
   };
 }
 
-export function searchMembers(q: string, limit = 10): MemberRow[] {
+export async function searchMembers(q: string, limit = 10): Promise<MemberRow[]> {
   const db = getDb();
   const trimmed = q.trim();
   if (!trimmed) return [];
   // Search by firstName, lastName, or `firstName + ' ' + lastName` (LIKE)
   const like = `%${trimmed.toLowerCase()}%`;
-  const rows = db
+  const rows = (await db
     .prepare(
-      `SELECT * FROM Member
+      `SELECT * FROM "Member"
        WHERE LOWER(firstName) LIKE ? OR LOWER(lastName) LIKE ?
          OR LOWER(firstName || ' ' || lastName) LIKE ?
        ORDER BY
@@ -50,28 +54,35 @@ export function searchMembers(q: string, limit = 10): MemberRow[] {
          lastName ASC
        LIMIT ?`,
     )
-    .all(like, like, like, trimmed.toLowerCase(), trimmed.toLowerCase(), Math.max(1, Math.min(50, limit))) as RawMember[];
+    .all(
+      like,
+      like,
+      like,
+      trimmed.toLowerCase(),
+      trimmed.toLowerCase(),
+      Math.max(1, Math.min(50, limit)),
+    )) as RawMember[];
   return rows.map(toMember);
 }
 
-export function getMemberById(id: number): MemberRow | null {
+export async function getMemberById(id: number): Promise<MemberRow | null> {
   const db = getDb();
-  const row = db.prepare("SELECT * FROM Member WHERE id = ?").get(id) as
-    | RawMember
-    | undefined;
+  const row = (await db
+    .prepare(`SELECT * FROM "Member" WHERE id = ?`)
+    .get(id)) as RawMember | undefined;
   return row ? toMember(row) : null;
 }
 
-export function createMember(input: {
+export async function createMember(input: {
   firstName: string;
   lastName: string;
   membershipNumber?: string | null;
   familyGroupId?: number | null;
-}): MemberRow {
+}): Promise<MemberRow> {
   const db = getDb();
-  const result = db
+  const result = await db
     .prepare(
-      `INSERT INTO Member (firstName, lastName, membershipNumber, familyGroupId)
+      `INSERT INTO "Member" (firstName, lastName, membershipNumber, familyGroupId)
        VALUES (?, ?, ?, ?)`,
     )
     .run(
@@ -80,8 +91,11 @@ export function createMember(input: {
       input.membershipNumber ?? null,
       input.familyGroupId ?? null,
     );
-  const id = Number(result.lastInsertRowid);
-  const created = getMemberById(id);
+  let id = Number(result.lastInsertRowid);
+  if (!Number.isFinite(id) || id <= 0) {
+    throw new Error("No se pudo crear el miembro");
+  }
+  const created = await getMemberById(id);
   if (!created) {
     throw new Error("Failed to load newly-created Member");
   }

@@ -44,15 +44,16 @@ export default async function HomePage() {
   const target = isSunday(today) ? today : nextSunday(today);
 
   // Sunday agenda: prefer the date-anchored agenda; fall back to next published.
-  const byDate = getAgendaByDate(target);
-  const sundayAgenda = byDate ?? (() => {
-    const next = getNextPublishedAgenda(today);
-    return next ? getAgendaById(next.id) : null;
-  })();
+  const byDate = await getAgendaByDate(target);
+  let sundayAgenda = byDate;
+  if (!sundayAgenda) {
+    const next = await getNextPublishedAgenda(today);
+    sundayAgenda = next ? await getAgendaById(next.id) : null;
+  }
 
   // Calendar: load a window of events — 60 days back, 90 days forward — to
   // cover the visible month and a little extra. Cheap on SQLite.
-  const eventsRaw = listEvents({
+  const eventsRaw = await listEvents({
     filters: { range: "all" },
     ascending: true,
   });
@@ -78,7 +79,7 @@ export default async function HomePage() {
     }));
 
   // Posts
-  const posts = listPosts(20);
+  const posts = await listPosts(20);
 
   // Current user for the post form
   const currentUserId = appUserIdToNumber(session?.user as AppSessionUser | undefined) ?? null;
@@ -88,9 +89,13 @@ export default async function HomePage() {
   // Total counts for the right sidebar
   const { getDb } = await import("@/lib/db");
   const db = getDb();
-  const memberCount = (db.prepare("SELECT COUNT(*) AS n FROM Member").get() as { n: number }).n;
+  const memberCount = (
+    (await db.prepare(`SELECT COUNT(*) AS n FROM "Member"`).get()) as { n: number }
+  ).n;
   const upcomingEventCount = (
-    db.prepare("SELECT COUNT(*) AS n FROM Event WHERE eventDate >= ?").get(today) as { n: number }
+    (await db
+      .prepare(`SELECT COUNT(*) AS n FROM "Event" WHERE eventDate >= ?`)
+      .get(today)) as { n: number }
   ).n;
 
   return (

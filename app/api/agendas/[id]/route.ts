@@ -30,7 +30,7 @@ export async function GET(
   if (!Number.isInteger(id) || id < 1) {
     return NextResponse.json({ error: "ID inválido" }, { status: 400 });
   }
-  const agenda = getAgendaById(id);
+  const agenda = await getAgendaById(id);
   if (!agenda) {
     return NextResponse.json({ error: "Agenda no encontrada" }, { status: 404 });
   }
@@ -71,7 +71,7 @@ export async function PUT(
     );
   }
 
-  const updated = updateAgenda(id, parsed.data);
+  const updated = await updateAgenda(id, parsed.data);
   if (!updated) {
     return NextResponse.json({ error: "Agenda no encontrada" }, { status: 404 });
   }
@@ -89,7 +89,7 @@ export async function DELETE(
   if (!Number.isInteger(id) || id < 1) {
     return NextResponse.json({ error: "ID inválido" }, { status: 400 });
   }
-  const existing = getAgendaById(id);
+  const existing = await getAgendaById(id);
   if (!existing) {
     return NextResponse.json({ error: "Agenda no encontrada" }, { status: 404 });
   }
@@ -99,7 +99,7 @@ export async function DELETE(
       { status: 400 },
     );
   }
-  const ok = deleteAgenda(id);
+  const ok = await deleteAgenda(id);
   if (!ok) {
     return NextResponse.json(
       { error: "No se pudo eliminar la agenda" },

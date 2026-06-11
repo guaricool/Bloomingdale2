@@ -22,7 +22,7 @@ export default async function CompleteAgendaPage({ params }: PageProps) {
   await requireAdminForPage();
   const id = Number(params.id);
   if (!Number.isInteger(id) || id < 1) notFound();
-  const agenda = getAgendaById(id);
+  const agenda = await getAgendaById(id);
   if (!agenda) notFound();
 
   const canComplete = agenda.status === "published";

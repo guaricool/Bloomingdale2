@@ -14,9 +14,9 @@ export const dynamic = "force-dynamic";
 
 export default async function FamilyGroupsPage() {
   await requireAdminForPage();
-  const groups = listFamilyGroups();
+  const groups = await listFamilyGroups();
   // For the "head of household" picker on the create/edit forms.
-  const members = listMembers({ unpaged: true }).rows.map((m) => ({
+  const members = (await listMembers({ unpaged: true })).rows.map((m) => ({
     id: m.id,
     firstName: m.firstName,
     lastName: m.lastName,

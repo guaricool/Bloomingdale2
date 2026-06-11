@@ -21,7 +21,7 @@ export async function POST(
   if (!Number.isInteger(id) || id < 1) {
     return NextResponse.json({ error: "ID inválido" }, { status: 400 });
   }
-  const result = transitionAgenda(id, "published");
+  const result = await transitionAgenda(id, "published");
   if (!result.ok) {
     if (result.reason === "not_found") {
       return NextResponse.json({ error: "Agenda no encontrada" }, { status: 404 });

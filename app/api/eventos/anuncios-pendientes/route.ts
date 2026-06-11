@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
     horizonte = Math.floor(n);
   }
 
-  const anuncios = getPendingAnnouncementsForSunday(parsed.value, horizonte);
+  const anuncios = await getPendingAnnouncementsForSunday(parsed.value, horizonte);
   return NextResponse.json({
     fecha: parsed.value,
     horizonteDias: horizonte,

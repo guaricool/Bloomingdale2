@@ -37,18 +37,20 @@ const SAMPLE: SamplePost[] = [
   },
 ];
 
-function main(): void {
+async function main(): Promise<void> {
   const db = getDb();
-  const existing = (db.prepare("SELECT COUNT(*) AS c FROM Post").get() as { c: number }).c;
+  const existing = (
+    (await db.prepare(`SELECT COUNT(*) AS c FROM "Post"`).get()) as { c: number }
+  ).c;
   if (existing > 0) {
     console.log(`[seed-posts] skip: ${existing} posts already in DB`);
     closeDb();
     return;
   }
 
-  const admin = db
-    .prepare("SELECT id FROM User WHERE role = 'admin' ORDER BY id ASC LIMIT 1")
-    .get() as { id: number } | undefined;
+  const admin = (await db
+    .prepare(`SELECT id FROM "User" WHERE role = 'admin' ORDER BY id ASC LIMIT 1`)
+    .get()) as { id: number } | undefined;
 
   if (!admin) {
     console.log(
@@ -59,15 +61,17 @@ function main(): void {
   }
 
   const insert = db.prepare(
-    "INSERT INTO Post (authorId, title, body, pinned) VALUES (?, ?, ?, ?)",
+    `INSERT INTO "Post" (authorId, title, body, pinned) VALUES (?, ?, ?, ?)`,
   );
-  const tx = db.transaction(() => {
+  const tx = db.transaction(async () => {
     for (const p of SAMPLE) {
-      insert.run(admin.id, p.title, p.body, p.pinned ? 1 : 0);
+      await insert.run(admin.id, p.title, p.body, p.pinned ? 1 : 0);
     }
   });
-  tx();
-  const total = (db.prepare("SELECT COUNT(*) AS c FROM Post").get() as { c: number }).c;
+  await tx();
+  const total = (
+    (await db.prepare(`SELECT COUNT(*) AS c FROM "Post"`).get()) as { c: number }
+  ).c;
   console.log(`[seed-posts] inserted ${SAMPLE.length}, total: ${total}`);
   closeDb();
 }

@@ -75,7 +75,7 @@ export async function createAgendaAction(
     if (!Number.isInteger(createdBy) || createdBy < 1) {
       return { ok: false, error: "Sesión inválida" };
     }
-    const created = createAgenda({ date, createdBy });
+    const created = await createAgenda({ date, createdBy });
     revalidatePath("/admin/agendas");
     revalidatePath("/agendas");
     return { ok: true, agenda: created };
@@ -115,7 +115,7 @@ export async function updateAgendaAction(
   }
 
   try {
-    const updated = updateAgenda(id, patch);
+    const updated = await updateAgenda(id, patch);
     if (!updated) return { ok: false, error: "Agenda no encontrada" };
     revalidatePath("/admin/agendas");
     revalidatePath(`/admin/agendas/${id}/editar`);
@@ -138,7 +138,7 @@ export async function deleteAgendaAction(
     return { ok: false, error: "ID inválido" };
   }
 
-  const existing = getAgendaById(id);
+  const existing = await getAgendaById(id);
   if (!existing) return { ok: false, error: "Agenda no encontrada" };
   if (existing.status !== "draft") {
     return {
@@ -147,7 +147,7 @@ export async function deleteAgendaAction(
     };
   }
 
-  const ok = deleteAgenda(id);
+  const ok = await deleteAgenda(id);
   if (!ok) return { ok: false, error: "No se pudo eliminar la agenda" };
   revalidatePath("/admin/agendas");
   revalidatePath("/agendas");
@@ -163,7 +163,7 @@ export async function transitionAgendaAction(
   if (!Number.isInteger(id) || id < 1) {
     return { ok: false, error: "ID inválido" };
   }
-  const result = transitionAgenda(id, to);
+  const result = await transitionAgenda(id, to);
   if (!result.ok) {
     if (result.reason === "not_found") {
       return { ok: false, error: "Agenda no encontrada" };

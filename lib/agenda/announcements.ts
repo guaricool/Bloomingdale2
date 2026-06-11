@@ -39,10 +39,10 @@ export async function fetchPendingAnnouncements(
       getPendingAnnouncementsForSunday: (
         date: string,
         horizonDays: number,
-      ) => PendingAnnouncement[];
+      ) => Promise<PendingAnnouncement[]>;
     };
     if (!mod) return [];
-    return mod.getPendingAnnouncementsForSunday(date, 60);
+    return await mod.getPendingAnnouncementsForSunday(date, 60);
   } catch (err) {
     // Don't crash the editor if the events module is unavailable.
     // The error is surfaced in the server log; the UI shows "0 anuncios

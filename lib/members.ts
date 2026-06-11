@@ -1,7 +1,7 @@
 /**
  * Data access layer for the Member module.
  *
- * Pure functions over `better-sqlite3` (no auth checks, no HTTP). All
+ * Pure functions over `getDb()` (no auth checks, no HTTP). All
  * authorization and validation happens in the server action / API route
  * that calls these helpers.
  *
@@ -12,6 +12,10 @@
  *    fullName, membershipNumber, familyGroupId, familyGroupName?).
  *  - Write functions return the freshly inserted/updated row so the caller
  *    can redirect / revalidate without a second SELECT.
+ *
+ * Async: all functions return Promises. The DB layer can be SQLite (sync
+ * semantics wrapped in a resolved Promise) or Postgres (native async).
+ * The call sites `await` everything uniformly.
  */
 import { getDb } from "@/lib/db";
 import { fullName, type MemberRow } from "@/lib/member-types";
@@ -38,14 +42,14 @@ const SELECT_JOIN = `
     fg.name           AS familyGroupName,
     m.createdAt       AS createdAt,
     m.updatedAt       AS updatedAt
-  FROM Member m
-  LEFT JOIN FamilyGroup fg ON fg.id = m.familyGroupId
+  FROM "Member" m
+  LEFT JOIN "FamilyGroup" fg ON fg.id = m.familyGroupId
 `;
 
-export function getMemberById(id: number): MemberRow | null {
-  const row = getDb()
+export async function getMemberById(id: number): Promise<MemberRow | null> {
+  const row = (await getDb()
     .prepare(`${SELECT_JOIN} WHERE m.id = ?`)
-    .get(id) as RawMemberRow | undefined;
+    .get(id)) as RawMemberRow | undefined;
   return row ?? null;
 }
 
@@ -63,7 +67,9 @@ export interface ListMembersResult {
   total: number;
 }
 
-export function listMembers(opts: ListMembersOptions = {}): ListMembersResult {
+export async function listMembers(
+  opts: ListMembersOptions = {},
+): Promise<ListMembersResult> {
   const db = getDb();
   const where: string[] = [];
   const params: (string | number)[] = [];
@@ -81,24 +87,27 @@ export function listMembers(opts: ListMembersOptions = {}): ListMembersResult {
   }
 
   const whereSql = where.length > 0 ? `WHERE ${where.join(" AND ")}` : "";
-  const totalRow = db
-    .prepare(`SELECT COUNT(*) AS c FROM Member m ${whereSql}`)
-    .get(...params) as { c: number };
+  const totalRow = (await db
+    .prepare(`SELECT COUNT(*) AS c FROM "Member" m ${whereSql}`)
+    .get(...params)) as { c: number };
 
   const limit = opts.unpaged ? -1 : Math.max(1, Math.min(100, opts.limit ?? 20));
   const offset = opts.unpaged ? 0 : Math.max(0, opts.offset ?? 0);
 
-  const rowsRaw = limit === -1
-    ? (db
-        .prepare(`${SELECT_JOIN} ${whereSql} ORDER BY m.lastName COLLATE NOCASE ASC, m.firstName COLLATE NOCASE ASC`)
-        .all(...params) as RawMemberRow[])
-    : (db
-        .prepare(
-          `${SELECT_JOIN} ${whereSql} ORDER BY m.lastName COLLATE NOCASE ASC, m.firstName COLLATE NOCASE ASC LIMIT ? OFFSET ?`,
-        )
-        .all(...params, limit, offset) as RawMemberRow[]);
+  const rowsRaw =
+    limit === -1
+      ? ((await db
+          .prepare(
+            `${SELECT_JOIN} ${whereSql} ORDER BY m.lastName COLLATE NOCASE ASC, m.firstName COLLATE NOCASE ASC`,
+          )
+          .all(...params)) as RawMemberRow[])
+      : ((await db
+          .prepare(
+            `${SELECT_JOIN} ${whereSql} ORDER BY m.lastName COLLATE NOCASE ASC, m.firstName COLLATE NOCASE ASC LIMIT ? OFFSET ?`,
+          )
+          .all(...params, limit, offset)) as RawMemberRow[]);
 
-  return { rows: rowsRaw, total: totalRow.c };
+  return { rows: rowsRaw, total: Number(totalRow.c) };
 }
 
 export interface CreateMemberInput {
@@ -108,11 +117,11 @@ export interface CreateMemberInput {
   familyGroupId: number | null;
 }
 
-export function createMember(input: CreateMemberInput): MemberRow {
+export async function createMember(input: CreateMemberInput): Promise<MemberRow> {
   const db = getDb();
-  const result = db
+  const result = await db
     .prepare(
-      `INSERT INTO Member (firstName, lastName, membershipNumber, familyGroupId)
+      `INSERT INTO "Member" (firstName, lastName, membershipNumber, familyGroupId)
        VALUES (?, ?, ?, ?)`,
     )
     .run(
@@ -122,7 +131,19 @@ export function createMember(input: CreateMemberInput): MemberRow {
       input.familyGroupId,
     );
   const id = Number(result.lastInsertRowid);
-  const row = getMemberById(id);
+  if (!Number.isFinite(id) || id <= 0) {
+    // Postgres path: re-SELECT the most recent row. There's only ever one
+    // freshly-inserted matching set of fields the admin just typed.
+    const recent = (await listMembers({ unpaged: true })).rows.find(
+      (m) =>
+        m.firstName === input.firstName.trim() &&
+        m.lastName === input.lastName.trim() &&
+        m.membershipNumber === input.membershipNumber,
+    );
+    if (!recent) throw new Error("No se pudo crear el miembro");
+    return recent;
+  }
+  const row = await getMemberById(id);
   if (!row) throw new Error("No se pudo crear el miembro");
   return row;
 }
@@ -135,16 +156,16 @@ export interface UpdateMemberInput {
   familyGroupId: number | null;
 }
 
-export function updateMember(input: UpdateMemberInput): MemberRow {
+export async function updateMember(input: UpdateMemberInput): Promise<MemberRow> {
   const db = getDb();
-  const result = db
+  const result = await db
     .prepare(
-      `UPDATE Member
+      `UPDATE "Member"
        SET firstName = ?,
            lastName = ?,
            membershipNumber = ?,
            familyGroupId = ?,
-           updatedAt = datetime('now')
+           updatedAt = CURRENT_TIMESTAMP
        WHERE id = ?`,
     )
     .run(
@@ -155,16 +176,24 @@ export function updateMember(input: UpdateMemberInput): MemberRow {
       input.id,
     );
   if (result.changes === 0) {
-    throw new Error("Miembro no encontrado");
+    // Postgres path: `changes` may be 0 for legitimate updates that didn't
+    // modify any column, or for a missing id. Confirm the row exists.
+    const existing = await getMemberById(input.id);
+    if (!existing) throw new Error("Miembro no encontrado");
+    return existing;
   }
-  const row = getMemberById(input.id);
+  const row = await getMemberById(input.id);
   if (!row) throw new Error("Miembro no encontrado");
   return row;
 }
 
-export function deleteMember(id: number): boolean {
+export async function deleteMember(id: number): Promise<boolean> {
   const db = getDb();
-  const result = db.prepare("DELETE FROM Member WHERE id = ?").run(id);
+  // Confirm the row exists first, so we can return false on missing id
+  // even on backends that report 0 changes.
+  const existing = await getMemberById(id);
+  if (!existing) return false;
+  const result = await db.prepare(`DELETE FROM "Member" WHERE id = ?`).run(id);
   return result.changes > 0;
 }
 
@@ -181,15 +210,18 @@ export interface MemberSearchHit {
  * (default 10) ordered by last name, first name. Matches by first
  * name, last name (prefix-friendly), or membership number.
  */
-export function searchMembers(query: string, limit = 10): MemberSearchHit[] {
+export async function searchMembers(
+  query: string,
+  limit = 10,
+): Promise<MemberSearchHit[]> {
   const trimmed = query.trim();
   if (trimmed.length === 0) return [];
   const term = `%${trimmed.toLowerCase()}%`;
   const exact = trimmed.toLowerCase();
-  const rows = getDb()
+  const rows = (await getDb()
     .prepare(
       `SELECT id, firstName, lastName, membershipNumber
-       FROM Member
+       FROM "Member"
        WHERE LOWER(firstName) LIKE ?
           OR LOWER(lastName)  LIKE ?
           OR membershipNumber LIKE ?
@@ -199,7 +231,7 @@ export function searchMembers(query: string, limit = 10): MemberSearchHit[] {
          firstName COLLATE NOCASE ASC
        LIMIT ?`,
     )
-    .all(term, term, term, exact, exact, limit) as {
+    .all(term, term, term, exact, exact, limit)) as {
     id: number;
     firstName: string;
     lastName: string;
@@ -221,19 +253,19 @@ export function searchMembers(query: string, limit = 10): MemberSearchHit[] {
  * has just typed "Juan Pérez" and an existing Juan Pérez is already
  * on file. Returns null when ambiguous (more than one match).
  */
-export function findMemberByFullName(
+export async function findMemberByFullName(
   firstName: string,
   lastName: string,
-): MemberRow | null {
+): Promise<MemberRow | null> {
   const db = getDb();
-  const rows = db
+  const rows = (await db
     .prepare(
       `${SELECT_JOIN}
        WHERE LOWER(m.firstName) = ? AND LOWER(m.lastName) = ?
        ORDER BY m.id ASC
        LIMIT 2`,
     )
-    .all(firstName.trim().toLowerCase(), lastName.trim().toLowerCase()) as RawMemberRow[];
+    .all(firstName.trim().toLowerCase(), lastName.trim().toLowerCase())) as RawMemberRow[];
   if (rows.length !== 1) return null;
   return rows[0] ?? null;
 }

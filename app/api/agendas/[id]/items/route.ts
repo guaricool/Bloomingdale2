@@ -33,7 +33,7 @@ export async function POST(
   if (!Number.isInteger(agendaId) || agendaId < 1) {
     return NextResponse.json({ error: "ID inválido" }, { status: 400 });
   }
-  const agenda = getAgendaById(agendaId);
+  const agenda = await getAgendaById(agendaId);
   if (!agenda) {
     return NextResponse.json({ error: "Agenda no encontrada" }, { status: 404 });
   }
@@ -63,7 +63,7 @@ export async function POST(
         { status: 400 },
       );
     }
-    const hymn = getHymn(refId);
+    const hymn = await getHymn(refId);
     if (!hymn) {
       return NextResponse.json(
         { error: `Himno ${refId} no encontrado` },
@@ -77,9 +77,9 @@ export async function POST(
         { status: 400 },
       );
     }
-    const member = db
-      .prepare("SELECT id FROM Member WHERE id = ?")
-      .get(refId) as { id: number } | undefined;
+    const member = (await db
+      .prepare(`SELECT id FROM "Member" WHERE id = ?`)
+      .get(refId)) as { id: number } | undefined;
     if (!member) {
       return NextResponse.json(
         { error: `Miembro ${refId} no encontrado` },
@@ -93,9 +93,9 @@ export async function POST(
         { status: 400 },
       );
     }
-    const event = db
-      .prepare("SELECT id FROM Event WHERE id = ?")
-      .get(refId) as { id: number } | undefined;
+    const event = (await db
+      .prepare(`SELECT id FROM "Event" WHERE id = ?`)
+      .get(refId)) as { id: number } | undefined;
     if (!event) {
       return NextResponse.json(
         { error: `Evento ${refId} no encontrado` },
@@ -105,7 +105,7 @@ export async function POST(
   }
 
   try {
-    const item = createAgendaItem({
+    const item = await createAgendaItem({
       agendaId,
       type,
       refId: refId ?? null,

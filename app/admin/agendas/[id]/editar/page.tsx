@@ -28,22 +28,22 @@ export default async function EditAgendaPage({ params }: PageProps) {
   await requireAdminForPage();
   const id = Number(params.id);
   if (!Number.isInteger(id) || id < 1) notFound();
-  const agenda = getAgendaById(id);
+  const agenda = await getAgendaById(id);
   if (!agenda) notFound();
 
   // Pre-load a small roster of members so the speaker picker has suggestions
   // even before the user types. Cheap on small branches.
   const db = getDb();
-  const memberSuggestions = db
+  const memberSuggestions = (await db
     .prepare(
       `SELECT m.id, m.firstName, m.lastName, m.membershipNumber,
               g.name AS familyGroupName
-       FROM Member m
-       LEFT JOIN FamilyGroup g ON m.familyGroupId = g.id
+       FROM "Member" m
+       LEFT JOIN "FamilyGroup" g ON m.familyGroupId = g.id
        ORDER BY m.firstName ASC, m.lastName ASC
        LIMIT 50`,
     )
-    .all() as MemberOption[];
+    .all()) as MemberOption[];
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">

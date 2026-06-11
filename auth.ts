@@ -93,11 +93,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const { email, password } = parsed.data;
 
         const db = getDb();
-        const row = db
+        const row = (await db
           .prepare(
-            "SELECT id, email, passwordHash, role, memberId FROM User WHERE email = ?",
+            `SELECT id, email, passwordHash, role, memberId FROM "User" WHERE email = ?`,
           )
-          .get(email.toLowerCase()) as UserRow | undefined;
+          .get(email.toLowerCase())) as UserRow | undefined;
 
         if (!row) {
           // Constant-time-ish: still run bcrypt to avoid trivial timing oracle.

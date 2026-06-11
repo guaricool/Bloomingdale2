@@ -28,7 +28,7 @@ export default async function PublicAgendaView({ params }: PageProps) {
   await requireSessionForPage();
   const id = Number(params.id);
   if (!Number.isInteger(id) || id < 1) notFound();
-  const agenda = getAgendaById(id);
+  const agenda = await getAgendaById(id);
   if (!agenda) notFound();
 
   return (

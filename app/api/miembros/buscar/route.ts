@@ -33,6 +33,6 @@ export async function GET(req: NextRequest) {
       { status: 400 },
     );
   }
-  const results = searchMembers(parsed.data.q, parsed.data.limit);
+  const results = await searchMembers(parsed.data.q, parsed.data.limit);
   return NextResponse.json({ results });
 }

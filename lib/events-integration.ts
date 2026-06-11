@@ -19,6 +19,10 @@
  * the integration throws for any reason, we log a warning and let the
  * event creation still succeed. The agendas-module can later call
  * `/api/eventos/anuncios-pendientes?fecha=…` to pick up the event.
+ *
+ * Async: all functions return Promises. The DB layer can be SQLite (sync
+ * semantics wrapped in a resolved Promise) or Postgres (native async). The
+ * call sites `await` everything uniformly.
  */
 import { getDb } from "@/lib/db";
 import { todayIsoDate, addDaysIso } from "@/lib/events";
@@ -38,18 +42,20 @@ export interface AnnouncementInsertResult {
 
 /**
  * Returns true when the Agenda and AgendaItem tables exist in the schema.
- * We use `sqlite_master` to check before touching them — this lets the
- * events module work even before the agendas module's migrations land.
+ * We do a portable existence probe (SELECT 1 FROM each with LIMIT 1) —
+ * if the table is missing the query throws on both backends.
  */
-function agendaTablesExist(): boolean {
+async function agendaTablesExist(): Promise<boolean> {
   const db = getDb();
-  const rows = db
-    .prepare(
-      `SELECT name FROM sqlite_master
-       WHERE type = 'table' AND name IN ('Agenda', 'AgendaItem')`,
-    )
-    .all() as { name: string }[];
-  return rows.length === 2;
+  try {
+    const probe = db.prepare(`SELECT 1 FROM "Agenda" LIMIT 1`);
+    await probe.get();
+    const probe2 = db.prepare(`SELECT 1 FROM "AgendaItem" LIMIT 1`);
+    await probe2.get();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -59,11 +65,11 @@ function agendaTablesExist(): boolean {
  * date is a Sunday (defensive — Agenda.date has no CHECK constraint in v0.1
  * schema; the agendas module is expected to validate this on create).
  */
-export function insertAnnouncementIntoExistingAgendas(
+export async function insertAnnouncementIntoExistingAgendas(
   eventId: number,
   eventDate: string,
-): AnnouncementInsertResult {
-  if (!agendaTablesExist()) {
+): Promise<AnnouncementInsertResult> {
+  if (!(await agendaTablesExist())) {
     // Best-effort logging: the engine console will surface this.
     console.warn(
       `[events-integration] Agenda/AgendaItem tables missing; skipping auto-insert for event ${eventId}. ` +
@@ -82,18 +88,18 @@ export function insertAnnouncementIntoExistingAgendas(
   let skipped = 0;
 
   try {
-    const tx = db.transaction(() => {
+    const tx = db.transaction(async () => {
       // Find candidate agendas.
       // The agenda's date is a YYYY-MM-DD string. SQLite sorts text the same
       // as dates when the format is YYYY-MM-DD, so range compares are safe.
-      const agendas = db
+      const agendas = (await db
         .prepare(
-          `SELECT id, date, status FROM Agenda
+          `SELECT id, date, status FROM "Agenda"
            WHERE date >= ? AND date <= ?
              AND status IN ('draft', 'published')
            ORDER BY date ASC`,
         )
-        .all(today, upper) as { id: number; date: string; status: string }[];
+        .all(today, upper)) as { id: number; date: string; status: string }[];
 
       consideredAgendas = agendas.length;
 
@@ -105,17 +111,17 @@ export function insertAnnouncementIntoExistingAgendas(
       });
 
       const existsStmt = db.prepare(
-        `SELECT id FROM AgendaItem
+        `SELECT id FROM "AgendaItem"
          WHERE agendaId = ? AND type = 'announcement' AND refId = ?
          LIMIT 1`,
       );
       const insertStmt = db.prepare(
-        `INSERT INTO AgendaItem (agendaId, type, "order", refId, note)
+        `INSERT INTO "AgendaItem" (agendaId, type, "order", refId, note)
          VALUES (?, 'announcement', 0, ?, ?)`,
       );
 
       for (const agenda of sundayAgendas) {
-        const existing = existsStmt.get(agenda.id, eventId);
+        const existing = await existsStmt.get(agenda.id, eventId);
         if (existing) {
           skipped += 1;
           continue;
@@ -123,11 +129,11 @@ export function insertAnnouncementIntoExistingAgendas(
         // Use event's title as a brief `note` so the announcement is
         // immediately useful in the agenda UI even before the agendas
         // module dereferences refId.
-        insertStmt.run(agenda.id, eventId, `(evento) ${eventDate}`);
+        await insertStmt.run(agenda.id, eventId, `(evento) ${eventDate}`);
         created += 1;
       }
     });
-    tx();
+    await tx();
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.warn(
@@ -149,10 +155,10 @@ export function insertAnnouncementIntoExistingAgendas(
  * every agenda. Called when an event is deleted (manual cascade in
  * `lib/events.ts deleteEvent`).
  */
-export function removeAnnouncementFromAllAgendas(eventId: number): number {
-  if (!agendaTablesExist()) return 0;
-  const result = getDb()
-    .prepare(`DELETE FROM AgendaItem WHERE type = 'announcement' AND refId = ?`)
+export async function removeAnnouncementFromAllAgendas(eventId: number): Promise<number> {
+  if (!(await agendaTablesExist())) return 0;
+  const result = await getDb()
+    .prepare(`DELETE FROM "AgendaItem" WHERE type = 'announcement' AND refId = ?`)
     .run(eventId);
   return Number(result.changes ?? 0);
 }
