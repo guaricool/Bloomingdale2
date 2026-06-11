@@ -2,13 +2,108 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&display=swap");
+
 :root {
   color-scheme: light;
+  --reveal-step: 0.08s;
 }
 
 html,
 body {
   height: 100%;
-  background-color: #f8fafc;
-  color: #0f172a;
+  /* Fondo "papel" — crema con grano sutil, no blanco clínico */
+  background-color: #fdfaf4;
+  background-image: radial-gradient(
+      circle at 18% 8%,
+      rgba(212, 166, 74, 0.08),
+      transparent 40%
+    ),
+    radial-gradient(circle at 82% 92%, rgba(107, 138, 74, 0.06), transparent 42%);
+  background-attachment: fixed;
+  color: #1f1a14;
+  font-feature-settings: "ss01", "cv11";
+}
+
+/* Selección con color de marca */
+::selection {
+  background-color: rgba(107, 138, 74, 0.25);
+  color: #1f3014;
+}
+
+/* Foco accesible — anillo sage, no outline default */
+*:focus-visible {
+  outline: 2px solid #6b8a4a;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Reveal escalonado — al cargar, los hijos aparecen uno tras otro */
+.reveal > * {
+  opacity: 0;
+  animation: reveal-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.reveal > *:nth-child(1) { animation-delay: calc(var(--reveal-step) * 1); }
+.reveal > *:nth-child(2) { animation-delay: calc(var(--reveal-step) * 2); }
+.reveal > *:nth-child(3) { animation-delay: calc(var(--reveal-step) * 3); }
+.reveal > *:nth-child(4) { animation-delay: calc(var(--reveal-step) * 4); }
+.reveal > *:nth-child(5) { animation-delay: calc(var(--reveal-step) * 5); }
+.reveal > *:nth-child(6) { animation-delay: calc(var(--reveal-step) * 6); }
+.reveal > *:nth-child(7) { animation-delay: calc(var(--reveal-step) * 7); }
+.reveal > *:nth-child(8) { animation-delay: calc(var(--reveal-step) * 8); }
+
+@keyframes reveal-up {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal > * {
+    animation: none;
+    opacity: 1;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Divider decorativo — para separadores con personalidad */
+.divider-leaf {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #8b7e6c;
+  font-family: "Fraunces", serif;
+  font-style: italic;
+}
+.divider-leaf::before,
+.divider-leaf::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(139, 126, 108, 0.4),
+    transparent
+  );
+}
+
+/* Tarjeta "papel" — base de muchos componentes */
+.paper-card {
+  background: #ffffff;
+  border: 1px solid #efe4cc;
+  border-radius: 0.875rem;
+  box-shadow: 0 1px 2px rgba(58, 50, 42, 0.04),
+    0 4px 16px rgba(58, 50, 42, 0.05);
 }

@@ -2,6 +2,17 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getDb } from "@/lib/db";
+import { Card, CardBody } from "@/components/ui/Card";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { getNextPublishedAgenda } from "@/lib/agenda/queries";
+import {
+  formatSpanishDate,
+  isSunday,
+  nextSunday,
+  todayIso,
+} from "@/lib/agenda/dates";
 
 export const dynamic = "force-dynamic";
 
@@ -11,75 +22,200 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  // Look up the member record (if linked) so we can show the friendly name.
-  // Falls back to the email local-part if there's no member record.
   let displayName = session.user.email ?? "hermano/a";
   if (session.user.memberId) {
     const row = getDb()
       .prepare("SELECT firstName, lastName FROM Member WHERE id = ?")
       .get(session.user.memberId) as { firstName: string; lastName: string } | undefined;
-    if (row) {
-      displayName = `${row.firstName} ${row.lastName}`;
-    }
+    if (row) displayName = `${row.firstName} ${row.lastName}`;
   } else if (session.user.email) {
     displayName = session.user.email.split("@")[0] ?? displayName;
   }
 
+  // Saludo según la hora del día (UTC, no importa mucho para v0.1)
+  const hour = new Date().getUTCHours();
+  const greeting =
+    hour < 12 ? "Buenos días" : hour < 19 ? "Buenas tardes" : "Buenas noches";
+
   const role = session.user.role ?? "member";
   const isAdmin = role === "admin";
 
-  return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-3xl font-bold text-slate-900">
-        Hola <span className="text-brand-700">{displayName}</span>
-      </h1>
-      <p className="mt-2 text-slate-600">
-        Bienvenido a Bloomingdale 2. {isAdmin ? "Eres administrador de la rama." : "Eres miembro de la rama."}
-      </p>
+  // Quick stats for the dashboard tiles
+  const today = todayIso();
+  const target = isSunday(today) ? today : nextSunday(today);
+  const nextAgenda = getNextPublishedAgenda(today);
 
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Esta semana</h2>
-          <p className="mt-2 text-slate-700">Aquí verás la agenda del domingo próximo cuando esté publicada.</p>
-        </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Himnos</h2>
-          <p className="mt-2 text-slate-700">Buscador por número (próximamente).</p>
-        </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Eventos</h2>
-          <p className="mt-2 text-slate-700">Calendario de la rama (próximamente).</p>
-        </div>
-        <Link
-          href="/miembros"
-          className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-brand-300 hover:bg-brand-50"
-        >
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Miembros</h2>
-          <p className="mt-2 text-slate-700">Directorio de la rama — ver listado por grupo familiar.</p>
-        </Link>
+  const memberCount = (
+    getDb().prepare("SELECT COUNT(*) AS n FROM Member").get() as { n: number }
+  ).n;
+  const eventCount = (
+    getDb()
+      .prepare("SELECT COUNT(*) AS n FROM Event WHERE eventDate >= ?")
+      .get(today) as { n: number }
+  ).n;
+
+  // "Spiritual note" for the day — a small rotating line of scripture-like reflection.
+  // Not real scripture — these are short quotes the user can rotate later.
+  const notes = [
+    "«Alma, ¿cuánto tiempo le ruego a mi Padre?» — Jacob 7:7",
+    "«Haced las cosas con orden» — Mosiah 4:15",
+    "«Regocijaos en la esperanza» — Romanos 12:12",
+  ];
+  const todayNote = notes[new Date().getUTCDate() % notes.length];
+
+  return (
+    <div className="mx-auto max-w-6xl px-6 py-10">
+      <div className="reveal space-y-3">
+        <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-sage-600">
+          {greeting}
+        </p>
+        <h1 className="font-display text-4xl font-medium tracking-tight text-ink-900 sm:text-5xl">
+          {displayName}
+        </h1>
+        <p className="max-w-2xl font-display text-base italic text-ink-500">
+          {todayNote}
+        </p>
       </div>
 
+      <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Próximo domingo */}
+        <Card interactive>
+          <CardBody>
+            <div className="flex items-start justify-between">
+              <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+                Este domingo
+              </p>
+              <Badge tone={nextAgenda ? "sage" : "ink"}>
+                {nextAgenda ? "Publicada" : "Pendiente"}
+              </Badge>
+            </div>
+            <p className="mt-3 font-display text-2xl font-medium text-ink-900">
+              {formatSpanishDate(target)}
+            </p>
+            <p className="mt-1 text-sm text-ink-500">
+              {nextAgenda
+                ? "La agenda ya está disponible para todos los miembros."
+                : "La agenda se publicará desde el panel de administración."}
+            </p>
+            <div className="mt-5">
+              {nextAgenda ? (
+                <Button as="a" href={`/agendas/${nextAgenda.id}`} variant="primary" size="sm">
+                  Ver agenda
+                </Button>
+              ) : isAdmin ? (
+                <Button as="a" href="/admin/agendas" variant="secondary" size="sm">
+                  Crear desde administración
+                </Button>
+              ) : (
+                <Button as="a" href="/agendas" variant="ghost" size="sm">
+                  Ver historial
+                </Button>
+              )}
+            </div>
+          </CardBody>
+        </Card>
+
+        {/* Miembros */}
+        <Card interactive>
+          <CardBody>
+            <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+              Comunidad
+            </p>
+            <p className="mt-3 font-display text-5xl font-medium text-ink-900">
+              {memberCount}
+            </p>
+            <p className="text-sm text-ink-500">miembros en la rama</p>
+            <div className="mt-5 flex gap-2">
+              <Button as="a" href="/miembros" variant="secondary" size="sm">
+                Ver directorio
+              </Button>
+              {isAdmin ? (
+                <Button as="a" href="/admin/miembros" variant="ghost" size="sm">
+                  Administrar
+                </Button>
+              ) : null}
+            </div>
+          </CardBody>
+        </Card>
+
+        {/* Eventos */}
+        <Card interactive>
+          <CardBody>
+            <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+              Próximos eventos
+            </p>
+            <p className="mt-3 font-display text-5xl font-medium text-ink-900">
+              {eventCount}
+            </p>
+            <p className="text-sm text-ink-500">eventos en el calendario</p>
+            <div className="mt-5">
+              <Button as="a" href="/eventos" variant="secondary" size="sm">
+                Ver calendario
+              </Button>
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+
+      {/* Sección admin — visible solo para admins */}
       {isAdmin ? (
-        <div className="mt-8 rounded-lg border border-brand-200 bg-brand-50 p-5 shadow-sm">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-brand-700">Administración</h2>
-          <p className="mt-1 text-sm text-brand-900">
-            Tienes acceso a las herramientas administrativas. Empieza por el directorio de miembros.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Link
-              href="/admin/miembros"
-              className="rounded-md bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700"
-            >
-              Gestionar miembros
-            </Link>
-            <Link
-              href="/admin/grupos-familiares"
-              className="rounded-md border border-brand-200 bg-white px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50"
-            >
-              Grupos familiares
-            </Link>
+        <section className="mt-12">
+          <div className="divider-leaf mb-6 text-sm">
+            <span>Panel de administración</span>
           </div>
-        </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <Card interactive>
+              <CardBody>
+                <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+                  Miembros
+                </p>
+                <p className="mt-2 font-display text-lg text-ink-900">Directorio y grupos</p>
+                <p className="mt-1 text-sm text-ink-500">
+                  Crea, edita y asigna miembros a grupos familiares.
+                </p>
+                <div className="mt-4">
+                  <Button as="a" href="/admin/miembros" variant="primary" size="sm">
+                    Gestionar
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
+
+            <Card interactive>
+              <CardBody>
+                <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+                  Agendas
+                </p>
+                <p className="mt-2 font-display text-lg text-ink-900">Dominicales</p>
+                <p className="mt-1 text-sm text-ink-500">
+                  Crea borradores, agrega himnos y orden público.
+                </p>
+                <div className="mt-4">
+                  <Button as="a" href="/admin/agendas" variant="primary" size="sm">
+                    Abrir agendas
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
+
+            <Card interactive>
+              <CardBody>
+                <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+                  Eventos
+                </p>
+                <p className="mt-2 font-display text-lg text-ink-900">Calendario</p>
+                <p className="mt-1 text-sm text-ink-500">
+                  Crea eventos y controla los anuncios automáticos.
+                </p>
+                <div className="mt-4">
+                  <Button as="a" href="/admin/eventos" variant="primary" size="sm">
+                    Gestionar eventos
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
+          </div>
+        </section>
       ) : null}
     </div>
   );

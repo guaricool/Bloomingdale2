@@ -1,21 +1,13 @@
 /**
- * `/admin/miembros` — Member directory admin page.
- *
- * Lists members with a free-text search, family-group filter, and
- * pagination. Each row has Edit and Delete actions. New-member button
- * is at the top right. Authz: admin only (redirects non-admins).
- *
- * Server component: reads the query string, calls listMembers()
- * directly, and renders the client-side <MembersTable> with the
- * initial dataset so the admin can also interact with it from the
- * client (search debounce, delete confirm).
+ * `/admin/miembros` — Directorio de miembros.
  */
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { requireAdminForPage } from "@/lib/authz";
 import { listMembers } from "@/lib/members";
 import { listFamilyGroups } from "@/lib/family-groups";
 import { MembersTable } from "./MembersTable";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Button } from "@/components/ui/Button";
 
 export const dynamic = "force-dynamic";
 
@@ -48,32 +40,22 @@ export default async function AdminMembersPage({ searchParams }: PageProps) {
   const groups = listFamilyGroups();
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">
-            Administración
-          </p>
-          <h1 className="mt-1 text-3xl font-bold text-slate-900">Miembros</h1>
-          <p className="mt-1 text-sm text-slate-600">
-            Directorio de la rama. Total: <strong>{total}</strong>.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link
-            href="/admin/grupos-familiares"
-            className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-          >
-            Grupos familiares
-          </Link>
-          <Link
-            href="/admin/miembros/nuevo"
-            className="rounded-md bg-brand-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700"
-          >
-            + Nuevo miembro
-          </Link>
-        </div>
-      </div>
+    <div className="mx-auto max-w-6xl px-6 py-10">
+      <PageHeader
+        eyebrow="Administración"
+        title="Miembros"
+        description={`Directorio de la rama. Total: ${total}. Busca por nombre o filtra por grupo familiar.`}
+        actions={
+          <>
+            <Button as="a" href="/admin/grupos-familiares" variant="secondary" size="sm">
+              Grupos familiares
+            </Button>
+            <Button as="a" href="/admin/miembros/nuevo" variant="primary" size="sm">
+              + Nuevo miembro
+            </Button>
+          </>
+        }
+      />
 
       <MembersTable
         initialRows={rows}

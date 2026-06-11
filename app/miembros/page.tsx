@@ -1,17 +1,13 @@
 /**
  * `/miembros` — Read-only public directory.
- *
- * Visible to any signed-in user (member or admin). Groups members by
- * their family group; members without a group appear at the end under
- * "Sin grupo". Sorted by last name, first name within each group.
- *
- * Auth: any logged-in user (middleware protects the route); the page
- * itself doesn't care about role.
  */
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { listMembers } from "@/lib/members";
-import { fullName, type MemberRow } from "@/lib/members";
+import { fullName, type MemberRow } from "@/lib/member-types";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Card, CardBody } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +27,6 @@ export default async function MembersDirectoryPage() {
   const buckets: GroupBucket[] = [];
   const orphan: MemberRow[] = [];
 
-  // Group by family group, preserving alphabetical sort within.
   for (const m of rows) {
     if (m.familyGroupId == null) {
       orphan.push(m);
@@ -53,53 +48,68 @@ export default async function MembersDirectoryPage() {
   orphan.sort((a, b) => fullName(a).localeCompare(fullName(b), "es", { sensitivity: "base" }));
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
-      <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">Directorio</p>
-      <h1 className="mt-1 text-3xl font-bold text-slate-900">Miembros de la rama</h1>
-      <p className="mt-1 text-sm text-slate-600">
-        Directorio de solo lectura. Total: <strong>{rows.length}</strong> miembro
-        {rows.length === 1 ? "" : "s"}.
-      </p>
+    <div className="mx-auto max-w-4xl px-6 py-10">
+      <PageHeader
+        eyebrow="Comunidad"
+        title="Miembros de la rama"
+        description={`Directorio de solo lectura. Total: ${rows.length} miembro${rows.length === 1 ? "" : "s"}.`}
+      />
 
       {rows.length === 0 ? (
-        <div className="mt-8 rounded-lg border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-sm">
-          Aún no hay miembros registrados en el directorio.
-        </div>
+        <Card>
+          <CardBody>
+            <p className="text-center font-sans text-sm text-ink-500">
+              Aún no hay miembros registrados en el directorio.
+            </p>
+          </CardBody>
+        </Card>
       ) : (
-        <div className="mt-8 space-y-6">
+        <div className="space-y-6">
           {buckets.map((b) => (
-            <section
-              key={`grp-${b.id}`}
-              className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
-            >
-              <h2 className="text-lg font-semibold text-slate-900">{b.name}</h2>
-              <p className="text-xs text-slate-500">
-                {b.members.length} miembro{b.members.length === 1 ? "" : "s"}
-              </p>
-              <ul className="mt-3 grid grid-cols-1 gap-1 sm:grid-cols-2">
-                {b.members.map((m) => (
-                  <li key={m.id} className="text-sm text-slate-700">
-                    {fullName(m)}
-                  </li>
-                ))}
-              </ul>
-            </section>
+            <Card key={`grp-${b.id}`}>
+              <CardBody>
+                <div className="flex items-baseline justify-between">
+                  <h2 className="font-display text-xl font-medium text-ink-900">
+                    {b.name}
+                  </h2>
+                  <Badge tone="sage">
+                    {b.members.length} miembro{b.members.length === 1 ? "" : "s"}
+                  </Badge>
+                </div>
+                <ul className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
+                  {b.members.map((m) => (
+                    <li
+                      key={m.id}
+                      className="font-sans text-sm text-ink-700"
+                    >
+                      {fullName(m)}
+                    </li>
+                  ))}
+                </ul>
+              </CardBody>
+            </Card>
           ))}
 
           {orphan.length > 0 ? (
-            <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-semibold text-slate-900">Sin grupo</h2>
-              <p className="text-xs text-slate-500">
-                {orphan.length} miembro{orphan.length === 1 ? "" : "s"}
-              </p>
-              <ul className="mt-3 grid grid-cols-1 gap-1 sm:grid-cols-2">
-                {orphan.map((m) => (
-                  <li key={m.id} className="text-sm text-slate-700">
-                    {fullName(m)}
-                  </li>
-                ))}
-              </ul>
-            </section>
+            <Card>
+              <CardBody>
+                <div className="flex items-baseline justify-between">
+                  <h2 className="font-display text-xl font-medium text-ink-900">
+                    Sin grupo
+                  </h2>
+                  <Badge tone="ink">
+                    {orphan.length} miembro{orphan.length === 1 ? "" : "s"}
+                  </Badge>
+                </div>
+                <ul className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
+                  {orphan.map((m) => (
+                    <li key={m.id} className="font-sans text-sm text-ink-700">
+                      {fullName(m)}
+                    </li>
+                  ))}
+                </ul>
+              </CardBody>
+            </Card>
           ) : null}
         </div>
       )}

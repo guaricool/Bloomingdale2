@@ -2,7 +2,7 @@
 -- Snapshot of the current database schema.
 -- Generated automatically by scripts/db-migrate.ts.
 -- DO NOT EDIT BY HAND — edit db/migrations/*.sql and run `npm run db:migrate`.
--- Generated at: 2026-06-11T01:40:12.229Z
+-- Generated at: 2026-06-11T12:55:18.319Z
 
 PRAGMA foreign_keys = ON;
 

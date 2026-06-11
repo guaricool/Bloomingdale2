@@ -35,10 +35,10 @@ const STATUS_LABEL: Record<AgendaStatusFilter, string> = {
 };
 
 const STATUS_BADGE: Record<AgendaStatusFilter, string> = {
-  all: "bg-slate-100 text-slate-700",
-  draft: "bg-amber-100 text-amber-800",
-  published: "bg-emerald-100 text-emerald-800",
-  completed: "bg-slate-200 text-slate-600",
+  all: "bg-cream-100 text-ink-700",
+  draft: "bg-amber-50 text-amber-800",
+  published: "bg-sage-50 text-sage-700",
+  completed: "bg-ink-900/5 text-ink-500",
 };
 
 export function AgendasTable({
@@ -85,19 +85,19 @@ export function AgendasTable({
     <div className="mt-6 space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <span className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-ink-500">
             Rango
           </span>
-          <div className="inline-flex rounded-md border border-slate-200 bg-white p-0.5 text-xs shadow-sm">
+          <div className="inline-flex rounded-pill border border-cream-200 bg-white p-0.5 text-xs shadow-soft">
             {(["upcoming", "past", "all"] as const).map((r) => (
               <button
                 key={r}
                 type="button"
                 onClick={() => setFilter({ range: r })}
-                className={`rounded px-2.5 py-1 font-medium ${
+                className={`rounded-pill px-3 py-1 font-medium transition-colors ${
                   initialRange === r
-                    ? "bg-brand-600 text-white"
-                    : "text-slate-700 hover:bg-slate-100"
+                    ? "bg-sage-600 text-cream-50"
+                    : "text-ink-700 hover:bg-cream-100"
                 }`}
               >
                 {r === "upcoming" ? "Próximas" : r === "past" ? "Pasadas" : "Todas"}
@@ -106,7 +106,7 @@ export function AgendasTable({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <span className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-ink-500">
             Estado
           </span>
           <select
@@ -114,7 +114,7 @@ export function AgendasTable({
             onChange={(e) =>
               setFilter({ status: e.target.value as AgendaStatusFilter })
             }
-            className="rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            className="rounded-card border border-cream-300 bg-white px-2.5 py-1 text-xs shadow-soft focus:border-sage-400 focus:outline-none focus:ring-2 focus:ring-sage-200"
           >
             {(Object.keys(STATUS_LABEL) as AgendaStatusFilter[]).map((s) => (
               <option key={s} value={s}>
@@ -124,65 +124,75 @@ export function AgendasTable({
           </select>
         </div>
         {isPending ? (
-          <span className="text-xs text-slate-500">Actualizando…</span>
+          <span className="font-sans text-xs text-ink-500">Actualizando…</span>
         ) : null}
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
-        <table className="min-w-full divide-y divide-slate-200 text-sm">
-          <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
-            <tr>
-              <th scope="col" className="px-4 py-2">Fecha</th>
-              <th scope="col" className="px-4 py-2">Estado</th>
-              <th scope="col" className="px-4 py-2">Actualizada</th>
-              <th scope="col" className="px-4 py-2 text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {initialRows.length === 0 ? (
+      <div className="paper-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-cream-200 text-sm">
+            <thead className="bg-cream-100/60 text-left">
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-slate-500">
-                  No hay agendas para los filtros aplicados.
-                </td>
+                <th scope="col" className="px-5 py-3 font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-ink-500">
+                  Fecha
+                </th>
+                <th scope="col" className="px-5 py-3 font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-ink-500">
+                  Estado
+                </th>
+                <th scope="col" className="px-5 py-3 font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-ink-500">
+                  Actualizada
+                </th>
+                <th scope="col" className="px-5 py-3 text-right font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-ink-500">
+                  Acciones
+                </th>
               </tr>
-            ) : (
-              initialRows.map((row) => (
-                <tr key={row.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-2 font-medium text-slate-900">
-                    {formatShortDate(row.date)}
-                  </td>
-                  <td className="px-4 py-2">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${STATUS_BADGE[row.status]}`}
-                    >
-                      {STATUS_LABEL[row.status]}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2 text-slate-600">{row.updatedAt}</td>
-                  <td className="px-4 py-2 text-right">
-                    <div className="inline-flex items-center gap-2">
-                      <Link
-                        href={`/admin/agendas/${row.id}/editar`}
-                        className="rounded-md border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
-                      >
-                        Editar
-                      </Link>
-                      {row.status === "draft" ? (
-                        <button
-                          type="button"
-                          onClick={() => onDelete(row)}
-                          className="rounded-md border border-red-200 bg-white px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50"
-                        >
-                          Eliminar
-                        </button>
-                      ) : null}
-                    </div>
+            </thead>
+            <tbody className="divide-y divide-cream-200">
+              {initialRows.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-5 py-10 text-center font-sans text-sm text-ink-500">
+                    No hay agendas para los filtros aplicados.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                initialRows.map((row) => (
+                  <tr key={row.id} className="transition-colors hover:bg-cream-50">
+                    <td className="px-5 py-3 font-display text-base font-medium text-ink-900">
+                      {formatShortDate(row.date)}
+                    </td>
+                    <td className="px-5 py-3">
+                      <span
+                        className={`inline-flex items-center rounded-pill px-2.5 py-0.5 font-sans text-[0.7rem] font-semibold uppercase tracking-wider ${STATUS_BADGE[row.status]}`}
+                      >
+                        {STATUS_LABEL[row.status]}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3 font-sans text-sm text-ink-500">{row.updatedAt}</td>
+                    <td className="px-5 py-3 text-right">
+                      <div className="inline-flex items-center gap-2">
+                        <Link
+                          href={`/admin/agendas/${row.id}/editar`}
+                          className="rounded-pill border border-cream-300 bg-white px-3 py-1 font-sans text-xs font-medium text-ink-700 transition-colors hover:border-sage-400 hover:bg-sage-50 hover:text-sage-700"
+                        >
+                          Editar
+                        </Link>
+                        {row.status === "draft" ? (
+                          <button
+                            type="button"
+                            onClick={() => onDelete(row)}
+                            className="rounded-pill border border-terracotta-100 bg-white px-3 py-1 font-sans text-xs font-medium text-terracotta-500 transition-colors hover:bg-terracotta-50"
+                          >
+                            Eliminar
+                          </button>
+                        ) : null}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

@@ -5,7 +5,10 @@ import { Navbar } from "@/components/Navbar";
 import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
-  title: "Bloomingdale 2 — Plataforma comunitaria",
+  title: {
+    template: "%s · Bloomingdale 2",
+    default: "Bloomingdale 2 — Plataforma comunitaria",
+  },
   description:
     "Plataforma comunitaria para la Rama Bloomingdale 2 de La Iglesia de Jesucristo de los Santos de los Últimos Días",
 };
@@ -19,7 +22,7 @@ export default async function RootLayout({
 
   return (
     <html lang="es-MX">
-      <body className="min-h-full antialiased">
+      <body className="min-h-full font-sans antialiased">
         <SessionProvider session={session}>
           <div className="flex min-h-screen flex-col">
             {session?.user ? (
@@ -32,9 +35,14 @@ export default async function RootLayout({
               />
             ) : null}
             <main className="flex-1">{children}</main>
-            <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-500">
-              <div className="mx-auto max-w-6xl px-4">
-                Bloomingdale 2 &middot; Plataforma comunitaria &middot; Rama local
+            <footer className="mt-16 border-t border-cream-200 bg-cream-50/60">
+              <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-6 py-8 sm:flex-row">
+                <p className="font-sans text-xs text-ink-500">
+                  Bloomingdale 2 · Plataforma comunitaria · Rama local
+                </p>
+                <p className="font-display text-xs italic text-ink-400">
+                  «Sed uno; y si no sois uno, no sois míos». — Mosiah 18:21
+                </p>
               </div>
             </footer>
           </div>
