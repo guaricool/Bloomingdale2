@@ -32,10 +32,10 @@ const SELECT_JOIN = `
   SELECT
     fg.id              AS id,
     fg.name            AS name,
-    fg.headMemberId    AS headMemberId,
-    h.firstName || ' ' || h.lastName AS headMemberName,
-    (SELECT COUNT(*) FROM "Member" m WHERE m.familyGroupId = fg.id) AS memberCount,
-    fg.createdAt       AS createdAt
+    fg.headMemberId    AS "headMemberId",
+    h.firstName || ' ' || h.lastName AS "headMemberName",
+    (SELECT COUNT(*) FROM "Member" m WHERE m.familyGroupId = fg.id) AS "memberCount",
+    fg.createdAt       AS "createdAt"
   FROM "FamilyGroup" fg
   LEFT JOIN "Member" h ON h.id = fg.headMemberId
 `;
@@ -49,7 +49,7 @@ export async function getFamilyGroupById(id: number): Promise<FamilyGroupRow | n
 
 export async function listFamilyGroups(): Promise<FamilyGroupRow[]> {
   return (await getDb()
-    .prepare(`${SELECT_JOIN} ORDER BY fg.name COLLATE NOCASE ASC`)
+    .prepare(`${SELECT_JOIN} ORDER BY LOWER(fg.name) ASC`)
     .all()) as RawFamilyGroupRow[];
 }
 

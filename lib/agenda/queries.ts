@@ -90,19 +90,21 @@ function toAgendaItemWithJoins(r: JoinedAgendaItemRow): AgendaItemWithJoins {
 
 // --- Read -----------------------------------------------------------------
 
+const selectAgendaColumns = `id, date, status, createdBy AS "createdBy", createdAt AS "createdAt", updatedAt AS "updatedAt"` as const;
+
 export async function getAgendaById(id: number): Promise<AgendaWithItems | null> {
   const db = getDb();
   const agendaRow = (await db
-    .prepare(`SELECT * FROM "Agenda" WHERE id = ?`)
+    .prepare(`SELECT ${selectAgendaColumns} FROM "Agenda" WHERE id = ?`)
     .get(id)) as RawAgendaRow | undefined;
   if (!agendaRow) return null;
   const itemRows = (await db
     .prepare(
       `SELECT
-         ai.id, ai.agendaId, ai.type, ai."order", ai.refId, ai.note,
-         h.titleEs AS hymn_titleEs, h.titleEn AS hymn_titleEn,
-         m.firstName AS member_firstName, m.lastName AS member_lastName,
-         e.title AS event_title, e.eventDate AS event_eventDate, e.type AS event_type
+         ai.id, ai.agendaId AS "agendaId", ai.type, ai."order", ai.refId AS "refId", ai.note,
+         h.titleEs AS "hymn_titleEs", h.titleEn AS "hymn_titleEn",
+         m.firstName AS "member_firstName", m.lastName AS "member_lastName",
+         e.title AS "event_title", e.eventDate AS "event_eventDate", e.type AS "event_type"
        FROM "AgendaItem" ai
        LEFT JOIN "Hymn" h ON ai.type = 'hymn' AND h.number = ai.refId
        LEFT JOIN "Member" m ON (ai.type = 'speaker' OR ai.type = 'prayer') AND m.id = ai.refId
@@ -166,7 +168,7 @@ export async function listAgendas(filter: ListAgendaFilter = {}): Promise<Agenda
     }
   }
   const sql =
-    `SELECT * FROM "Agenda"` +
+    `SELECT ${selectAgendaColumns} FROM "Agenda"` +
     (where.length ? ` WHERE ${where.join(" AND ")}` : "") +
     " ORDER BY date DESC" +
     (filter.limit ? ` LIMIT ${Math.max(1, Math.min(500, filter.limit))}` : "");
@@ -186,7 +188,7 @@ export async function getNextPublishedAgenda(today: string): Promise<AgendaRow |
   const db = getDb();
   const row = (await db
     .prepare(
-      `SELECT * FROM "Agenda" WHERE status = 'published' AND date >= ?
+      `SELECT ${selectAgendaColumns} FROM "Agenda" WHERE status = 'published' AND date >= ?
        ORDER BY date ASC LIMIT 1`,
     )
     .get(today)) as RawAgendaRow | undefined;
@@ -229,7 +231,7 @@ export async function createAgenda(input: {
     }
   }
   const row = (await db
-    .prepare(`SELECT * FROM "Agenda" WHERE id = ?`)
+    .prepare(`SELECT ${selectAgendaColumns} FROM "Agenda" WHERE id = ?`)
     .get(id)) as RawAgendaRow | undefined;
   if (!row) throw new Error("No se pudo leer la agenda recién creada");
   return {
@@ -259,7 +261,7 @@ export async function updateAgenda(
   }
   if (!fields.length) {
     const existing = (await db
-      .prepare(`SELECT * FROM "Agenda" WHERE id = ?`)
+      .prepare(`SELECT ${selectAgendaColumns} FROM "Agenda" WHERE id = ?`)
       .get(id)) as RawAgendaRow | undefined;
     if (!existing) return null;
     return rowToAgenda(existing);
@@ -272,13 +274,13 @@ export async function updateAgenda(
     // Postgres path: 0 changes can be a no-op (same values) or a missing row.
     // Distinguish by re-SELECTing.
     const existing = (await db
-      .prepare(`SELECT * FROM "Agenda" WHERE id = ?`)
+      .prepare(`SELECT ${selectAgendaColumns} FROM "Agenda" WHERE id = ?`)
       .get(id)) as RawAgendaRow | undefined;
     if (!existing) return null;
     return rowToAgenda(existing);
   }
   const updated = (await db
-    .prepare(`SELECT * FROM "Agenda" WHERE id = ?`)
+    .prepare(`SELECT ${selectAgendaColumns} FROM "Agenda" WHERE id = ?`)
     .get(id)) as RawAgendaRow | undefined;
   return updated ? rowToAgenda(updated) : null;
 }
@@ -304,7 +306,7 @@ export async function transitionAgenda(
 > {
   const db = getDb();
   const current = (await db
-    .prepare(`SELECT * FROM "Agenda" WHERE id = ?`)
+    .prepare(`SELECT ${selectAgendaColumns} FROM "Agenda" WHERE id = ?`)
     .get(id)) as RawAgendaRow | undefined;
   if (!current) return { ok: false, reason: "not_found" };
 
@@ -320,7 +322,7 @@ export async function transitionAgenda(
     `UPDATE "Agenda" SET status = ?, updatedAt = CURRENT_TIMESTAMP WHERE id = ?`,
   ).run(to, id);
   const updated = (await db
-    .prepare(`SELECT * FROM "Agenda" WHERE id = ?`)
+    .prepare(`SELECT ${selectAgendaColumns} FROM "Agenda" WHERE id = ?`)
     .get(id)) as RawAgendaRow | undefined;
   if (!updated) return { ok: false, reason: "not_found" };
   return { ok: true, agenda: rowToAgenda(updated) };
@@ -347,10 +349,10 @@ export async function getAgendaItem(
   const row = (await db
     .prepare(
       `SELECT
-         ai.id, ai.agendaId, ai.type, ai."order", ai.refId, ai.note,
-         h.titleEs AS hymn_titleEs, h.titleEn AS hymn_titleEn,
-         m.firstName AS member_firstName, m.lastName AS member_lastName,
-         e.title AS event_title, e.eventDate AS event_eventDate, e.type AS event_type
+         ai.id, ai.agendaId AS "agendaId", ai.type, ai."order", ai.refId AS "refId", ai.note,
+         h.titleEs AS "hymn_titleEs", h.titleEn AS "hymn_titleEn",
+         m.firstName AS "member_firstName", m.lastName AS "member_lastName",
+         e.title AS "event_title", e.eventDate AS "event_eventDate", e.type AS "event_type"
        FROM "AgendaItem" ai
        LEFT JOIN "Hymn" h ON ai.type = 'hymn' AND h.number = ai.refId
        LEFT JOIN "Member" m ON (ai.type = 'speaker' OR ai.type = 'prayer') AND m.id = ai.refId

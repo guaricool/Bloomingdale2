@@ -42,16 +42,17 @@ function toPost(r: RawPostRow): PostRow {
 const SELECT_JOIN = `
   SELECT
     p.id          AS id,
-    p.authorId    AS authorId,
+    p.authorId    AS "authorId",
     p.title       AS title,
     p.body        AS body,
     p.pinned      AS pinned,
-    p.createdAt   AS createdAt,
-    u.name        AS authorName,
-    u.email       AS authorEmail,
-    u.role        AS authorRole
+    p.createdAt   AS "createdAt",
+    COALESCE(m.firstName || ' ' || m.lastName, u.email) AS "authorName",
+    u.email       AS "authorEmail",
+    u.role        AS "authorRole"
   FROM "Post" p
   JOIN "User" u ON u.id = p.authorId
+  LEFT JOIN "Member" m ON m.id = u.memberId
 `;
 
 /** Public read: latest 50 posts, pinned first. */

@@ -130,7 +130,7 @@ export function addDaysIso(s: string, days: number): string {
 // DB query helpers (use prepared statements; reuse across calls)
 // ---------------------------------------------------------------------------
 
-const selectColumns = `id, title, description, eventDate, type, createdBy, createdAt` as const;
+const selectColumns = `id, title, description, eventDate AS "eventDate", type, createdBy AS "createdBy", createdAt AS "createdAt"` as const;
 
 export async function getEventById(id: number): Promise<EventRow | null> {
   const row = (await getDb()

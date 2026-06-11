@@ -35,13 +35,13 @@ interface RawMemberRow {
 const SELECT_JOIN = `
   SELECT
     m.id              AS id,
-    m.firstName       AS firstName,
-    m.lastName        AS lastName,
-    m.membershipNumber AS membershipNumber,
-    m.familyGroupId   AS familyGroupId,
-    fg.name           AS familyGroupName,
-    m.createdAt       AS createdAt,
-    m.updatedAt       AS updatedAt
+    m.firstName       AS "firstName",
+    m.lastName        AS "lastName",
+    m.membershipNumber AS "membershipNumber",
+    m.familyGroupId   AS "familyGroupId",
+    fg.name           AS "familyGroupName",
+    m.createdAt       AS "createdAt",
+    m.updatedAt       AS "updatedAt"
   FROM "Member" m
   LEFT JOIN "FamilyGroup" fg ON fg.id = m.familyGroupId
 `;
@@ -98,12 +98,12 @@ export async function listMembers(
     limit === -1
       ? ((await db
           .prepare(
-            `${SELECT_JOIN} ${whereSql} ORDER BY m.lastName COLLATE NOCASE ASC, m.firstName COLLATE NOCASE ASC`,
+            `${SELECT_JOIN} ${whereSql} ORDER BY LOWER(m.lastName) ASC, LOWER(m.firstName) ASC`,
           )
           .all(...params)) as RawMemberRow[])
       : ((await db
           .prepare(
-            `${SELECT_JOIN} ${whereSql} ORDER BY m.lastName COLLATE NOCASE ASC, m.firstName COLLATE NOCASE ASC LIMIT ? OFFSET ?`,
+            `${SELECT_JOIN} ${whereSql} ORDER BY LOWER(m.lastName) ASC, LOWER(m.firstName) ASC LIMIT ? OFFSET ?`,
           )
           .all(...params, limit, offset)) as RawMemberRow[]);
 
@@ -227,8 +227,8 @@ export async function searchMembers(
           OR membershipNumber LIKE ?
        ORDER BY
          CASE WHEN LOWER(firstName) = ? OR LOWER(lastName) = ? THEN 0 ELSE 1 END,
-         lastName COLLATE NOCASE ASC,
-         firstName COLLATE NOCASE ASC
+         LOWER(lastName) ASC,
+         LOWER(firstName) ASC
        LIMIT ?`,
     )
     .all(term, term, term, exact, exact, limit)) as {
