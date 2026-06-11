@@ -1,0 +1,520 @@
+version: 1
+plan:
+  name: 'Bloomingdale2 v0.1 — construcción del MVP'
+  max_concurrency: 4
+  max_consecutive_failures: 2
+  max_cycles: 12
+  auto_reject_retries: 1
+  verifier_config:
+    default_verifiers: [verifier]
+    audit_sample_rate: 0.0
+tasks:
+  - id: foundation-bootstrap
+    title: 'Bootstrap: Next.js + Tailwind + SQLite + Auth.js + schema completo + seed de himnos'
+    prompt: |
+      TAREA FUNDACIONAL. Lee primero el spec completo: `docs/spec/v0.1-mvp.md` (en este worktree, en la rama `wt/d855b2e5`). Ahí está el modelo de datos, el stack, y los criterios de aceptación.
+
+      Workdir: la raíz de este worktree (donde está `AGENTS.md`, `README.md`, `docs/`). NO crees un subdirectorio, todo va a la raíz.
+
+      ## Entregables
+
+      1. **Proyecto Next.js 14 (App Router) + TypeScript** inicializado en la raíz del worktree. NO dentro de un subdirectorio.
+      2. **Tailwind CSS** configurado y funcional.
+      3. **SQLite con `better-sqlite3`**. Sistema de migraciones simple: archivos SQL en `db/migrations/` numerados, runner en `npm run db:migrate`.
+      4. **TODAS las tablas del spec sección 6** en la migración inicial:
+         - `User` (id, email, passwordHash, role, memberId?, createdAt, updatedAt)
+         - `Member` (id, firstName, lastName, membershipNumber?, familyGroupId?, createdAt, updatedAt)
+         - `FamilyGroup` (id, name, headMemberId?, createdAt)
+         - `Agenda` (id, date [unique, debe ser domingo], status, createdBy, createdAt, updatedAt)
+         - `AgendaItem` (id, agendaId, type, order, refId, note?)
+         - `Hymn` (number [PK 1-341], titleEs, titleEn?)
+         - `Event` (id, title, description?, eventDate, type, createdBy, createdAt)
+         - `DiscourseLog` (id, memberId, agendaId, discourseDate, topic?)
+      5. **Seed de himnos** (`npm run db:seed`): los 341 himnos en español. Estrategia:
+         - Intenta primero con `webfetch` a `https://www.churchofjesuschrist.org/media/music/collections/hymns?lang=spa` para obtener la lista. Si funciona, parsea número y título.
+         - Si falla o devuelve <341, hardcodea al menos 20 himnos conocidos (1="El alba rompe", 2="El alma que al Señor sirve en justicia", 3="Gloria a Dios", etc.) y deja un TODO claro en el seed: "completar los 341 himnos".
+         - El formato: `{number, titleEs, titleEn?}`.
+         - El seed debe ser **idempotente** (puede correr varias veces sin duplicar).
+      6. **Auth.js (NextAuth v5)** con credentials provider, JWT sessions, `role` y `memberId` en la sesión. Endpoints de `/login`, `/register`. El primer usuario registrado se vuelve admin automáticamente.
+      7. **Páginas base**:
+         - `/` → si logueado redirige a `/dashboard`, si no a `/login`
+         - `/login` — formulario de login
+         - `/register` — formulario de registro
+         - `/dashboard` — placeholder por ahora (algo como "Hola {nombre}, bienvenido a Bloomingdale2")
+         - `/api/health` — endpoint simple que devuelve `{"ok": true}`
+      8. **Layout base** con:
+         - Navbar superior: logo "Bloomingdale 2", menú (Dashboard, Miembros, Agendas, Eventos), usuario logueado + logout
+         - El link "Admin" en el navbar solo aparece si el usuario tiene `role === 'admin'`. Por ahora apunta a `/dashboard` (los módulos siguientes lo llenan).
+         - Footer mínimo
+         - **Todo en español** (es-MX)
+      9. **package.json scripts**: `dev`, `build`, `start`, `lint`, `typecheck`, `db:migrate`, `db:seed`, `db:reset` (este último borra el archivo DB y corre migrate + seed — útil para dev).
+      10. **Dependencias en `package.json` desde el inicio** (para que las tareas siguientes no peleen por el lock):
+          - `next` ^14, `react`, `react-dom`
+          - `typescript`, `@types/node`, `@types/react`, `@types/react-dom`
+          - `tailwindcss`, `postcss`, `autoprefixer`
+          - `better-sqlite3`, `@types/better-sqlite3`
+          - `next-auth` ^5
+          - `bcryptjs`, `@types/bcryptjs` (bcryptjs, NO bcrypt — más portable en Windows)
+          - `zod`
+          - `date-fns`, `date-fns-tz`
+          - `clsx` (para clases condicionales)
+          - `eslint`, `eslint-config-next`
+      11. **`.env.example`** con: `NEXTAUTH_SECRET=`, `NEXTAUTH_URL=http://localhost:3000`, `DATABASE_URL=./data/bloomingdale.db`. **NO** commitear `.env` real.
+      12. **`.gitignore`** ya existe; verifica que cubre: `node_modules/`, `.next/`, `data/`, `.env*` (excepto `.env.example`), `*.log`, `.mavis/`.
+      13. **README.md** breve: cómo instalar (`npm install`), migrar (`npm run db:migrate`), seed (`npm run db:seed`), correr dev (`npm run dev`), y la cuenta del primer admin creado.
+      14. **`db/schema.sql`** o equivalente con el DDL completo, generado desde la migración, para referencia.
+
+      ## Constraints (HARD)
+
+      - **NO PII en fixtures, seeds, ni ejemplos**. Usa "Hermano García", "Hermana López", "secretario@test.com" — nada real.
+      - **NO commitear `.env`**, `.env.local`, ni la DB SQLite (`data/` ya está en .gitignore).
+      - Todo en español (es-MX). Identifiers, código y comentarios técnicos en inglés está OK; copy de UI, mensajes al usuario, nombres de páginas, TODO.
+      - Commits a la rama `wt/d855b2e5` con mensajes en español.
+      - **NO pushear a `origin`**.
+      - **NO tocar `main`**.
+      - Usa `bcryptjs` (no `bcrypt`) por portabilidad en Windows.
+      - Tailwind para TODO el styling. No agregues otra UI library.
+
+      ## Stop condition (verifica todo antes de marcar como done)
+
+      - `npm install` completa sin errores
+      - `npm run db:migrate` crea la DB con las 8 tablas
+      - `npm run db:seed` puebla himnos (mínimo 20, idealmente 341)
+      - `npm run dev` arranca el servidor, `/login` renderiza en español con Tailwind, `/register` idem
+      - Registras un usuario, se loguea, redirige a `/dashboard` y muestra "Hola {nombre}"
+      - `npm run build` completa
+      - `npm run lint` pasa
+      - `npm run typecheck` pasa
+      - Todos los cambios commiteados a `wt/d855b2e5` con mensaje claro
+      - Reporte: archivos creados, versiones de Next.js / better-sqlite3 / next-auth, número de himnos seedeados, # de tablas, ejemplo de curl que prueba el login.
+    assigned_to: coder
+    verified_by: verifier
+    verify_prompt: |
+      Verifica la tarea fundacional **de forma independiente**, sin leer el resumen del coder.
+
+      1. Lee el spec: `docs/spec/v0.1-mvp.md`
+      2. Inspecciona el worktree: ¿existen `package.json`, `tsconfig.json`, `next.config.*`, `tailwind.config.*`, `.env.example`, `README.md`, `db/migrations/`, `app/` o `pages/`?
+      3. Corre `npm install` desde la raíz del worktree. Debe completar.
+      4. Borra el archivo de DB si existe. Corre `npm run db:migrate`. Debe crear las 8 tablas esperadas (User, Member, FamilyGroup, Agenda, AgendaItem, Hymn, Event, DiscourseLog). Usa `sqlite3 data/bloomingdale.db ".schema"` para verificar (o `better-sqlite3` desde un script Node).
+      5. Corre `npm run db:seed`. Cuenta himnos con `SELECT COUNT(*) FROM Hymn`. Debe ser ≥ 20. Idealmente 341.
+      6. Corre `npm run build`. Debe completar.
+      7. Corre `npm run lint`. Debe pasar.
+      8. Corre `npm run typecheck` (si el script existe). Debe pasar.
+      9. Arranca `npm run dev` en background, espera 3s, `curl -s http://localhost:3000/login` debe devolver HTML en español. Matar el servidor después.
+      10. Grep del seed por patrones de PII real: `git diff main..HEAD -- '*.sql' '*.ts' '*.js' | grep -E "(MRN|member[_-]?number[ ]*[:=][ ]*[0-9]{6,})"` — si hay matches con números reales, FAIL.
+      11. Verifica que `.env` y `data/` están en `.gitignore`.
+      12. Verifica que la rama actual es `wt/d855b2e5` y que los commits están ahí.
+
+      PASS si los 12 checks pasan. FAIL con el item exacto que falló.
+    max_retries: 2
+
+  - id: members-module
+    title: 'Módulo de miembros: CRUD + grupos familiares + búsqueda con auto-completado'
+    prompt: |
+      Construye el módulo de miembros sobre la fundación que ya está commiteada. Lee el spec: `docs/spec/v0.1-mvp.md` secciones F1, 5, 6, 7.
+
+      ## Entregables
+
+      1. **Server actions / API routes para `Member` CRUD**: create, read (uno), list (con paginación + filtro de búsqueda), update, delete.
+      2. **Server actions / API routes para `FamilyGroup` CRUD**: create, list, update, delete.
+      3. **Páginas admin** (solo `role === 'admin'`):
+         - `/admin/miembros` — listado con búsqueda, botones "Nuevo", "Editar", "Eliminar"
+         - `/admin/miembros/nuevo` — formulario de creación
+         - `/admin/miembros/[id]/editar` — formulario de edición
+         - `/admin/grupos-familiares` — gestión de grupos familiares
+      4. **Página de directorio** (cualquier usuario logueado):
+         - `/miembros` — vista de solo lectura, agrupada por grupo familiar
+      5. **Endpoint de búsqueda con auto-completado**: `GET /api/miembros/buscar?q=...` — devuelve hasta 10 matches por firstName, lastName o membershipNumber. JSON: `[{id, firstName, lastName, fullName, membershipNumber}]`. Usado por otros módulos (agendas) para auto-completar discursantes.
+      6. **Endpoint para crear miembro inline** (usado por agendas): `POST /api/miembros/rapido` con `{firstName, lastName, membershipNumber?}`. Devuelve el miembro creado. Pensado para que el admin pueda "agregar a un hermano que no está" sin salir del formulario de agenda.
+      7. **Validación con zod**: `firstName` y `lastName` requeridos; `membershipNumber` opcional pero si presente debe ser solo dígitos.
+      8. **Authz**: TODOS los endpoints admin verifican `role === 'admin'`. Si no, devuelven 403 (API) o redirigen a `/dashboard` (páginas).
+      9. **UI en español** (es-MX), Tailwind, consistente con el layout base. El link "Admin → Miembros" aparece en el navbar solo si eres admin.
+      10. **Forms con react-hook-form + zod**, errores en español, focus management, accesibilidad básica.
+
+      ## Constraints
+
+      - Sin PII en fixtures o seeds.
+      - Commits a `wt/d855b2e5` con mensaje en español.
+      - **NO pushear a `origin`**. **NO tocar `main`**.
+      - Si necesitas una dep nueva que la fundación no incluyó, agrégala con `npm install <pkg>` y commitea el `package.json` y `package-lock.json`. Si dos tareas modifican `package.json` en paralelo, el verifier detectará el conflicto y reportará.
+
+      ## Stop condition
+
+      - Como admin: `/admin/miembros` lista, puedes crear, editar, eliminar. Probaste con al menos 3 miembros sintéticos.
+      - Como admin: `/admin/grupos-familiares` funciona.
+      - Como miembro (no admin): `/miembros` se ve; intentar `/admin/miembros` da 403.
+      - `/api/miembros/buscar?q=jua` devuelve matches de "Juan" o similar.
+      - `/api/miembros/rapido` crea un miembro y lo devuelve.
+      - `npm run build`, `lint`, `typecheck` pasan.
+      - Commits en `wt/d855b2e5`.
+      - Reporte: archivos nuevos, archivos modificados, pasos manuales verificados, ejemplo de curl.
+    assigned_to: coder
+    depends_on: [foundation-bootstrap]
+    verified_by: verifier
+    verify_prompt: |
+      Verifica el módulo de miembros de forma independiente.
+
+      1. Lee el spec: secciones F1, 6.
+      2. Lee los archivos creados por el coder.
+      3. `npm install` (si hubo deps nuevas), `npm run build`, `lint`, `typecheck` — todos deben pasar.
+      4. Arranca `npm run dev` en background.
+      5. Crea un admin si no existe (registra el primer usuario).
+      6. Como admin (login + cookie):
+         - `GET /admin/miembros` → 200
+         - `POST` un miembro nuevo (vía la página o curl) → 200/201, aparece en la lista
+         - `PUT` / update → cambio reflejado
+         - `GET /api/miembros/buscar?q=<parcial>` → JSON con matches
+         - `POST /api/miembros/rapido` con `{firstName, lastName}` → 200 con el miembro
+         - `DELETE` → desaparece
+      7. Crea un usuario no-admin (registra un segundo). Como no-admin:
+         - `GET /admin/miembros` → 403
+         - `GET /miembros` → 200
+      8. Grep por PII en el código: FAIL si hay emails/números reales de miembros.
+
+      PASS si todo pasa. FAIL con el item.
+    max_retries: 2
+
+  - id: agendas-module
+    title: 'Módulo de agendas: CRUD + himnos + display + transiciones de estado'
+    prompt: |
+      Construye el módulo de agendas sobre la fundación. Lee el spec: `docs/spec/v0.1-mvp.md` secciones F2, F3, 5, 6, 7.
+
+      **Contrato inter-módulo (importante)**: la tarea `events-module` proveerá un endpoint `GET /api/eventos/anuncios-pendientes?fecha=YYYY-MM-DD` que devuelve la lista de eventos que deben ser anunciados en ese domingo. TÚ (`agendas-module`) lo consumes cuando el admin abre el editor de agenda para pre-rellenar los anuncios. Si el endpoint no existe al momento de integrar (carrera paralela con events-module), usa un fallback que devuelve `[]` y deja un TODO.
+
+      ## Entregables
+
+      1. **Server actions / API routes para `Agenda` CRUD**:
+         - `POST /api/agendas` — crear agenda para una fecha (validar que sea domingo; si no, 400)
+         - `GET /api/agendas` — listar agendas (con filtro por status, rango de fecha)
+         - `GET /api/agendas/[id]` — leer una agenda completa (con todos sus items)
+         - `PUT /api/agendas/[id]` — actualizar
+         - `DELETE /api/agendas/[id]` — eliminar (solo si status === 'draft')
+         - `POST /api/agendas/[id]/publicar` — transición `draft` → `published`
+         - `POST /api/agendas/[id]/completar` — transición `published` → `completed` (dispara la lógica de discourse-tracking cuando esa tarea exista; por ahora solo cambia status)
+      2. **Server actions / API routes para `AgendaItem`**:
+         - `POST /api/agendas/[id]/items` — agregar item (hymn, speaker, prayer, announcement)
+         - `PUT /api/agendas/[id]/items/[itemId]` — actualizar (orden, contenido)
+         - `DELETE /api/agendas/[id]/items/[itemId]` — eliminar
+         - `POST /api/agendas/[id]/items/reordenar` — bulk update de `order` después de drag-and-drop
+      3. **Páginas admin** (solo admin):
+         - `/admin/agendas` — listado con filtros (próximas, pasadas, por status)
+         - `/admin/agendas/nueva` — wizard de creación: elegir fecha (selector; deshabilita no-domingos) → redirige a `/admin/agendas/[id]/editar`
+         - `/admin/agendas/[id]/editar` — editor drag-and-drop de items
+         - `/admin/agendas/[id]/publicar` — botón para transicionar a `published` (con confirm)
+         - `/admin/agendas/[id]/completar` — botón para transicionar a `completed` (con confirm)
+      4. **Endpoints de himnos**:
+         - `GET /api/himnos/[number]` — devuelve `{number, titleEs, titleEn}` o 404 si no existe
+         - `GET /api/himnos/buscar?q=...` — búsqueda por número o título, hasta 10 matches
+      5. **UX de himnos en el editor**:
+         - Input numérico → al perder foco o después de 300ms, llama `/api/himnos/[number]` → muestra el título autocompletado al lado. Si el número no existe (404), muestra error "Himno no encontrado".
+      6. **UX de discursantes en el editor**:
+         - Input de nombre → llama `/api/miembros/buscar?q=...` (del módulo members) → muestra dropdown con matches.
+         - Si no hay match, muestra un botón "Agregar a Hermano X" que llama `/api/miembros/rapido` y luego selecciona al recién creado.
+      7. **Estructura del editor de agenda** (orden sugerido, ver spec F2):
+         1. Himno de apertura
+         2. Invocación
+         3. Anuncios (auto-poblados desde `/api/eventos/anuncios-pendientes?fecha=...` + manuales que el admin agregue)
+         4. Primer discurso (hermano + tema)
+         5. Himno intermedio / sacramental
+         6. Segundo discurso (hermano + tema)
+         7. Himno de cierre
+         8. Bendición
+         Cada item es drag-and-drop reordenable dentro de su slot.
+      8. **Vista pública de agenda**:
+         - `/agendas/[id]` — renderiza la agenda completa con su estructura. La usa también el dashboard del miembro (esa tarea la construye).
+         - `/agendas/hoy` — redirige a la agenda del domingo actual si existe, o al próximo domingo con agenda publicada.
+      9. **Validaciones**:
+         - Fecha debe ser domingo (rechazar con 400)
+         - `number` de himno debe estar entre 1 y 341
+         - Speaker debe referenciar un `Member` existente
+         - Status solo transiciona: `draft → published → completed` (no se puede des-publicar)
+      10. **UI en español**, Tailwind, consistente con el layout base.
+
+      ## Constraints
+
+      - Sin PII en fixtures.
+      - Commits a `wt/d855b2e5`.
+      - **NO pushear a `origin`**.
+
+      ## Stop condition
+
+      - Crear agenda para el próximo domingo funciona.
+      - Agregar himno (probar número 1) autocompleta el título.
+      - Agregar discursante: búsqueda funciona; si no existe, se crea y se selecciona.
+      - Domingo-only: intentar fecha lunes → 400.
+      - Drag-and-drop reordena items.
+      - Publicar → status cambia.
+      - `/agendas/hoy` muestra la agenda del domingo actual o el próximo.
+      - `npm run build`, `lint`, `typecheck` pasan.
+      - Commits hechos. Reporte completo.
+    assigned_to: coder
+    depends_on: [foundation-bootstrap]
+    verified_by: verifier
+    verify_prompt: |
+      Verifica el módulo de agendas de forma independiente.
+
+      1. Lee el spec: F2, F3, 6.
+      2. Lee los archivos del coder.
+      3. `npm install` (si hubo deps), `build`, `lint`, `typecheck` — todos pasan.
+      4. Arranca `npm run dev`.
+      5. Como admin:
+         - Crea un miembro de prueba (sintético).
+         - Crea una agenda para el próximo domingo.
+         - Agrega himno de apertura (número 1) — verifica autocompletado del título.
+         - Agrega speaker buscándolo por nombre — verifica selección.
+         - Intenta crear agenda para un lunes — debe rechazar (400 o mensaje de error).
+         - Publica la agenda — verifica status.
+         - `GET /agendas/hoy` debe devolver la agenda.
+         - `GET /agendas/[id]` debe devolver la agenda completa.
+      6. Como no-admin: `GET /admin/agendas` → 403.
+
+      PASS o FAIL con detalle.
+    max_retries: 2
+
+  - id: events-module
+    title: 'Módulo de eventos: CRUD + endpoint de anuncios pendientes por domingo'
+    prompt: |
+      Construye el módulo de eventos sobre la fundación. Lee el spec: `docs/spec/v0.1-mvp.md` secciones F4, 5, 6, 7.
+
+      **Tu responsabilidad principal es doble**: (1) CRUD de eventos, y (2) la query que dice "qué eventos deben ser anunciados en el domingo X". El módulo `agendas-module` consume este endpoint para auto-rellenar la sección de anuncios.
+
+      ## Entregables
+
+      1. **Server actions / API routes para `Event` CRUD**:
+         - `POST /api/eventos` — crear evento. Body: `{title, description?, eventDate, type}`. Validar `eventDate` con zod (ISO date, no en el pasado lejano — permitir al menos 1 día en el pasado para correcciones).
+         - `GET /api/eventos` — listar (filtros: rango de fecha, tipo, upcoming/past)
+         - `GET /api/eventos/[id]` — leer uno
+         - `PUT /api/eventos/[id]` — actualizar
+         - `DELETE /api/eventos/[id]` — eliminar (cascade a los AgendaItem de tipo announcement que referencian este evento; o soft-delete, tu decisión — documenta en el código)
+      2. **Endpoint crítico de anuncios pendientes**:
+         - `GET /api/eventos/anuncios-pendientes?fecha=YYYY-MM-DD`
+         - Lógica: dado un domingo (parámetro `fecha`), devuelve todos los eventos donde `eventDate` es **posterior** a `fecha` Y `eventDate <= próximo domingo + 7 días` (o algún límite razonable — tu decides, pero documéntalo). Esto da los eventos que faltan por anunciar.
+         - El módulo `agendas-module` llama este endpoint cuando el admin abre el editor de agenda del domingo X, y pre-rellena los anuncios.
+         - Response: `[{id, title, description, eventDate, type}]`
+      3. **Páginas admin**:
+         - `/admin/eventos` — listado con filtros (próximos / pasados)
+         - `/admin/eventos/nuevo` — formulario
+         - `/admin/eventos/[id]/editar` — edición
+      4. **Insertar anuncio en agenda existente** (cuando se crea un evento):
+         - En el `POST /api/eventos` handler, después de crear el evento, busca todas las agendas publicadas o en draft cuya fecha esté entre HOY y la fecha del evento (inclusive), que sean domingo. Para cada una, verifica que no exista ya un `AgendaItem` con `type='announcement'` y `refId=eventId` (idempotencia). Si no existe, crea el `AgendaItem` con `type='announcement'`, `refId=eventId`, `order=0` (al inicio de la sección de anuncios).
+         - **Si al momento de ejecutar no existe el módulo `agendas-module`** (carrera paralela), loggea un warning y deja un TODO. La idea es que cuando se ejecute después de `agendas-module`, la integración funcione.
+      5. **Expiración automática**:
+         - La query de "anuncios pendientes" filtra por `eventDate >= fecha del domingo`. Cuando un evento ya pasó, ya no aparece como anuncio para los domingos siguientes. No hace falta un job que "limpie" — es solo una query con filtro.
+      6. **UI en español**, Tailwind.
+
+      ## Constraints
+
+      - Sin PII.
+      - Commits a `wt/d855b2e5`.
+      - **NO pushear a `origin`**.
+
+      ## Stop condition
+
+      - CRUD de eventos funciona.
+      - `GET /api/eventos/anuncios-pendientes?fecha=<domingo futuro>` devuelve los eventos que se anunciarían ese domingo.
+      - Al crear un evento con `eventDate` futuro, el endpoint debe listarlo correctamente.
+      - `npm run build`, `lint`, `typecheck` pasan.
+      - Reporte completo con ejemplos de curl.
+    assigned_to: coder
+    depends_on: [foundation-bootstrap]
+    verified_by: verifier
+    verify_prompt: |
+      Verifica el módulo de eventos independientemente.
+
+      1. Lee el spec F4, 6.
+      2. `build`, `lint`, `typecheck` pasan.
+      3. Arranca `npm run dev`.
+      4. Como admin:
+         - `POST /api/eventos` con `eventDate` 30 días en el futuro → 200/201
+         - `GET /api/eventos` → debe listar el creado
+         - `GET /api/eventos/anuncios-pendientes?fecha=<próximo domingo>` → debe incluir el evento creado
+         - `GET /api/eventos/anuncios-pendientes?fecha=<domingo después del evento>` → NO debe incluirlo
+      5. Como no-admin: `GET /admin/eventos` → 403.
+
+      PASS o FAIL con detalle.
+    max_retries: 2
+
+  - id: discourse-tracking
+    title: 'Tracking de discursos + dashboard admin (panel de control)'
+    prompt: |
+      Construye el tracking de discursos y el dashboard admin. Lee el spec: `docs/spec/v0.1-mvp.md` secciones F5, 5, 6, 7.
+
+      **Depende de**: `agendas-module` (para saber cuándo una agenda pasa a `completed`) y `members-module` (para tener el directorio).
+
+      ## Entregables
+
+      1. **Lógica de creación de `DiscourseLog` en transición a `completed`**:
+         - En el endpoint `POST /api/agendas/[id]/completar` (que el módulo agendas ya creó), después de cambiar el status, busca todos los `AgendaItem` de esa agenda con `type='speaker'`. Para cada uno, crea un `DiscourseLog` con `memberId=refId`, `agendaId=id`, `discourseDate=agenda.date`, `topic=note` (el tema que el admin metió como nota del item).
+         - Idempotente: si ya existe un `DiscourseLog` con `agendaId=id` y `memberId=refId`, no crear duplicado.
+         - Si la tarea `agendas-module` no contempló este hook, **edita el archivo del handler `completar`** para agregar la lógica. Documenta el cambio.
+      2. **API de discursos**:
+         - `GET /api/discursos` — lista de TODOS los miembros con sus stats:
+           ```json
+           {
+             "miembros": [
+               {"id": 1, "nombre": "Hermano García", "ultimoDiscurso": "2026-05-10", "totalDiscursos": 3, "diasSinDiscursar": 30},
+               {"id": 2, "nombre": "Hermana López", "ultimoDiscurso": null, "totalDiscursos": 0, "diasSinDiscursar": null}
+             ]
+           }
+           ```
+           `diasSinDiscursar` se calcula contra la fecha actual.
+         - `GET /api/discursos/candidatos` — ordenado por `diasSinDiscursar` desc (los que más tiempo llevan sin hablar primero; los que nunca han discursado aparecen con `diasSinDiscursar=null` y van al tope).
+         - Filtros via query params: `?soloNunca=true`, `?masDeMeses=3`, `?limite=10`.
+      3. **Dashboard admin `/admin/panel`**:
+         - **Top**: "Discursantes recientes" — últimos 4 domingos con sus speakers (lista de las últimas 4 agendas completadas).
+         - **Medio**: "Candidatos a invitar" — top 10 miembros ordenados por tiempo sin discursar. Cada uno con un botón "Copiar info" que copia nombre + tema sugerido al portapapeles (para que el admin lo mande por WhatsApp después).
+         - **Abajo**: Stats — total miembros, total discursos, promedio de discursos por miembro, distribución "nunca / 0-3 meses / 3-6 meses / 6+ meses".
+      4. **UI en español**, Tailwind. Solo accesible para admin (authz).
+      5. **Gráficos simples** (opcional pero nice): usa SVG inline o una lib ligera como `recharts` (si la fundación no la incluyó, agrégala a `package.json`). Gráfico de barras para la distribución, pie para los rangos.
+
+      ## Constraints
+
+      - Sin PII.
+      - Commits a `wt/d855b2e5`.
+
+      ## Stop condition
+
+      - Marcar una agenda con 2 speakers como `completed` crea 2 filas en `DiscourseLog`.
+      - `GET /api/discursos` devuelve los 2 miembros con stats correctos.
+      - `GET /api/discursos/candidatos` los ordena correctamente.
+      - `/admin/panel` renderiza con las 3 secciones.
+      - Filtros funcionan.
+      - `build`, `lint`, `typecheck` pasan.
+    assigned_to: coder
+    depends_on: [agendas-module, members-module]
+    verified_by: verifier
+    verify_prompt: |
+      1. Lee el spec F5.
+      2. `build`, `lint`, `typecheck`.
+      3. Crea un admin + 2 miembros + 1 agenda con 2 speakers, publícala, márcala completada.
+      4. `GET /api/discursos` debe devolver los 2 miembros con `ultimoDiscurso` = fecha de la agenda.
+      5. `GET /api/discursos/candidatos` los ordena.
+      6. `GET /admin/panel` renderiza con las 3 secciones.
+      7. Como no-admin: 403.
+
+      PASS o FAIL.
+    max_retries: 2
+
+  - id: member-dashboard
+    title: 'Dashboard del miembro + vista de agenda con pop-up de himnos + polling 30s'
+    prompt: |
+      Construye la vista del miembro y la vista completa de agenda con pop-up de himnos. Lee el spec: `docs/spec/v0.1-mvp.md` secciones F3 (display), F6, 5, 7.
+
+      **Depende de**: `agendas-module` (datos de agenda), `events-module` (anuncios auto), `members-module` (directorio).
+
+      ## Entregables
+
+      1. **`/dashboard`** — vista principal del usuario logueado (cualquier rol):
+         - **Sección "Hoy"** o "Próximo domingo" — la agenda actual o próxima. Muestra: himno de apertura, anuncios (con badge si son auto-generados desde eventos), primer discurso (nombre + tema), himno intermedio, segundo discurso, himno de cierre, invocación y bendición. Cada himno es un botón que abre el pop-up (ver punto 3).
+         - **Sección "Eventos próximos"** — top 5 eventos futuros ordenados por fecha, con link a descripción.
+         - **Sección "Himnos"** — buscador por número, autocompleta el título al encontrar.
+         - **Sección "Miembros"** — link a `/miembros`.
+         - Si el usuario es admin, muestra también un banner con link a `/admin/panel`.
+      2. **`/agendas/[id]`** — vista completa de una agenda. Estructura limpia, mobile-friendly, en español. Cada himno es un botón. Anuncios se pueden expandir para ver descripción. Speeches muestran nombre + tema.
+      3. **Pop-up de himno** (modal):
+         - Al hacer click en un himno, abre un modal centered con:
+           - Título del himno (de la tabla Hymn)
+           - iframe a `https://www.churchofjesuschrist.org/media/music/collections/hymns?lang=spa&number={N}` (puede que el sitio bloquee el iframe por X-Frame-Options; maneja el caso con un fallback)
+           - Botón de cerrar (X) en la esquina
+           - Link "Abrir en pestaña nueva" como fallback siempre visible
+         - Si el iframe falla (evento `error` o timeout de 5s sin cargar), muestra un mensaje "El sitio oficial no permite incrustar. Haz click en 'Abrir en pestaña nueva'." y oculta el iframe.
+         - Accesibilidad: focus trap en el modal, ESC para cerrar, `aria-modal`, `role="dialog"`.
+      4. **Polling de 30 segundos**:
+         - La página `/agendas/[id]` hace `fetch('/api/agendas/[id]')` cada 30s y reemplaza la data en el cliente (React state).
+         - Muestra un indicador pequeño "Última actualización: HH:MM:SS" que se actualiza con cada poll.
+         - Si el admin agregó un anuncio nuevo, el miembro lo ve en menos de 30s sin recargar.
+         - Implementa con `useEffect` + `setInterval`, cleanup al desmontar.
+      5. **UI en español, Tailwind, mobile-first**. Consistente con el layout base.
+
+      ## Constraints
+
+      - Sin PII.
+      - Commits a `wt/d855b2e5`.
+
+      ## Stop condition
+
+      - `/dashboard` renderiza para un usuario logueado (miembro o admin).
+      - `/agendas/[id]` muestra la agenda completa en orden.
+      - Click en himno abre el modal; el iframe carga (o el fallback funciona).
+      - ESC cierra el modal; click en backdrop también.
+      - Polling funciona: con un admin agregando un anuncio, el miembro lo ve en <30s.
+      - `build`, `lint`, `typecheck` pasan.
+    assigned_to: coder
+    depends_on: [agendas-module, events-module]
+    verified_by: verifier
+    verify_prompt: |
+      1. Lee el spec F3 (display), F6.
+      2. `build`, `lint`, `typecheck`.
+      3. Login como miembro.
+      4. `GET /dashboard` → renderiza con las secciones esperadas.
+      5. Click en una agenda → renderiza `/agendas/[id]`.
+      6. Click en un himno → modal abre (puede que el iframe esté bloqueado; verifica que el modal aparece y el fallback link está visible).
+      7. ESC cierra el modal.
+      8. Como admin, agrega un anuncio a esa agenda. Espera 30-35s. Verifica que el dashboard del miembro lo refleja.
+
+      PASS o FAIL.
+    max_retries: 2
+
+  - id: final-e2e-gate
+    title: 'Gate final: smoke test E2E + build + lint + typecheck'
+    role: verify-as-task
+    prompt: |
+      GATE FINAL. Corre el smoke test end-to-end del MVP completo. Esta tarea es verify-as-task: tu output es el veredicto PASS/FAIL con evidencia.
+
+      Lee el spec: `docs/spec/v0.1-mvp.md` sección 8 (done criteria).
+
+      ## Pasos
+
+      1. **Fresh install**:
+         - `rm -rf node_modules data/bloomingdale.db .next`
+         - `npm install` — debe completar
+         - `npm run db:migrate` — debe crear las 8 tablas
+         - `npm run db:seed` — debe seedear himnos (≥20; ideal 341)
+         - `npm run build` — debe completar
+         - `npm run lint` — debe pasar
+         - `npm run typecheck` — debe pasar
+
+      2. **Arranca el dev server** en background. `curl http://localhost:3000/api/health` debe devolver `{"ok": true}`.
+
+      3. **Smoke E2E** (usa playwright si está disponible; si no, curl + cookies):
+         a. Registra el primer usuario `secretario@test.com` — debe quedar como admin.
+         b. Login como admin.
+         c. Crea 2 miembros: "Hermano García" y "Hermana López".
+         d. Crea un evento "La Noche Internacional" con `eventDate` 30 días en el futuro (debe ser un domingo cercano o el admin pone una fecha que tenga ≥1 domingo entre hoy y ella).
+         e. Verifica que el evento aparece como anuncio en `/api/eventos/anuncios-pendientes?fecha=<domingo entre hoy y el evento>`.
+         f. Crea una agenda para el próximo domingo.
+         g. Agrega himno de apertura (número 1) — verifica autocompletado del título.
+         h. Agrega primer discurso con "Hermano García" (vía búsqueda).
+         i. Agrega himno intermedio (número 50).
+         j. Agrega segundo discurso con "Hermana López".
+         k. Agrega himno de cierre (número 100).
+         l. Agrega invocación y bendición (cualquier nombre).
+         m. Publica la agenda.
+         n. Como un usuario miembro (registra un segundo user), entra a `/dashboard`. Verifica que la agenda del domingo aparece.
+         o. Entra a `/agendas/[id]`. Click en un himno. Verifica que el modal abre (con iframe o fallback).
+         p. Como admin, marca la agenda como `completed`. Verifica que `DiscourseLog` tiene 2 filas (una por cada speaker).
+         q. Entra a `/admin/panel`. Verifica que "Discursantes recientes" muestra la agenda recién completada y "Candidatos a invitar" lista a los miembros.
+
+      4. **Privacidad y secrets**:
+         - `git log --all --pretty=format: -p | grep -E "(\.env|MRN|member[_-]?number[ ]*[:=][ ]*[0-9]{6,})"` — no debe haber leaks.
+         - `.env` debe estar en `.gitignore`.
+         - `data/` debe estar en `.gitignore`.
+
+      5. **Branch hygiene**:
+         - Estás en `wt/d855b2e5`, no en `main`.
+         - No has pusheado a `origin`.
+         - Hay al menos 6 commits (uno por tarea + foundation).
+
+      6. **Reporta**:
+         - PASS o FAIL.
+         - Lista de los 7 pasos con ✅/❌ por cada uno.
+         - Versión final de Next.js, better-sqlite3, next-auth.
+         - # de tablas, # de himnos, # de miembros creados en el test, # de filas en DiscourseLog.
+         - # total de líneas de código agregadas (`git diff --stat 4b825dc642cb6eb9a060e54bf8d69288fbee4904..HEAD | tail -1`).
+         - # de commits en la rama.
+         - Lista de issues pendientes o follow-ups (cosas que NO pasaron o que detectaste como mejorables).
+
+      **Si algún paso falla**, reporta FAIL con la causa raíz. **No intentes fixear** — el owner decide.
+    assigned_to: verifier
+    depends_on: [discourse-tracking, member-dashboard]
+    max_retries: 1
