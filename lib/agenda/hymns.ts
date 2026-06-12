@@ -37,33 +37,38 @@ export async function searchHymns(q: string, limit = 10): Promise<HymnRow[]> {
   if (!trimmed) return [];
 
   const num = Number(trimmed);
+  const isNum = Number.isInteger(num) && num > 0;
+
   const conditions: string[] = [];
   const params: unknown[] = [];
-  if (Number.isInteger(num) && num > 0) {
+
+  if (isNum) {
     conditions.push("number = ?");
     params.push(num);
-  }
-  // Add a partial-number match: "10" should also surface 100, 101, ...
-  if (Number.isInteger(num) && num > 0) {
-    // Cast number to text for prefix matching (works on SQLite)
+    // Partial-number match: "10" should also surface 100, 101, ...
     conditions.push("CAST(number AS TEXT) LIKE ?");
     params.push(`${num}%`);
   }
   conditions.push("LOWER(titlees) LIKE ?");
   params.push(`%${trimmed.toLowerCase()}%`);
 
+  // El ORDER BY prioriza el match exacto de número SOLO si buscamos número.
+  // Si no, ordenamos por número asc. Esto evita pasar NaN a Postgres.
+  const orderExact = isNum ? "CASE WHEN number = ? THEN 0 ELSE 1 END," : "";
+  const orderParams: unknown[] = isNum ? [num] : [];
+
   const sql = `
     SELECT number, titlees AS "titleEs", titleen AS "titleEn" FROM "Hymn"
     WHERE ${conditions.join(" OR ")}
     ORDER BY
-      CASE WHEN number = ? THEN 0 ELSE 1 END,
+      ${orderExact}
       number ASC,
       titlees ASC
     LIMIT ?
   `;
-  // First ? is the exact-match hint, repeated for ORDER BY.
+
   const rows = (await db
     .prepare(sql)
-    .all(num, ...params, Math.max(1, Math.min(50, limit)))) as RawHymn[];
+    .all(...params, ...orderParams, Math.max(1, Math.min(50, limit)))) as RawHymn[];
   return rows.map(toHymn);
 }

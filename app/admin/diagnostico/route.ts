@@ -58,5 +58,14 @@ export async function GET() {
     diag.schemaError = err instanceof Error ? err.message : String(err);
   }
 
+  try {
+    // 5. Probar searchHymns directamente (captura el error real)
+    const { searchHymns } = await import("@/lib/agenda/hymns");
+    const results = await searchHymns("2", 8);
+    diag.searchHymns2 = results;
+  } catch (err) {
+    diag.searchError = err instanceof Error ? `${err.message}\n${err.stack}` : String(err);
+  }
+
   return NextResponse.json(diag);
 }
