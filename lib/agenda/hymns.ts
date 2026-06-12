@@ -21,7 +21,7 @@ function toHymn(r: RawHymn): HymnRow {
 export async function getHymn(number: number): Promise<HymnRow | null> {
   const db = getDb();
   const row = (await db
-    .prepare(`SELECT number, titleEs AS "titleEs", titleEn AS "titleEn" FROM "Hymn" WHERE number = ?`)
+    .prepare(`SELECT number, titlees AS "titleEs", titleen AS "titleEn" FROM "Hymn" WHERE number = ?`)
     .get(number)) as RawHymn | undefined;
   return row ? toHymn(row) : null;
 }
@@ -49,16 +49,16 @@ export async function searchHymns(q: string, limit = 10): Promise<HymnRow[]> {
     conditions.push("CAST(number AS TEXT) LIKE ?");
     params.push(`${num}%`);
   }
-  conditions.push("LOWER(titleEs) LIKE ?");
+  conditions.push("LOWER(titlees) LIKE ?");
   params.push(`%${trimmed.toLowerCase()}%`);
 
   const sql = `
-    SELECT number, titleEs AS "titleEs", titleEn AS "titleEn" FROM "Hymn"
+    SELECT number, titlees AS "titleEs", titleen AS "titleEn" FROM "Hymn"
     WHERE ${conditions.join(" OR ")}
     ORDER BY
       CASE WHEN number = ? THEN 0 ELSE 1 END,
       number ASC,
-      titleEs ASC
+      titlees ASC
     LIMIT ?
   `;
   // First ? is the exact-match hint, repeated for ORDER BY.
