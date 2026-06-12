@@ -63,10 +63,10 @@ export async function POST(req: NextRequest) {
   const lastName = parts.length > 1 ? parts.slice(1).join(" ") : "—";
 
   const tx = db.transaction(async () => {
-    const memberResult = await db
-      .prepare(`INSERT INTO "Member" (firstName, lastName) VALUES (?, ?)`)
-      .run(firstName, lastName);
-    const memberId = Number(memberResult.lastInsertRowid);
+    const memberRows = await db
+      .prepare(`INSERT INTO "Member" (firstName, lastName) VALUES (?, ?) RETURNING id`)
+      .all(firstName, lastName);
+    const memberId = (memberRows[0] as { id: number }).id;
 
     await db.prepare(
       `INSERT INTO "User" (email, passwordHash, role, memberId) VALUES (?, ?, ?, ?)`,
