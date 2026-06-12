@@ -2,7 +2,7 @@
 // Re-run with: tsx scripts/hymns-fetch.ts
 // Source: https://www.churchofjesuschrist.org/study/manual/hymns?lang=spa
 // Generated at: 2026-06-11T01:01:38.001Z
-// Total entries: 209
+// Total entries: 281 (209 himnario tradicional + 72 Para el Hogar y la Iglesia)
 
 export interface HymnSeed {
   number: number;
@@ -846,5 +846,293 @@ export const HYMNS: HymnSeed[] = [
   {
     "number": 209,
     "titleEs": "Oh élderes de Israel (Hombres)"
+  },
+  {
+    "number": 1001,
+    "titleEs": "Fuente de mis bendiciones"
+  },
+  {
+    "number": 1002,
+    "titleEs": "Cuando vuelva el Salvador"
+  },
+  {
+    "number": 1003,
+    "titleEs": "Reina paz en mi ser"
+  },
+  {
+    "number": 1004,
+    "titleEs": "Andaré con Cristo"
+  },
+  {
+    "number": 1005,
+    "titleEs": "¿Cómo sentirme triste?"
+  },
+  {
+    "number": 1006,
+    "titleEs": "En tu corazón"
+  },
+  {
+    "number": 1007,
+    "titleEs": "En Ti pensamos partiendo el pan"
+  },
+  {
+    "number": 1008,
+    "titleEs": "Agua viva, pan de vida"
+  },
+  {
+    "number": 1009,
+    "titleEs": "Getsemaní"
+  },
+  {
+    "number": 1010,
+    "titleEs": "¡Sublime gracia del Señor"
+  },
+  {
+    "number": 1011,
+    "titleEs": "Somos niños y entonamos la canción"
+  },
+  {
+    "number": 1012,
+    "titleEs": "Puedo orar cada día al Padre"
+  },
+  {
+    "number": 1013,
+    "titleEs": "Cada día Dios me da Su gracia"
+  },
+  {
+    "number": 1014,
+    "titleEs": "Mi buen pastor es Jehová"
+  },
+  {
+    "number": 1015,
+    "titleEs": "Oh, cuán pleno, cuán profundo"
+  },
+  {
+    "number": 1016,
+    "titleEs": "Mirad las marcas de Jesús"
+  },
+  {
+    "number": 1017,
+    "titleEs": "El Cristo es"
+  },
+  {
+    "number": 1018,
+    "titleEs": "Ven, oh, Cristo, al pesebre"
+  },
+  {
+    "number": 1019,
+    "titleEs": "Amar igual que Tú"
+  },
+  {
+    "number": 1020,
+    "titleEs": "Tiernamente Jesús hoy nos llama"
+  },
+  {
+    "number": 1021,
+    "titleEs": "Cristo me ama, lo sé"
+  },
+  {
+    "number": 1022,
+    "titleEs": "Con fe en cada paso"
+  },
+  {
+    "number": 1023,
+    "titleEs": "Firme en las promesas de Jesús, el Rey"
+  },
+  {
+    "number": 1024,
+    "titleEs": "Tengo fe en Jesús, mi Señor"
+  },
+  {
+    "number": 1025,
+    "titleEs": "Que mi alma siempre esté"
+  },
+  {
+    "number": 1026,
+    "titleEs": "Lugares santos"
+  },
+  {
+    "number": 1027,
+    "titleEs": "Soy bienvenido a Su hogar"
+  },
+  {
+    "number": 1028,
+    "titleEs": "Mi pequeña luz"
+  },
+  {
+    "number": 1029,
+    "titleEs": "Los dones que el Padre derrama"
+  },
+  {
+    "number": 1030,
+    "titleEs": "Dios siempre cerca está"
+  },
+  {
+    "number": 1031,
+    "titleEs": "Venid, oíd la voz de Cristo"
+  },
+  {
+    "number": 1032,
+    "titleEs": "Mirad a Cristo"
+  },
+  {
+    "number": 1033,
+    "titleEs": "Placentero nos es trabajar"
+  },
+  {
+    "number": 1034,
+    "titleEs": "Soy pionero también"
+  },
+  {
+    "number": 1035,
+    "titleEs": "Honraré Su día"
+  },
+  {
+    "number": 1036,
+    "titleEs": "El bien yo quiero elegir"
+  },
+  {
+    "number": 1037,
+    "titleEs": "Vivir, servir, orar y cantar"
+  },
+  {
+    "number": 1038,
+    "titleEs": "Es Jehová mi buen pastor"
+  },
+  {
+    "number": 1039,
+    "titleEs": "Es gracias al Señor"
+  },
+  {
+    "number": 1040,
+    "titleEs": "Prevalece Su voz"
+  },
+  {
+    "number": 1041,
+    "titleEs": "Por mí la vida diste Tú"
+  },
+  {
+    "number": 1042,
+    "titleEs": "Clemente Dios, hoy cual ayer"
+  },
+  {
+    "number": 1043,
+    "titleEs": "Oh, Redentor, rogamos Tu perdón"
+  },
+  {
+    "number": 1044,
+    "titleEs": "Así nos ministró Cristo"
+  },
+  {
+    "number": 1045,
+    "titleEs": "\"Oh, ven a Mí\", pidió Jesús"
+  },
+  {
+    "number": 1046,
+    "titleEs": "Puedes tú contar los astros"
+  },
+  {
+    "number": 1047,
+    "titleEs": "Dios me conoce"
+  },
+  {
+    "number": 1048,
+    "titleEs": "Oh, Padre Eterno, a Ti oramos"
+  },
+  {
+    "number": 1049,
+    "titleEs": "José oró con fe"
+  },
+  {
+    "number": 1050,
+    "titleEs": "Ven a mí"
+  },
+  {
+    "number": 1051,
+    "titleEs": "Señor, un buen día es hoy"
+  },
+  {
+    "number": 1052,
+    "titleEs": "¡Oh, qué gozo nos da!"
+  },
+  {
+    "number": 1053,
+    "titleEs": "Mis convenios"
+  },
+  {
+    "number": 1054,
+    "titleEs": "Al bautizarme a Cristo seguiré"
+  },
+  {
+    "number": 1055,
+    "titleEs": "El poder del Santo Espíritu"
+  },
+  {
+    "number": 1056,
+    "titleEs": "Elías y la suave voz"
+  },
+  {
+    "number": 1057,
+    "titleEs": "Mi pastor es Cristo; Su oveja soy"
+  },
+  {
+    "number": 1058,
+    "titleEs": "Mi canto en la noche, Jesús, mi Señor"
+  },
+  {
+    "number": 1059,
+    "titleEs": "El mundo es de Dios"
+  },
+  {
+    "number": 1060,
+    "titleEs": "Un arca construiré"
+  },
+  {
+    "number": 1061,
+    "titleEs": "Cuán dulce hogar de amor"
+  },
+  {
+    "number": 1062,
+    "titleEs": "Nuestro ayuno, oh, Señor"
+  },
+  {
+    "number": 1201,
+    "titleEs": "El Señor resucitó, ¡aleluya!"
+  },
+  {
+    "number": 1202,
+    "titleEs": "El divino Jesús nació"
+  },
+  {
+    "number": 1203,
+    "titleEs": "¿Qué niño es este que, al dormir"
+  },
+  {
+    "number": 1204,
+    "titleEs": "Estrella de luz"
+  },
+  {
+    "number": 1205,
+    "titleEs": "Oh, santos, ¡glorias dad!"
+  },
+  {
+    "number": 1206,
+    "titleEs": "¿Viste tú cuando mi Señor murió?"
+  },
+  {
+    "number": 1207,
+    "titleEs": "Paz, paz, paz"
+  },
+  {
+    "number": 1208,
+    "titleEs": "¡Ve! Dilo en las montañas"
+  },
+  {
+    "number": 1209,
+    "titleEs": "Pequeñito en pesebre"
+  },
+  {
+    "number": 1210,
+    "titleEs": "Tiempo atrás, en un jardín"
   }
 ];
