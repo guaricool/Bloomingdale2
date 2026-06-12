@@ -95,13 +95,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const db = getDb();
         const row = (await db
           .prepare(
-            `SELECT id, email, passwordHash AS "passwordHash", role, memberId AS "memberId"
-             FROM "User" WHERE email = ?`,
+            `SELECT u.id, u.email, u.passwordHash AS "passwordHash", u.role, u.memberId AS "memberId",
+                    m.firstName AS "firstName", m.middleName AS "middleName", m.lastName AS "lastName"
+             FROM "User" u
+             LEFT JOIN "Member" m ON m.id = u.memberId
+             WHERE u.email = ?`,
           )
-          .get(email.toLowerCase())) as UserRow | undefined;
+          .get(email.toLowerCase())) as UserRow & {
+            firstName?: string | null;
+            middleName?: string | null;
+            lastName?: string | null;
+          } | undefined;
 
         if (!row) {
-          // Constant-time-ish: still run bcrypt to avoid trivial timing oracle.
           await bcrypt.compare(
             password,
             "$2a$10$invalidinvalidinvalidinvalidinvalidinvalidinvalidinvali",
@@ -112,11 +118,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const ok = await bcrypt.compare(password, row.passwordHash);
         if (!ok) return null;
 
-        // NextAuth's User.id is typed as string; we encode our int as string here
-        // and let appUserIdToNumber() decode it on the consuming side.
+        // Construir nombre completo desde el Member vinculado
+        const nameParts = [row.firstName, row.middleName, row.lastName].filter(Boolean);
+        const fullName = nameParts.length > 0 ? nameParts.join(" ") : null;
+
         return {
           id: String(row.id),
           email: row.email,
+          name: fullName,
           role: row.role,
           memberId: row.memberId,
         };

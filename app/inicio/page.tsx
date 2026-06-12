@@ -22,14 +22,14 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  let displayName = session.user.email ?? "hermano/a";
-  if (session.user.memberId) {
+  let displayName = session.user.name ?? session.user.email ?? "hermano/a";
+  if (!session.user.name && session.user.memberId) {
     const row = (await getDb()
-      .prepare(`SELECT firstName, lastName FROM "Member" WHERE id = ?`)
-      .get(session.user.memberId)) as { firstName: string; lastName: string } | undefined;
-    if (row) displayName = `${row.firstName} ${row.lastName}`;
-  } else if (session.user.email) {
-    displayName = session.user.email.split("@")[0] ?? displayName;
+      .prepare(`SELECT firstName AS "firstName", middleName AS "middleName", lastName AS "lastName" FROM "Member" WHERE id = ?`)
+      .get(session.user.memberId)) as { firstName: string; middleName: string | null; lastName: string } | undefined;
+    if (row) {
+      displayName = [row.firstName, row.middleName, row.lastName].filter(Boolean).join(" ");
+    }
   }
 
   // Saludo según la hora del día (UTC, no importa mucho para v0.1)
