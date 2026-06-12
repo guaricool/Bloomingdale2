@@ -111,7 +111,7 @@ export function RegisterForm() {
             required
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            placeholder="Carlos"
+            placeholder="Primer nombre"
           />
         </Field>
         <Field label="Segundo nombre" htmlFor="middleName" hint="Opcional">
@@ -122,7 +122,7 @@ export function RegisterForm() {
             autoComplete="additional-name"
             value={middleName}
             onChange={(e) => setMiddleName(e.target.value)}
-            placeholder="Arturo"
+            placeholder="Segundo nombre"
           />
         </Field>
       </div>
@@ -136,7 +136,7 @@ export function RegisterForm() {
           required
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
-          placeholder="Pierluissis"
+          placeholder="Apellido"
         />
       </Field>
 
