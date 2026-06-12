@@ -44,7 +44,8 @@ export function RadioPlayerCard() {
 
     if (state === "playing" || state === "loading") {
       audio.pause();
-      audio.src = "";
+      // NO borrar audio.src — la pausa es independiente de la fuente.
+      // Borrar el src destruye la conexión y rompe el siguiente play.
       setState("idle");
       return;
     }
