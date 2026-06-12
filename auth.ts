@@ -144,6 +144,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async session({ session, token }) {
       if (token && session.user) {
+        // token.sub es el user.id que guardamos como String(row.id) en authorize()
+        if (token.sub) session.user.id = token.sub;
         session.user.role = (token.role as "admin" | "member" | undefined) ?? "member";
         session.user.memberId = (token.memberId as number | null | undefined) ?? null;
       }

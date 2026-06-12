@@ -22,6 +22,13 @@ const trimmed = (label: string, max: number) =>
 
 export const memberBaseSchema = z.object({
   firstName: trimmed("nombre", 80),
+  middleName: z
+    .string()
+    .trim()
+    .max(80, "El segundo nombre no puede tener más de 80 caracteres")
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => (v && v.length > 0 ? v : null)),
   lastName: trimmed("apellido", 80),
   membershipNumber: z
     .string()
@@ -45,6 +52,13 @@ export const memberUpdateSchema = memberBaseSchema.extend({
 
 export const memberQuickCreateSchema = z.object({
   firstName: trimmed("nombre", 80),
+  middleName: z
+    .string()
+    .trim()
+    .max(80)
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => (v && v.length > 0 ? v : null)),
   lastName: trimmed("apellido", 80),
   membershipNumber: z
     .string()

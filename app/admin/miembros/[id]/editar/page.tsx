@@ -48,6 +48,7 @@ export default async function EditMemberPage({ params }: PageProps) {
           initial={{
             id: member.id,
             firstName: member.firstName,
+            middleName: member.middleName,
             lastName: member.lastName,
             membershipNumber: member.membershipNumber ?? "",
             familyGroupId: member.familyGroupId,

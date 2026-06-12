@@ -33,6 +33,7 @@ interface MemberFormProps {
   initial?: {
     id: number;
     firstName: string;
+    middleName?: string | null;
     lastName: string;
     membershipNumber: string;
     familyGroupId: number | null;
@@ -41,6 +42,7 @@ interface MemberFormProps {
 
 type FormValues = {
   firstName: string;
+  middleName: string;
   lastName: string;
   membershipNumber: string;
   familyGroupId: number | null;
@@ -55,6 +57,7 @@ export function MemberForm({ mode, groups, initial }: MemberFormProps) {
 
   const defaultValues: FormValues = {
     firstName: initial?.firstName ?? "",
+    middleName: initial?.middleName ?? "",
     lastName: initial?.lastName ?? "",
     membershipNumber: initial?.membershipNumber ?? "",
     familyGroupId: initial?.familyGroupId ?? null,
@@ -87,6 +90,7 @@ export function MemberForm({ mode, groups, initial }: MemberFormProps) {
 
     const payload: Record<string, unknown> = {
       firstName: values.firstName,
+      middleName: values.middleName || null,
       lastName: values.lastName,
       membershipNumber: values.membershipNumber,
       familyGroupId: values.familyGroupId,
@@ -148,7 +152,7 @@ export function MemberForm({ mode, groups, initial }: MemberFormProps) {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="firstName" className="block text-sm font-medium text-slate-700">
-            Nombre <span className="text-red-600">*</span>
+            Primer nombre <span className="text-red-600">*</span>
           </label>
           <input
             id="firstName"
@@ -171,25 +175,38 @@ export function MemberForm({ mode, groups, initial }: MemberFormProps) {
           ) : null}
         </div>
         <div>
-          <label htmlFor="lastName" className="block text-sm font-medium text-slate-700">
-            Apellido <span className="text-red-600">*</span>
+          <label htmlFor="middleName" className="block text-sm font-medium text-slate-700">
+            Segundo nombre <span className="text-xs text-slate-400">(opcional)</span>
           </label>
           <input
-            id="lastName"
+            id="middleName"
             type="text"
-            autoComplete="family-name"
-            required
-            {...register("lastName")}
-            aria-invalid={Boolean(err("lastName"))}
-            aria-describedby={err("lastName") ? "lastName-err" : undefined}
-            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 aria-[invalid=true]:border-red-400"
+            autoComplete="additional-name"
+            {...register("middleName")}
+            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
-          {err("lastName") ? (
-            <p id="lastName-err" className="mt-1 text-xs text-red-600">
-              {err("lastName")}
-            </p>
-          ) : null}
         </div>
+      </div>
+
+      <div>
+        <label htmlFor="lastName" className="block text-sm font-medium text-slate-700">
+          Apellido <span className="text-red-600">*</span>
+        </label>
+        <input
+          id="lastName"
+          type="text"
+          autoComplete="family-name"
+          required
+          {...register("lastName")}
+          aria-invalid={Boolean(err("lastName"))}
+          aria-describedby={err("lastName") ? "lastName-err" : undefined}
+          className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 aria-[invalid=true]:border-red-400"
+        />
+        {err("lastName") ? (
+          <p id="lastName-err" className="mt-1 text-xs text-red-600">
+            {err("lastName")}
+          </p>
+        ) : null}
       </div>
 
       <div>
