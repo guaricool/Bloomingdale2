@@ -67,7 +67,7 @@ export function AgendaViewer({ agenda }: { agenda: AgendaWithItems }) {
               ) : null}
               {(item.type === "speaker" || item.type === "prayer") && item.member ? (
                 <p>
-                  {item.member.firstName} {item.member.lastName}
+                  {[item.member.firstName, item.member.middleName, item.member.lastName].filter(Boolean).join(" ")}
                   {item.type === "prayer" ? (
                     <span className="ml-2 font-sans text-sm italic text-slate-500">
                       — oración

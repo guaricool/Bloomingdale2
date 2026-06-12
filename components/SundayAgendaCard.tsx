@@ -63,9 +63,9 @@ export function SundayAgendaCard({
                       {it.type === "hymn" && it.hymn
                         ? `Himno ${it.hymn.number} — ${it.hymn.titleEs}`
                         : it.type === "speaker" && it.member
-                          ? `${it.member.firstName} ${it.member.lastName}`
+                          ? `${[it.member.firstName, it.member.middleName, it.member.lastName].filter(Boolean).join(" ")}`
                           : it.type === "prayer" && it.member
-                            ? `Oración — ${it.member.firstName} ${it.member.lastName}`
+                            ? `Oración — ${[it.member.firstName, it.member.middleName, it.member.lastName].filter(Boolean).join(" ")}`
                             : it.event
                               ? it.event.title
                               : it.note ?? "—"}
@@ -212,7 +212,7 @@ function AgendaFullBody({
               ) : null}
               {(item.type === "speaker" || item.type === "prayer") && item.member ? (
                 <p>
-                  {item.member.firstName} {item.member.lastName}
+                  {[item.member.firstName, item.member.middleName, item.member.lastName].filter(Boolean).join(" ")}
                   {item.type === "prayer" ? (
                     <span className="ml-2 font-sans text-sm italic text-slate-500">— oración</span>
                   ) : null}

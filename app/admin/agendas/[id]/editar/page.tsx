@@ -36,8 +36,12 @@ export default async function EditAgendaPage({ params }: PageProps) {
   const db = getDb();
   const memberSuggestions = (await db
     .prepare(
-      `SELECT m.id, m.firstName, m.lastName, m.membershipNumber,
-              g.name AS familyGroupName
+      `SELECT m.id,
+              m.firstName AS "firstName",
+              m.middleName AS "middleName",
+              m.lastName AS "lastName",
+              m.membershipNumber AS "membershipNumber",
+              g.name AS "familyGroupName"
        FROM "Member" m
        LEFT JOIN "FamilyGroup" g ON m.familyGroupId = g.id
        ORDER BY m.firstName ASC, m.lastName ASC

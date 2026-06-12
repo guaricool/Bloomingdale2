@@ -24,6 +24,7 @@ import type { FamilyGroupRow } from "@/lib/family-groups";
 interface MemberOption {
   id: number;
   firstName: string;
+  middleName?: string | null;
   lastName: string;
 }
 
@@ -157,7 +158,7 @@ export function FamilyGroupsView({ initialGroups, allMembers }: FamilyGroupsView
               <option value="">— Opcional —</option>
               {sortedMembers.map((m) => (
                 <option key={m.id} value={m.id}>
-                  {m.firstName} {m.lastName}
+                  {[m.firstName, m.middleName, m.lastName].filter(Boolean).join(" ")}
                 </option>
               ))}
             </select>
@@ -300,7 +301,7 @@ function EditRow({ group, members, busy, onCancel, onSave }: EditRowProps) {
             <option value="">— Opcional —</option>
             {members.map((m) => (
               <option key={m.id} value={m.id}>
-                {m.firstName} {m.lastName}
+                {[m.firstName, m.middleName, m.lastName].filter(Boolean).join(" ")}
               </option>
             ))}
           </select>

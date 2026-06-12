@@ -8,9 +8,14 @@
  */
 import { useEffect, useRef, useState } from "react";
 
+function memberDisplayName(m: { firstName: string; middleName?: string | null; lastName: string }): string {
+  return [m.firstName, m.middleName, m.lastName].filter(Boolean).join(" ");
+}
+
 export interface MemberOption {
   id: number;
   firstName: string;
+  middleName?: string | null;
   lastName: string;
   membershipNumber: string | null;
   familyGroupName?: string | null;
@@ -60,7 +65,7 @@ export function SpeakerPicker({
         if (!res.ok) return;
         const data = (await res.json()) as { member: MemberOption | null };
         if (!cancelled && data.member) {
-          setSelectedLabel(`${data.member.firstName} ${data.member.lastName}`);
+          setSelectedLabel(memberDisplayName(data.member));
         }
       } catch {
         // ignore
@@ -127,7 +132,7 @@ export function SpeakerPicker({
         setQuery("");
         setResults([]);
         setOpen(false);
-        setSelectedLabel(`${target.firstName} ${target.lastName}`);
+        setSelectedLabel(memberDisplayName(target));
       }
     } else if (ev.key === "Escape") {
       setOpen(false);
@@ -200,14 +205,14 @@ export function SpeakerPicker({
                   setQuery("");
                   setResults([]);
                   setOpen(false);
-                  setSelectedLabel(`${m.firstName} ${m.lastName}`);
+                  setSelectedLabel(memberDisplayName(m));
                 }}
                 className={`cursor-pointer px-3 py-2 text-sm ${
                   idx === activeIdx ? "bg-blue-50 text-blue-900" : "text-slate-700"
                 }`}
               >
                 <span className="font-medium">
-                  {m.firstName} {m.lastName}
+                  {memberDisplayName(m)}
                 </span>
                 {m.familyGroupName ? (
                   <span className="ml-2 text-xs text-slate-500">

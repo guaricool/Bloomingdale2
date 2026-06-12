@@ -110,7 +110,7 @@ export default async function PublicAgendaView({ params }: PageProps) {
                   {(item.type === "speaker" || item.type === "prayer") && item.member ? (
                     <p>
                       <strong>
-                        {item.member.firstName} {item.member.lastName}
+                        {[item.member.firstName, item.member.middleName, item.member.lastName].filter(Boolean).join(" ")}
                       </strong>
                       {item.type === "prayer" ? (
                         <span className="ml-2 text-xs text-slate-500">

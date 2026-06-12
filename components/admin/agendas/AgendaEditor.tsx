@@ -54,7 +54,7 @@ function itemToDraft(item: AgendaItemWithJoins): DraftItem {
   if (item.type === "hymn" && item.hymn) {
     label = `${item.hymn.number} — ${item.hymn.titleEs}`;
   } else if ((item.type === "speaker" || item.type === "prayer") && item.member) {
-    label = `${item.member.firstName} ${item.member.lastName}`;
+    label = `${[item.member.firstName, item.member.middleName, item.member.lastName].filter(Boolean).join(" ")}`;
   } else if (item.type === "announcement" && item.event) {
     label = item.event.title;
   } else if (item.note) {
@@ -315,7 +315,7 @@ function AddItemBar({ active, setActive, onSubmit }: AddItemBarProps) {
     } else if (active === "speaker" || active === "prayer") {
       if (!member || member.id < 1) return;
       refId = member.id;
-      label = `${member.firstName} ${member.lastName}`;
+      label = `${[member.firstName, member.middleName, member.lastName].filter(Boolean).join(" ")}`;
     } else if (active === "announcement") {
       refId = null;
       label = note || "Anuncio";
