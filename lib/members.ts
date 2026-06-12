@@ -24,6 +24,7 @@ export { fullName, type MemberRow } from "@/lib/member-types";
 interface RawMemberRow {
   id: number;
   firstName: string;
+  middleName: string | null;
   lastName: string;
   membershipNumber: string | null;
   familyGroupId: number | null;
@@ -36,6 +37,7 @@ const SELECT_JOIN = `
   SELECT
     m.id              AS id,
     m.firstName       AS "firstName",
+    m.middleName      AS "middleName",
     m.lastName        AS "lastName",
     m.membershipNumber AS "membershipNumber",
     m.familyGroupId   AS "familyGroupId",
@@ -112,6 +114,7 @@ export async function listMembers(
 
 export interface CreateMemberInput {
   firstName: string;
+  middleName?: string | null;
   lastName: string;
   membershipNumber: string | null;
   familyGroupId: number | null;
@@ -121,11 +124,12 @@ export async function createMember(input: CreateMemberInput): Promise<MemberRow>
   const db = getDb();
   const rows = await db
     .prepare(
-      `INSERT INTO "Member" (firstName, lastName, membershipNumber, familyGroupId)
-       VALUES (?, ?, ?, ?) RETURNING id`,
+      `INSERT INTO "Member" (firstName, middleName, lastName, membershipNumber, familyGroupId)
+       VALUES (?, ?, ?, ?, ?) RETURNING id`,
     )
     .all(
       input.firstName.trim(),
+      input.middleName?.trim() || null,
       input.lastName.trim(),
       input.membershipNumber,
       input.familyGroupId,
@@ -139,6 +143,7 @@ export async function createMember(input: CreateMemberInput): Promise<MemberRow>
 export interface UpdateMemberInput {
   id: number;
   firstName: string;
+  middleName?: string | null;
   lastName: string;
   membershipNumber: string | null;
   familyGroupId: number | null;
@@ -150,6 +155,7 @@ export async function updateMember(input: UpdateMemberInput): Promise<MemberRow>
     .prepare(
       `UPDATE "Member"
        SET firstName = ?,
+           middleName = ?,
            lastName = ?,
            membershipNumber = ?,
            familyGroupId = ?,
@@ -158,6 +164,7 @@ export async function updateMember(input: UpdateMemberInput): Promise<MemberRow>
     )
     .run(
       input.firstName.trim(),
+      input.middleName?.trim() || null,
       input.lastName.trim(),
       input.membershipNumber,
       input.familyGroupId,
@@ -188,6 +195,7 @@ export async function deleteMember(id: number): Promise<boolean> {
 export interface MemberSearchHit {
   id: number;
   firstName: string;
+  middleName: string | null;
   lastName: string;
   fullName: string;
   membershipNumber: string | null;
@@ -196,7 +204,7 @@ export interface MemberSearchHit {
 /**
  * Lightweight autocomplete search. Returns at most `limit` matches
  * (default 10) ordered by last name, first name. Matches by first
- * name, last name (prefix-friendly), or membership number.
+ * name, middle name, last name (prefix-friendly), or membership number.
  */
 export async function searchMembers(
   query: string,
@@ -208,9 +216,10 @@ export async function searchMembers(
   const exact = trimmed.toLowerCase();
   const rows = (await getDb()
     .prepare(
-      `SELECT id, firstName, lastName, membershipNumber
+      `SELECT id, firstName, middleName, lastName, membershipNumber
        FROM "Member"
        WHERE LOWER(firstName) LIKE ?
+          OR LOWER(COALESCE(middleName,'')) LIKE ?
           OR LOWER(lastName)  LIKE ?
           OR membershipNumber LIKE ?
        ORDER BY
@@ -219,9 +228,10 @@ export async function searchMembers(
          LOWER(firstName) ASC
        LIMIT ?`,
     )
-    .all(term, term, term, exact, exact, limit)) as {
+    .all(term, term, term, term, exact, exact, limit)) as {
     id: number;
     firstName: string;
+    middleName: string | null;
     lastName: string;
     membershipNumber: string | null;
   }[];
@@ -229,6 +239,7 @@ export async function searchMembers(
   return rows.map((r) => ({
     id: r.id,
     firstName: r.firstName,
+    middleName: r.middleName,
     lastName: r.lastName,
     fullName: fullName(r),
     membershipNumber: r.membershipNumber,

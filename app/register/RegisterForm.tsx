@@ -9,11 +9,13 @@ import { Button } from "@/components/ui/Button";
 
 export function RegisterForm() {
   const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [firstName, setFirstName]   = useState("");
+  const [middleName, setMiddleName] = useState("");
+  const [lastName, setLastName]     = useState("");
+  const [email, setEmail]           = useState("");
+  const [password, setPassword]     = useState("");
+  const [confirm, setConfirm]       = useState("");
+  const [error, setError]           = useState<string | null>(null);
   const [registered, setRegistered] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -35,8 +37,15 @@ export function RegisterForm() {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), email: email.trim().toLowerCase(), password }),
+        body: JSON.stringify({
+          firstName: firstName.trim(),
+          middleName: middleName.trim() || null,
+          lastName: lastName.trim(),
+          email: email.trim().toLowerCase(),
+          password,
+        }),
       });
+
       if (!res.ok) {
         const data: { error?: string } = await res.json().catch(() => ({}));
         setError(data.error ?? "No se pudo crear la cuenta.");
@@ -57,7 +66,7 @@ export function RegisterForm() {
         return;
       }
 
-      // Auto-login falló — mostrar mensaje con link directo al login
+      // Auto-login falló — mostrar pantalla de éxito con link al login
       setRegistered(true);
     } catch {
       setError("Error de red. Intenta de nuevo.");
@@ -66,7 +75,6 @@ export function RegisterForm() {
     }
   }
 
-  // Si la cuenta se creó pero el auto-login falló, mostrar pantalla de éxito
   if (registered) {
     return (
       <div className="space-y-4 text-center">
@@ -78,9 +86,7 @@ export function RegisterForm() {
           </span>
         </div>
         <div>
-          <p className="font-display text-xl font-medium text-slate-900">
-            ¡Cuenta creada!
-          </p>
+          <p className="font-display text-xl font-medium text-slate-900">¡Cuenta creada!</p>
           <p className="mt-1 font-sans text-sm text-slate-500">
             Ya puedes iniciar sesión con tu correo y contraseña.
           </p>
@@ -94,16 +100,43 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-5" noValidate>
-      <Field label="Nombre completo" htmlFor="name" required>
+      {/* Nombres */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Field label="Primer nombre" htmlFor="firstName" required>
+          <Input
+            id="firstName"
+            name="firstName"
+            type="text"
+            autoComplete="given-name"
+            required
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            placeholder="Carlos"
+          />
+        </Field>
+        <Field label="Segundo nombre" htmlFor="middleName" hint="Opcional">
+          <Input
+            id="middleName"
+            name="middleName"
+            type="text"
+            autoComplete="additional-name"
+            value={middleName}
+            onChange={(e) => setMiddleName(e.target.value)}
+            placeholder="Arturo"
+          />
+        </Field>
+      </div>
+
+      <Field label="Apellido" htmlFor="lastName" required>
         <Input
-          id="name"
-          name="name"
+          id="lastName"
+          name="lastName"
           type="text"
-          autoComplete="name"
+          autoComplete="family-name"
           required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Hermano García"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+          placeholder="Pierluissis"
         />
       </Field>
 
@@ -116,16 +149,11 @@ export function RegisterForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="secretario@bloomingdale2.org"
+          placeholder="hermano@ejemplo.com"
         />
       </Field>
 
-      <Field
-        label="Contraseña"
-        htmlFor="password"
-        required
-        hint="Mínimo 8 caracteres."
-      >
+      <Field label="Contraseña" htmlFor="password" required hint="Mínimo 8 caracteres.">
         <Input
           id="password"
           name="password"
@@ -160,12 +188,7 @@ export function RegisterForm() {
         </div>
       ) : null}
 
-      <Button
-        type="submit"
-        size="lg"
-        loading={submitting}
-        className="w-full"
-      >
+      <Button type="submit" size="lg" loading={submitting} className="w-full">
         {submitting ? "Creando cuenta…" : "Crear cuenta"}
       </Button>
 

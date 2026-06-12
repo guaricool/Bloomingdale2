@@ -1,10 +1,6 @@
 /**
  * POST /api/register
- * Body: { name: string, email: string, password: string }
- *
- * Creates a new User. The very first user registered becomes role=admin;
- * everyone after that defaults to role=member. A matching Member record
- * is also created with firstName/lastName derived from `name`.
+ * Body: { firstName, middleName?, lastName, email, password }
  */
 import { NextResponse, type NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
@@ -12,9 +8,11 @@ import { z } from "zod";
 import { getDb } from "@/lib/db";
 
 const registerSchema = z.object({
-  name: z.string().min(2, "El nombre debe tener al menos 2 caracteres").max(120),
-  email: z.string().email("Correo electrónico no válido").max(200),
-  password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres").max(200),
+  firstName:  z.string().min(2, "El primer nombre debe tener al menos 2 caracteres").max(80).trim(),
+  middleName: z.string().max(80).trim().optional().nullable(),
+  lastName:   z.string().min(2, "El apellido debe tener al menos 2 caracteres").max(80).trim(),
+  email:      z.string().email("Correo electrónico no válido").max(200),
+  password:   z.string().min(8, "La contraseña debe tener al menos 8 caracteres").max(200),
 });
 
 export async function POST(req: NextRequest) {
@@ -33,44 +31,43 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { name, email, password } = parsed.data;
+  const { firstName, middleName, lastName, email, password } = parsed.data;
   const normalizedEmail = email.toLowerCase();
   const db = getDb();
 
-  // Reject duplicate email
+  // Rechazar email duplicado
   const existing = await db
     .prepare(`SELECT id FROM "User" WHERE email = ?`)
     .get(normalizedEmail);
   if (existing) {
     return NextResponse.json(
-      { error: "Ya existe una cuenta con ese correo electrónico" },
+      { error: "Ya existe una cuenta con ese correo electrónico." },
       { status: 409 },
     );
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
 
-  // First user wins admin; everyone else is member.
+  // El primer usuario registrado queda como admin.
   const userCountRow = (await db
     .prepare(`SELECT COUNT(*) AS c FROM "User"`)
     .get()) as { c: number };
   const isFirstUser = userCountRow.c === 0;
   const role: "admin" | "member" = isFirstUser ? "admin" : "member";
 
-  // Split name into first/last (best-effort). Empty lastName is allowed (e.g. single given name).
-  const parts = name.trim().split(/\s+/);
-  const firstName = parts[0] ?? name.trim();
-  const lastName = parts.length > 1 ? parts.slice(1).join(" ") : "—";
+  const cleanMiddle = middleName?.trim() || null;
 
   const tx = db.transaction(async () => {
     const memberRows = await db
-      .prepare(`INSERT INTO "Member" (firstName, lastName) VALUES (?, ?) RETURNING id`)
-      .all(firstName, lastName);
+      .prepare(
+        `INSERT INTO "Member" (firstName, middleName, lastName) VALUES (?, ?, ?) RETURNING id`,
+      )
+      .all(firstName, cleanMiddle, lastName);
     const memberId = (memberRows[0] as { id: number }).id;
 
-    await db.prepare(
-      `INSERT INTO "User" (email, passwordHash, role, memberId) VALUES (?, ?, ?, ?)`,
-    ).run(normalizedEmail, passwordHash, role, memberId);
+    await db
+      .prepare(`INSERT INTO "User" (email, passwordHash, role, memberId) VALUES (?, ?, ?, ?)`)
+      .run(normalizedEmail, passwordHash, role, memberId);
 
     return memberId;
   });
@@ -78,15 +75,7 @@ export async function POST(req: NextRequest) {
   const memberId = await tx();
 
   return NextResponse.json(
-    {
-      ok: true,
-      user: {
-        email: normalizedEmail,
-        role,
-        memberId,
-        isFirstUser,
-      },
-    },
+    { ok: true, user: { email: normalizedEmail, role, memberId, isFirstUser } },
     { status: 201 },
   );
 }
