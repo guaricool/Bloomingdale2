@@ -79,18 +79,17 @@ export async function createAgendaAction(
     const created = await createAgenda({ date, createdBy });
 
     // Crear template estándar de la reunión sacramental:
-    // 1. Himno de apertura
-    // 2. Oración de apertura
-    // 3. Himno de la Santa Cena
-    // 4. Himno intermedio (opcional — la presidencia puede eliminarlo)
-    // 5. Himno de cierre
-    // 6. Oración de cierre
+    // Guía oficial del himnario (El uso del himnario, pág. 273):
+    //   - Apertura: loor, agradecimiento o súplica (himnos 30-47 o similares)
+    //   - Santa Cena: tema de la Santa Cena o sacrificio expiatorio (himnos 101-120)
+    //   - Intermedio: relacionado con los discursos (opcional)
+    //   - Cierre: permite a la congregación responder a la reunión
     const templateItems: { type: "hymn" | "prayer"; note: string }[] = [
-      { type: "hymn",  note: "Apertura" },
+      { type: "hymn",   note: "Apertura" },
       { type: "prayer", note: "Oración de apertura" },
-      { type: "hymn",  note: "Santa Cena" },
-      { type: "hymn",  note: "Intermedio (opcional)" },
-      { type: "hymn",  note: "Cierre" },
+      { type: "hymn",   note: "Santa Cena" },
+      { type: "hymn",   note: "Intermedio (opcional)" },
+      { type: "hymn",   note: "Cierre" },
       { type: "prayer", note: "Oración de cierre" },
     ];
 

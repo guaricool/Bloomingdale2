@@ -246,6 +246,7 @@ export function AgendaEditor({
                   <InlineHymnPicker
                     agendaId={agenda.id}
                     itemId={it.id}
+                    role={it.note}
                     onSelected={(hymn) => {
                       setItems(prev => prev.map(x =>
                         x.id === it.id
@@ -445,13 +446,22 @@ function AddItemBar({ active, setActive, onSubmit }: AddItemBarProps) {
 // Selector compacto para asignar un himno a un item del template.
 // Aparece debajo del item cuando el himno aún no está seleccionado.
 
+// Hints basados en la guía oficial del himnario de la Iglesia
+const HYMN_ROLE_HINTS: Record<string, string> = {
+  "Apertura": "Loor, agradecimiento o súplica. Ej: himnos 30–47",
+  "Santa Cena": "Tema de la Santa Cena o el sacrificio expiatorio. Ej: himnos 101–120",
+  "Intermedio (opcional)": "Puede relacionarse con el tema de los discursos",
+  "Cierre": "Permite a la congregación responder a la reunión",
+};
+
 interface InlineHymnPickerProps {
   agendaId: number;
   itemId: number;
+  role?: string | null;
   onSelected: (hymn: { number: number; titleEs: string }) => void;
 }
 
-function InlineHymnPicker({ agendaId, itemId, onSelected }: InlineHymnPickerProps) {
+function InlineHymnPicker({ agendaId, itemId, role, onSelected }: InlineHymnPickerProps) {
   const [hymnNumber, setHymnNumber] = useState<number | null>(null);
   const [hymnTitle, setHymnTitle] = useState<string>("");
   const [saving, setSaving] = useState(false);
@@ -474,7 +484,13 @@ function InlineHymnPicker({ agendaId, itemId, onSelected }: InlineHymnPickerProp
   }
 
   return (
-    <div className="mt-2 flex items-center gap-2 rounded-md border border-blue-100 bg-blue-50 p-2">
+    <div className="mt-2 rounded-md border border-blue-100 bg-blue-50 p-2">
+      {role && HYMN_ROLE_HINTS[role] && (
+        <p className="mb-1.5 text-xs text-blue-600 italic">
+          💡 {HYMN_ROLE_HINTS[role]}
+        </p>
+      )}
+      <div className="flex items-center gap-2">
       <div className="flex-1">
         <HymnAutocomplete
           value={hymnNumber}
@@ -493,6 +509,7 @@ function InlineHymnPicker({ agendaId, itemId, onSelected }: InlineHymnPickerProp
       >
         {saving ? "Guardando…" : "Asignar"}
       </button>
+      </div>
     </div>
   );
 }
