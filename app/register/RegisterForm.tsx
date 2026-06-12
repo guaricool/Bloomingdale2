@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Field, Input } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 
@@ -13,6 +14,7 @@ export function RegisterForm() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [registered, setRegistered] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -41,23 +43,53 @@ export function RegisterForm() {
         return;
       }
 
+      // Cuenta creada — intentar auto-login
       const signin = await signIn("credentials", {
         email: email.trim().toLowerCase(),
         password,
         redirect: false,
         callbackUrl: "/",
       });
-      if (signin?.error) {
-        setError("Cuenta creada, pero falló el inicio de sesión automático. Intenta iniciar sesión.");
+
+      if (!signin?.error) {
+        router.push("/");
+        router.refresh();
         return;
       }
-      router.push("/");
-      router.refresh();
+
+      // Auto-login falló — mostrar mensaje con link directo al login
+      setRegistered(true);
     } catch {
       setError("Error de red. Intenta de nuevo.");
     } finally {
       setSubmitting(false);
     }
+  }
+
+  // Si la cuenta se creó pero el auto-login falló, mostrar pantalla de éxito
+  if (registered) {
+    return (
+      <div className="space-y-4 text-center">
+        <div className="flex items-center justify-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
+            <svg className="h-7 w-7 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+          </span>
+        </div>
+        <div>
+          <p className="font-display text-xl font-medium text-slate-900">
+            ¡Cuenta creada!
+          </p>
+          <p className="mt-1 font-sans text-sm text-slate-500">
+            Ya puedes iniciar sesión con tu correo y contraseña.
+          </p>
+        </div>
+        <Button as="a" href="/login" variant="primary" size="lg" className="w-full">
+          Ir a iniciar sesión
+        </Button>
+      </div>
+    );
   }
 
   return (
@@ -136,6 +168,13 @@ export function RegisterForm() {
       >
         {submitting ? "Creando cuenta…" : "Crear cuenta"}
       </Button>
+
+      <p className="text-center font-sans text-sm text-slate-500">
+        ¿Ya tienes cuenta?{" "}
+        <Link href="/login" className="font-medium text-blue-600 hover:text-blue-700">
+          Inicia sesión
+        </Link>
+      </p>
     </form>
   );
 }
