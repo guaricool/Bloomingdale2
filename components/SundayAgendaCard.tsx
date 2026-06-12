@@ -10,6 +10,7 @@ import { useState } from "react";
 import { Modal } from "@/components/Modal";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { HymnModal, type HymnInfo } from "@/components/HymnModal";
 import type { AgendaWithItems } from "@/lib/agenda/types";
 
 interface SundayAgendaCardProps {
@@ -27,9 +28,12 @@ export function SundayAgendaCard({
   publicHref,
 }: SundayAgendaCardProps) {
   const [open, setOpen] = useState(false);
+  const [activeHymn, setActiveHymn] = useState<HymnInfo | null>(null);
 
   return (
     <>
+      {/* Modal de himno */}
+      <HymnModal hymn={activeHymn} onClose={() => setActiveHymn(null)} />
       <div className="paper-card overflow-hidden">
         <div className="bg-blue-700 px-5 py-4 text-slate-50">
           <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-blue-200">
@@ -129,7 +133,7 @@ export function SundayAgendaCard({
         }
       >
         {agenda ? (
-          <AgendaFullBody agenda={agenda} date={date} />
+          <AgendaFullBody agenda={agenda} date={date} onHymnClick={setActiveHymn} />
         ) : (
           <p className="text-sm text-slate-500">No hay agenda preparada.</p>
         )}
@@ -140,10 +144,11 @@ export function SundayAgendaCard({
 
 function AgendaFullBody({
   agenda,
-  date,
+  onHymnClick,
 }: {
   agenda: AgendaWithItems;
   date: string;
+  onHymnClick: (hymn: HymnInfo) => void;
 }) {
   if (agenda.items.length === 0) {
     return (
@@ -162,53 +167,40 @@ function AgendaFullBody({
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center rounded-pill border border-blue-200 bg-blue-50 px-2 py-0.5 font-sans text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-blue-700">
-                {item.type === "hymn"
-                  ? "Himno"
-                  : item.type === "speaker"
-                    ? "Discurso"
-                    : item.type === "prayer"
-                      ? "Oración"
-                      : "Anuncio"}
+                {item.type === "hymn" ? "Himno"
+                  : item.type === "speaker" ? "Discurso"
+                  : item.type === "prayer" ? "Oración"
+                  : "Anuncio"}
               </span>
-              {item.type === "speaker" && item.note ? (
-                <span className="font-sans text-xs italic text-slate-500">
-                  Tema: {item.note}
+              {item.type === "hymn" && item.note && (
+                <span className={`inline-flex items-center rounded-pill px-2 py-0.5 font-sans text-[0.65rem] font-semibold uppercase tracking-[0.12em] ${
+                  item.note === "Santa Cena" ? "bg-amber-50 text-amber-700"
+                  : item.note.startsWith("Intermedio") ? "bg-slate-100 text-slate-500"
+                  : "bg-blue-100 text-blue-800"
+                }`}>
+                  {item.note}
                 </span>
-              ) : null}
+              )}
             </div>
             <div className="mt-1.5 font-display text-lg text-slate-900">
               {item.type === "hymn" && item.hymn ? (
-                <details className="group/hymn">
-                  <summary className="cursor-pointer list-none">
-                    <span className="underline decoration-blue-200 decoration-2 underline-offset-4 transition-colors group-open/hymn:text-blue-700 hover:decoration-blue-400">
-                      Himno {item.hymn.number}
-                    </span>{" "}
-                    <span className="text-slate-700">— {item.hymn.titleEs}</span>
-                    <span className="ml-2 inline-block text-slate-400 transition-transform group-open/hymn:rotate-90">
-                      ›
-                    </span>
-                  </summary>
-                  <div className="mt-2 space-y-1 rounded-card bg-slate-50 px-4 py-3 font-sans text-sm text-slate-700">
-                    {item.hymn.titleEn ? (
-                      <p>
-                        <span className="text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-slate-500">
-                          Inglés:
-                        </span>{" "}
-                        {item.hymn.titleEn}
-                      </p>
-                    ) : null}
-                    <p>
-                      <a
-                        href={`https://www.churchofjesuschrist.org/study/library/hymns/${item.hymn.number}?lang=spa`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 font-medium text-blue-700 underline decoration-blue-200 underline-offset-4 transition-colors hover:text-blue-800 hover:decoration-blue-400"
-                      >
-                        Ver letra completa (churchofjesuschrist.org) ↗
-                      </a>
-                    </p>
-                  </div>
-                </details>
+                <button
+                  type="button"
+                  onClick={() => onHymnClick({
+                    number: item.hymn!.number,
+                    titleEs: item.hymn!.titleEs,
+                    titleEn: item.hymn!.titleEn,
+                  })}
+                  className="group text-left"
+                >
+                  <span className="underline decoration-blue-200 decoration-2 underline-offset-4 transition-colors group-hover:text-blue-700 group-hover:decoration-blue-400">
+                    Himno {item.hymn.number}
+                  </span>{" "}
+                  <span className="text-slate-700">— {item.hymn.titleEs}</span>
+                  <span className="ml-2 font-sans text-xs text-blue-600 opacity-0 transition-opacity group-hover:opacity-100">
+                    Ver letra →
+                  </span>
+                </button>
               ) : null}
               {(item.type === "speaker" || item.type === "prayer") && item.member ? (
                 <p>
@@ -220,13 +212,9 @@ function AgendaFullBody({
               ) : null}
               {item.type === "announcement" ? (
                 <p>
-                  {item.event
-                    ? item.event.title
-                    : item.note ?? "Anuncio"}
+                  {item.event ? item.event.title : item.note ?? "Anuncio"}
                   {item.event ? (
-                    <span className="ml-2 font-sans text-sm italic text-slate-500">
-                      ({item.event.type})
-                    </span>
+                    <span className="ml-2 font-sans text-sm italic text-slate-500">({item.event.type})</span>
                   ) : null}
                 </p>
               ) : null}
