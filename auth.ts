@@ -95,7 +95,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const db = getDb();
         const row = (await db
           .prepare(
-            `SELECT id, email, passwordHash, role, memberId FROM "User" WHERE email = ?`,
+            `SELECT id, email, passwordHash AS "passwordHash", role, memberId AS "memberId"
+             FROM "User" WHERE email = ?`,
           )
           .get(email.toLowerCase())) as UserRow | undefined;
 

@@ -216,7 +216,7 @@ export async function searchMembers(
   const exact = trimmed.toLowerCase();
   const rows = (await getDb()
     .prepare(
-      `SELECT id, firstName, middleName, lastName, membershipNumber
+      `SELECT id, firstName AS "firstName", middleName AS "middleName", lastName AS "lastName", membershipNumber AS "membershipNumber"
        FROM "Member"
        WHERE LOWER(firstName) LIKE ?
           OR LOWER(COALESCE(middleName,'')) LIKE ?

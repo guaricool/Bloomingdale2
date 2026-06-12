@@ -43,7 +43,15 @@ export async function searchMembers(q: string, limit = 10): Promise<MemberRow[]>
   const like = `%${trimmed.toLowerCase()}%`;
   const rows = (await db
     .prepare(
-      `SELECT * FROM "Member"
+      `SELECT id,
+              firstName AS "firstName",
+              middleName AS "middleName",
+              lastName AS "lastName",
+              membershipNumber AS "membershipNumber",
+              familyGroupId AS "familyGroupId",
+              createdAt AS "createdAt",
+              updatedAt AS "updatedAt"
+       FROM "Member"
        WHERE LOWER(firstName) LIKE ? OR LOWER(lastName) LIKE ?
          OR LOWER(firstName || ' ' || lastName) LIKE ?
        ORDER BY
