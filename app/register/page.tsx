@@ -34,16 +34,6 @@ export default async function RegisterPage() {
           <div className="paper-card p-7">
             <RegisterForm />
           </div>
-
-          <p className="mt-6 text-center font-sans text-sm text-slate-500">
-            ¿Ya tienes cuenta?{" "}
-            <a
-              href="/login"
-              className="font-medium text-blue-700 underline decoration-blue-200 underline-offset-4 transition-colors hover:text-blue-800 hover:decoration-blue-400"
-            >
-              Inicia sesión
-            </a>
-          </p>
         </div>
       </section>
 
