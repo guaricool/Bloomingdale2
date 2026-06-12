@@ -80,24 +80,19 @@ export async function createMember(input: {
   familyGroupId?: number | null;
 }): Promise<MemberRow> {
   const db = getDb();
-  const result = await db
+  const rows = await db
     .prepare(
       `INSERT INTO "Member" (firstName, lastName, membershipNumber, familyGroupId)
-       VALUES (?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?) RETURNING id`,
     )
-    .run(
+    .all(
       input.firstName,
       input.lastName,
       input.membershipNumber ?? null,
       input.familyGroupId ?? null,
     );
-  let id = Number(result.lastInsertRowid);
-  if (!Number.isFinite(id) || id <= 0) {
-    throw new Error("No se pudo crear el miembro");
-  }
+  const id = (rows[0] as { id: number }).id;
   const created = await getMemberById(id);
-  if (!created) {
-    throw new Error("Failed to load newly-created Member");
-  }
+  if (!created) throw new Error("No se pudo crear el miembro");
   return created;
 }

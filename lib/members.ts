@@ -119,30 +119,18 @@ export interface CreateMemberInput {
 
 export async function createMember(input: CreateMemberInput): Promise<MemberRow> {
   const db = getDb();
-  const result = await db
+  const rows = await db
     .prepare(
       `INSERT INTO "Member" (firstName, lastName, membershipNumber, familyGroupId)
-       VALUES (?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?) RETURNING id`,
     )
-    .run(
+    .all(
       input.firstName.trim(),
       input.lastName.trim(),
       input.membershipNumber,
       input.familyGroupId,
     );
-  const id = Number(result.lastInsertRowid);
-  if (!Number.isFinite(id) || id <= 0) {
-    // Postgres path: re-SELECT the most recent row. There's only ever one
-    // freshly-inserted matching set of fields the admin just typed.
-    const recent = (await listMembers({ unpaged: true })).rows.find(
-      (m) =>
-        m.firstName === input.firstName.trim() &&
-        m.lastName === input.lastName.trim() &&
-        m.membershipNumber === input.membershipNumber,
-    );
-    if (!recent) throw new Error("No se pudo crear el miembro");
-    return recent;
-  }
+  const id = (rows[0] as { id: number }).id;
   const row = await getMemberById(id);
   if (!row) throw new Error("No se pudo crear el miembro");
   return row;

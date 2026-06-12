@@ -83,23 +83,17 @@ export async function createPost(input: {
   pinned?: boolean;
 }): Promise<PostRow> {
   const db = getDb();
-  const result = await db
+  const rows = await db
     .prepare(
-      `INSERT INTO "Post" (authorId, title, body, pinned) VALUES (?, ?, ?, ?)`,
+      `INSERT INTO "Post" (authorId, title, body, pinned) VALUES (?, ?, ?, ?) RETURNING id`,
     )
-    .run(
+    .all(
       input.authorId,
       input.title?.trim() || null,
       input.body.trim(),
       input.pinned ? 1 : 0,
     );
-  let id = Number(result.lastInsertRowid);
-  if (!Number.isFinite(id) || id <= 0) {
-    // Postgres path: re-SELECT the most recent matching row.
-    const recent = (await listPosts(1))[0];
-    if (!recent) throw new Error("No se pudo crear el post");
-    return recent;
-  }
+  const id = (rows[0] as { id: number }).id;
   const created = await getPostById(id);
   if (!created) throw new Error("Failed to load newly-created Post");
   return created;

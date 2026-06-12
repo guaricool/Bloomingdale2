@@ -62,18 +62,10 @@ export async function createFamilyGroup(
   input: CreateFamilyGroupInput,
 ): Promise<FamilyGroupRow> {
   const db = getDb();
-  const result = await db
-    .prepare(`INSERT INTO "FamilyGroup" (name, headMemberId) VALUES (?, ?)`)
-    .run(input.name.trim(), input.headMemberId);
-  let id = Number(result.lastInsertRowid);
-  if (!Number.isFinite(id) || id <= 0) {
-    // Postgres path: re-SELECT the most recent matching row.
-    const recent = (await listFamilyGroups()).find(
-      (g) => g.name === input.name.trim(),
-    );
-    if (!recent) throw new Error("No se pudo crear el grupo familiar");
-    return recent;
-  }
+  const rows = await db
+    .prepare(`INSERT INTO "FamilyGroup" (name, headMemberId) VALUES (?, ?) RETURNING id`)
+    .all(input.name.trim(), input.headMemberId);
+  const id = (rows[0] as { id: number }).id;
   const row = await getFamilyGroupById(id);
   if (!row) throw new Error("No se pudo crear el grupo familiar");
   return row;

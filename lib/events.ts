@@ -183,30 +183,19 @@ export async function createEvent(
   input: CreateEventInput,
   createdBy: number,
 ): Promise<EventRow> {
-  const result = await getDb()
+  const rows = await getDb()
     .prepare(
       `INSERT INTO "Event" (title, description, eventDate, type, createdBy)
-       VALUES (?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?) RETURNING id`,
     )
-    .run(
+    .all(
       input.title,
       input.description?.trim() ? input.description.trim() : null,
       input.eventDate,
       input.type,
       createdBy,
     );
-  const id = Number(result.lastInsertRowid);
-  if (!Number.isFinite(id) || id <= 0) {
-    // Postgres path: re-SELECT by recent row.
-    const recent = (await listEvents({
-      filters: { from: input.eventDate, to: input.eventDate },
-      ascending: false,
-      limit: 1,
-    })) as EventRow[];
-    const found = recent[0];
-    if (!found) throw new Error("No se pudo crear el evento");
-    return found;
-  }
+  const id = (rows[0] as { id: number }).id;
   const created = await getEventById(id);
   if (!created) throw new Error("No se pudo leer el evento recién creado");
   return created;

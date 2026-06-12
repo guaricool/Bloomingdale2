@@ -210,26 +210,12 @@ export async function createAgenda(input: {
   createdBy: number;
 }): Promise<AgendaRow> {
   const db = getDb();
-  const tx = db.transaction(async () => {
-    const result = await db
-      .prepare(
-        `INSERT INTO "Agenda" (date, status, createdBy) VALUES (?, 'draft', ?)`,
-      )
-      .run(input.date, input.createdBy);
-    return Number(result.lastInsertRowid);
-  });
-  const txId = await tx();
-  let id = Number(txId);
-  if (!Number.isFinite(id) || id <= 0) {
-    // Postgres path: re-SELECT the most recent agenda for this date.
-    const recent = (await db
-      .prepare(`SELECT id FROM "Agenda" WHERE date = ? ORDER BY id DESC LIMIT 1`)
-      .all(input.date)) as { id: number }[];
-    id = Number(recent[0]?.id ?? 0);
-    if (!Number.isFinite(id) || id <= 0) {
-      throw new Error("No se pudo crear la agenda");
-    }
-  }
+  const rows = await db
+    .prepare(
+      `INSERT INTO "Agenda" (date, status, createdBy) VALUES (?, 'draft', ?) RETURNING id`,
+    )
+    .all(input.date, input.createdBy);
+  const id = (rows[0] as { id: number }).id;
   const row = (await db
     .prepare(`SELECT ${selectAgendaColumns} FROM "Agenda" WHERE id = ?`)
     .get(id)) as RawAgendaRow | undefined;
@@ -381,31 +367,16 @@ export async function createAgendaItem(input: {
         .get(input.agendaId)) as { m: number };
       order = max.m + 1;
     }
-    const result = await db
+    const rows = await db
       .prepare(
-        `INSERT INTO "AgendaItem" (agendaId, type, "order", refId, note) VALUES (?, ?, ?, ?, ?)`,
+        `INSERT INTO "AgendaItem" (agendaId, type, "order", refId, note) VALUES (?, ?, ?, ?, ?) RETURNING id`,
       )
-      .run(input.agendaId, input.type, order, input.refId, input.note);
-    return Number(result.lastInsertRowid);
+      .all(input.agendaId, input.type, order, input.refId, input.note);
+    return (rows[0] as { id: number }).id;
   });
-  let id = Number(await tx());
-  if (!Number.isFinite(id) || id <= 0) {
-    // Postgres path: re-SELECT the most recent item for this agenda.
-    const items = (await db
-      .prepare(
-        `SELECT id FROM "AgendaItem" WHERE agendaId = ? ORDER BY id DESC LIMIT 1`,
-      )
-      .all(input.agendaId)) as { id: number }[];
-    id = Number(items[0]?.id ?? 0);
-    if (!Number.isFinite(id) || id <= 0) {
-      throw new Error("No se pudo crear el item");
-    }
-  }
+  const id = Number(await tx());
   const item = await getAgendaItem(input.agendaId, id);
-  if (!item) {
-    // Should be unreachable.
-    throw new Error("Failed to load newly-created AgendaItem");
-  }
+  if (!item) throw new Error("No se pudo crear el item");
   return item;
 }
 
