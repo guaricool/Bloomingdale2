@@ -221,17 +221,44 @@ export function AgendaEditor({
                 ⋮⋮
               </span>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-blue-700">
                     {idx + 1}. {ITEM_TYPE_LABELS[it.type]}
                   </span>
-                  <span className="truncate text-sm font-medium text-slate-900">
-                    {it.displayLabel}
+                  {/* Mostrar rol del himno como badge diferenciado */}
+                  {it.type === "hymn" && it.note && (
+                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ${
+                      it.note === "Santa Cena"
+                        ? "bg-amber-50 text-amber-700"
+                        : it.note.startsWith("Intermedio")
+                        ? "bg-slate-100 text-slate-500"
+                        : "bg-blue-100 text-blue-800"
+                    }`}>
+                      {it.note}
+                    </span>
+                  )}
+                  <span className={`truncate text-sm font-medium ${it.refId ? "text-slate-900" : "text-slate-400 italic"}`}>
+                    {it.refId ? it.displayLabel : "Sin himno seleccionado"}
                   </span>
                 </div>
+                {/* Selector inline para himnos del template (sin himno asignado) */}
+                {it.type === "hymn" && !it.refId && !readOnly && (
+                  <InlineHymnPicker
+                    agendaId={agenda.id}
+                    itemId={it.id}
+                    onSelected={(hymn) => {
+                      setItems(prev => prev.map(x =>
+                        x.id === it.id
+                          ? { ...x, refId: hymn.number, displayLabel: `Himno ${hymn.number} — ${hymn.titleEs}` }
+                          : x
+                      ));
+                      startTransition(() => router.refresh());
+                    }}
+                  />
+                )}
                 {(it.type === "announcement" || it.type === "prayer") ? (
                   <textarea
-                    defaultValue={it.note ?? ""}
+                    defaultValue={it.type === "prayer" ? "" : (it.note ?? "")}
                     onBlur={(e) => {
                       const v = e.target.value;
                       if (v !== (it.note ?? "")) {
@@ -242,7 +269,7 @@ export function AgendaEditor({
                     rows={2}
                     placeholder={
                       it.type === "prayer"
-                        ? "Tema de la oración (opcional)"
+                        ? "Nombre de quien ora (opcional)"
                         : "Detalle del anuncio (opcional)"
                     }
                     className="mt-2 block w-full rounded-md border border-slate-300 px-2 py-1 text-xs shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
@@ -410,6 +437,62 @@ function AddItemBar({ active, setActive, onSubmit }: AddItemBarProps) {
           </div>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+// ─── InlineHymnPicker ────────────────────────────────────────────────────────
+// Selector compacto para asignar un himno a un item del template.
+// Aparece debajo del item cuando el himno aún no está seleccionado.
+
+interface InlineHymnPickerProps {
+  agendaId: number;
+  itemId: number;
+  onSelected: (hymn: { number: number; titleEs: string }) => void;
+}
+
+function InlineHymnPicker({ agendaId, itemId, onSelected }: InlineHymnPickerProps) {
+  const [hymnNumber, setHymnNumber] = useState<number | null>(null);
+  const [hymnTitle, setHymnTitle] = useState<string>("");
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    if (!hymnNumber) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/agendas/${agendaId}/items/${itemId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refId: hymnNumber }),
+      });
+      if (res.ok) {
+        onSelected({ number: hymnNumber, titleEs: hymnTitle });
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="mt-2 flex items-center gap-2 rounded-md border border-blue-100 bg-blue-50 p-2">
+      <div className="flex-1">
+        <HymnAutocomplete
+          value={hymnNumber}
+          onSelect={(h) => {
+            setHymnNumber(h.number > 0 ? h.number : null);
+            setHymnTitle(h.titleEs ?? "");
+          }}
+          placeholder="Buscar himno por número o título…"
+        />
+      </div>
+      <button
+        type="button"
+        onClick={() => void save()}
+        disabled={!hymnNumber || saving}
+        className="shrink-0 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        {saving ? "Guardando…" : "Asignar"}
+      </button>
     </div>
   );
 }

@@ -16,6 +16,7 @@ import { NextResponse } from "next/server";
 import { auth, type AppSessionUser } from "@/auth";
 import {
   createAgenda,
+  createAgendaItem,
   deleteAgenda,
   getAgendaById,
   transitionAgenda,
@@ -76,9 +77,39 @@ export async function createAgendaAction(
       return { ok: false, error: "Sesión inválida" };
     }
     const created = await createAgenda({ date, createdBy });
+
+    // Crear template estándar de la reunión sacramental:
+    // 1. Himno de apertura
+    // 2. Oración de apertura
+    // 3. Himno de la Santa Cena
+    // 4. Himno intermedio (opcional — la presidencia puede eliminarlo)
+    // 5. Himno de cierre
+    // 6. Oración de cierre
+    const templateItems: { type: "hymn" | "prayer"; note: string }[] = [
+      { type: "hymn",  note: "Apertura" },
+      { type: "prayer", note: "Oración de apertura" },
+      { type: "hymn",  note: "Santa Cena" },
+      { type: "hymn",  note: "Intermedio (opcional)" },
+      { type: "hymn",  note: "Cierre" },
+      { type: "prayer", note: "Oración de cierre" },
+    ];
+
+    for (let i = 0; i < templateItems.length; i++) {
+      const item = templateItems[i]!;
+      await createAgendaItem({
+        agendaId: created.id,
+        type: item.type,
+        refId: null,
+        note: item.note,
+        order: i,
+      });
+    }
+
+    // Recargar la agenda con los items recién creados
+    const agendaWithItems = await getAgendaById(created.id);
     revalidatePath("/admin/agendas");
     revalidatePath("/agendas");
-    return { ok: true, agenda: created };
+    return { ok: true, agenda: agendaWithItems ?? created };
   } catch (err) {
     return {
       ok: false,
