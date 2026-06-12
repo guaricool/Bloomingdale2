@@ -60,6 +60,7 @@ export interface HymnRow {
 export interface MemberRow {
   id: number;
   firstName: string;
+  middleName: string | null;
   lastName: string;
   membershipNumber: string | null;
   familyGroupId: number | null;

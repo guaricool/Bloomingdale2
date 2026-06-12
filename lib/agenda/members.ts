@@ -16,6 +16,7 @@ import type { MemberRow } from "./types";
 interface RawMember {
   id: number;
   firstName: string;
+  middleName: string | null;
   lastName: string;
   membershipNumber: string | null;
   familyGroupId: number | null;
@@ -27,6 +28,7 @@ function toMember(r: RawMember): MemberRow {
   return {
     id: r.id,
     firstName: r.firstName,
+    middleName: r.middleName ?? null,
     lastName: r.lastName,
     membershipNumber: r.membershipNumber,
     familyGroupId: r.familyGroupId,
@@ -76,13 +78,24 @@ export async function searchMembers(q: string, limit = 10): Promise<MemberRow[]>
 export async function getMemberById(id: number): Promise<MemberRow | null> {
   const db = getDb();
   const row = (await db
-    .prepare(`SELECT * FROM "Member" WHERE id = ?`)
+    .prepare(
+      `SELECT id,
+              firstName AS "firstName",
+              middleName AS "middleName",
+              lastName AS "lastName",
+              membershipNumber AS "membershipNumber",
+              familyGroupId AS "familyGroupId",
+              createdAt AS "createdAt",
+              updatedAt AS "updatedAt"
+       FROM "Member" WHERE id = ?`,
+    )
     .get(id)) as RawMember | undefined;
   return row ? toMember(row) : null;
 }
 
 export async function createMember(input: {
   firstName: string;
+  middleName?: string | null;
   lastName: string;
   membershipNumber?: string | null;
   familyGroupId?: number | null;
@@ -90,11 +103,12 @@ export async function createMember(input: {
   const db = getDb();
   const rows = await db
     .prepare(
-      `INSERT INTO "Member" (firstName, lastName, membershipNumber, familyGroupId)
-       VALUES (?, ?, ?, ?) RETURNING id`,
+      `INSERT INTO "Member" (firstName, middleName, lastName, membershipNumber, familyGroupId)
+       VALUES (?, ?, ?, ?, ?) RETURNING id`,
     )
     .all(
       input.firstName,
+      input.middleName ?? null,
       input.lastName,
       input.membershipNumber ?? null,
       input.familyGroupId ?? null,
