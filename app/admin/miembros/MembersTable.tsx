@@ -190,7 +190,7 @@ export function MembersTable({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por nombre, apellido o número de miembro"
-            className="block w-full rounded-card border border-cream-300 bg-white px-3.5 py-2.5 text-sm shadow-soft placeholder:text-ink-400 transition-colors focus:border-sage-400 focus:outline-none focus:ring-2 focus:ring-sage-200"
+            className="block w-full rounded-card border border-slate-300 bg-white px-3.5 py-2.5 text-sm shadow-soft placeholder:text-slate-400 transition-colors focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
             autoComplete="off"
           />
         </div>
@@ -205,7 +205,7 @@ export function MembersTable({
               const v = e.target.value;
               setFamilyGroupId(v ? Number(v) : null);
             }}
-            className="block w-full rounded-card border border-cream-300 bg-white px-3.5 py-2.5 text-sm shadow-soft transition-colors focus:border-sage-400 focus:outline-none focus:ring-2 focus:ring-sage-200"
+            className="block w-full rounded-card border border-slate-300 bg-white px-3.5 py-2.5 text-sm shadow-soft transition-colors focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
           >
             <option value="">Todos los grupos</option>
             {groups.map((g) => (
@@ -219,7 +219,7 @@ export function MembersTable({
 
       {deleteError ? (
         <div
-          className="rounded-card border border-terracotta-100 bg-terracotta-50 px-3.5 py-2.5 font-sans text-sm text-terracotta-600"
+          className="rounded-card border border-red-100 bg-red-50 px-3.5 py-2.5 font-sans text-sm text-red-600"
           role="alert"
         >
           {deleteError}
@@ -228,27 +228,27 @@ export function MembersTable({
 
       <div className="paper-card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-cream-200 text-sm">
-            <thead className="bg-cream-100/60 text-left">
+          <table className="min-w-full divide-y divide-slate-200 text-sm">
+            <thead className="bg-slate-100/60 text-left">
               <tr>
-                <th scope="col" className="px-5 py-3 font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-ink-500">
+                <th scope="col" className="px-5 py-3 font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
                   Nombre
                 </th>
-                <th scope="col" className="px-5 py-3 font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-ink-500">
+                <th scope="col" className="px-5 py-3 font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
                   Número de miembro
                 </th>
-                <th scope="col" className="px-5 py-3 font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-ink-500">
+                <th scope="col" className="px-5 py-3 font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
                   Grupo familiar
                 </th>
-                <th scope="col" className="px-5 py-3 text-right font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-ink-500">
+                <th scope="col" className="px-5 py-3 text-right font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-cream-200">
+            <tbody className="divide-y divide-slate-200">
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-5 py-10 text-center font-sans text-sm text-ink-500">
+                  <td colSpan={4} className="px-5 py-10 text-center font-sans text-sm text-slate-500">
                     {search || familyGroupId
                       ? "Sin resultados para los filtros aplicados."
                       : "Aún no hay miembros. Crea el primero con «+ Nuevo miembro»."}
@@ -256,21 +256,21 @@ export function MembersTable({
                 </tr>
               ) : (
                 rows.map((r) => (
-                  <tr key={r.id} className="transition-colors hover:bg-cream-50">
-                    <td className="px-5 py-3 font-display text-base font-medium text-ink-900">
+                  <tr key={r.id} className="transition-colors hover:bg-slate-50">
+                    <td className="px-5 py-3 font-display text-base font-medium text-slate-900">
                       {fullName(r)}
                     </td>
-                    <td className="px-5 py-3 font-sans text-sm text-ink-500">
-                      {r.membershipNumber ?? <span className="text-ink-400">—</span>}
+                    <td className="px-5 py-3 font-sans text-sm text-slate-500">
+                      {r.membershipNumber ?? <span className="text-slate-400">—</span>}
                     </td>
-                    <td className="px-5 py-3 font-sans text-sm text-ink-700">
-                      {r.familyGroupName ?? <span className="italic text-ink-400">Sin grupo</span>}
+                    <td className="px-5 py-3 font-sans text-sm text-slate-700">
+                      {r.familyGroupName ?? <span className="italic text-slate-400">Sin grupo</span>}
                     </td>
                     <td className="px-5 py-3 text-right">
                       <div className="inline-flex items-center gap-2">
                         <Link
                           href={`/admin/miembros/${r.id}/editar`}
-                          className="rounded-pill border border-cream-300 bg-white px-3 py-1 font-sans text-xs font-medium text-ink-700 transition-colors hover:border-sage-400 hover:bg-sage-50 hover:text-sage-700"
+                          className="rounded-pill border border-slate-300 bg-white px-3 py-1 font-sans text-xs font-medium text-slate-700 transition-colors hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700"
                         >
                           Editar
                         </Link>
@@ -278,7 +278,7 @@ export function MembersTable({
                           type="button"
                           onClick={() => onDelete(r)}
                           disabled={deletingId === r.id}
-                          className="rounded-pill border border-terracotta-100 bg-white px-3 py-1 font-sans text-xs font-medium text-terracotta-500 transition-colors hover:bg-terracotta-50 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="rounded-pill border border-red-100 bg-white px-3 py-1 font-sans text-xs font-medium text-red-500 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           {deletingId === r.id ? "Eliminando…" : "Eliminar"}
                         </button>
@@ -293,7 +293,7 @@ export function MembersTable({
       </div>
 
       <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
-        <p className="font-sans text-xs text-ink-500">
+        <p className="font-sans text-xs text-slate-500">
           Mostrando {rows.length === 0 ? 0 : (page - 1) * pageSize + 1}–
           {(page - 1) * pageSize + rows.length} de {total}.
         </p>
@@ -302,18 +302,18 @@ export function MembersTable({
             type="button"
             onClick={() => goToPage(page - 1)}
             disabled={page <= 1}
-            className="rounded-pill border border-cream-300 bg-white px-3 py-1.5 font-sans text-xs font-medium text-ink-700 transition-colors hover:bg-cream-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-pill border border-slate-300 bg-white px-3 py-1.5 font-sans text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             ← Anterior
           </button>
-          <span className="font-sans text-xs text-ink-500">
+          <span className="font-sans text-xs text-slate-500">
             Página {page} de {totalPages}
           </span>
           <button
             type="button"
             onClick={() => goToPage(page + 1)}
             disabled={page >= totalPages}
-            className="rounded-pill border border-cream-300 bg-white px-3 py-1.5 font-sans text-xs font-medium text-ink-700 transition-colors hover:bg-cream-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-pill border border-slate-300 bg-white px-3 py-1.5 font-sans text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Siguiente →
           </button>

@@ -15,7 +15,7 @@ export function Card({ children, className, interactive, ribbon, ...rest }: Card
       className={clsx(
         "paper-card relative overflow-hidden",
         interactive &&
-          "transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lift hover:border-sage-300 active:scale-[0.99]",
+          "transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lift hover:border-blue-300 active:scale-[0.99]",
         className,
       )}
       {...rest}
@@ -52,15 +52,15 @@ export function CardHeader({
   className?: string;
 }) {
   return (
-    <div className={clsx("border-b border-cream-200 px-6 py-5", className)}>
+    <div className={clsx("border-b border-slate-200 px-6 py-5", className)}>
       {eyebrow ? (
-        <div className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+        <div className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-blue-600">
           {eyebrow}
         </div>
       ) : null}
-      <h3 className="mt-1 font-display text-xl font-medium text-ink-900">{title}</h3>
+      <h3 className="mt-1 font-display text-xl font-medium text-slate-900">{title}</h3>
       {description ? (
-        <p className="mt-1 text-sm text-ink-500">{description}</p>
+        <p className="mt-1 text-sm text-slate-500">{description}</p>
       ) : null}
     </div>
   );

@@ -69,16 +69,16 @@ export default async function EventosPage() {
             <Card key={ev.id} interactive>
               <CardBody>
                 <div className="flex items-start justify-between gap-2">
-                  <h2 className="font-display text-lg font-medium leading-snug text-ink-900">
+                  <h2 className="font-display text-lg font-medium leading-snug text-slate-900">
                     {ev.title}
                   </h2>
                   <Badge tone={TYPE_TONE[ev.type]}>{EVENT_TYPE_LABELS[ev.type]}</Badge>
                 </div>
-                <p className="mt-1 font-sans text-sm text-ink-500">
+                <p className="mt-1 font-sans text-sm text-slate-500">
                   {formatDate(ev.eventDate)}
                 </p>
                 {ev.description ? (
-                  <p className="mt-3 whitespace-pre-line font-sans text-sm text-ink-700">
+                  <p className="mt-3 whitespace-pre-line font-sans text-sm text-slate-700">
                     {ev.description}
                   </p>
                 ) : null}

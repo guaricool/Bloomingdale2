@@ -49,7 +49,7 @@ export function Modal({ open, onClose, title, eyebrow, children, footer, size = 
       role="dialog"
       aria-modal="true"
       aria-label={title}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/45 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
@@ -60,15 +60,15 @@ export function Modal({ open, onClose, title, eyebrow, children, footer, size = 
         className={`paper-card mx-4 w-full ${sizeClass[size]} my-8 max-h-[88vh] animate-reveal-up overflow-y-auto`}
       >
         {(title || eyebrow) ? (
-          <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-cream-200 bg-cream-50/95 px-6 py-4 backdrop-blur">
+          <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-slate-200 bg-slate-50/95 px-6 py-4 backdrop-blur">
             <div>
               {eyebrow ? (
-                <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+                <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-blue-600">
                   {eyebrow}
                 </p>
               ) : null}
               {title ? (
-                <h2 className="mt-1 font-display text-2xl font-medium tracking-tight text-ink-900">
+                <h2 className="mt-1 font-display text-2xl font-medium tracking-tight text-slate-900">
                   {title}
                 </h2>
               ) : null}
@@ -77,7 +77,7 @@ export function Modal({ open, onClose, title, eyebrow, children, footer, size = 
               type="button"
               onClick={onClose}
               aria-label="Cerrar"
-              className="flex h-8 w-8 items-center justify-center rounded-full font-sans text-lg text-ink-500 transition-colors hover:bg-cream-100 hover:text-ink-900"
+              className="flex h-8 w-8 items-center justify-center rounded-full font-sans text-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
             >
               ×
             </button>
@@ -85,7 +85,7 @@ export function Modal({ open, onClose, title, eyebrow, children, footer, size = 
         ) : null}
         <div className="px-6 py-5">{children}</div>
         {footer ? (
-          <div className="flex justify-end gap-2 border-t border-cream-200 bg-cream-50/60 px-6 py-3">
+          <div className="flex justify-end gap-2 border-t border-slate-200 bg-slate-50/60 px-6 py-3">
             {footer}
           </div>
         ) : null}

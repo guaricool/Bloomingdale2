@@ -12,28 +12,28 @@
 html,
 body {
   height: 100%;
-  /* Fondo "papel" — crema con grano sutil, no blanco clínico */
-  background-color: #fdfaf4;
+  /* Fondo frío — slate muy claro con un velo azul sutil, no blanco plano */
+  background-color: #f8fafc;
   background-image: radial-gradient(
       circle at 18% 8%,
-      rgba(212, 166, 74, 0.08),
-      transparent 40%
+      rgba(56, 189, 248, 0.08),
+      transparent 42%
     ),
-    radial-gradient(circle at 82% 92%, rgba(107, 138, 74, 0.06), transparent 42%);
+    radial-gradient(circle at 82% 92%, rgba(37, 99, 235, 0.06), transparent 44%);
   background-attachment: fixed;
-  color: #1f1a14;
+  color: #0f172a;
   font-feature-settings: "ss01", "cv11";
 }
 
 /* Selección con color de marca */
 ::selection {
-  background-color: rgba(107, 138, 74, 0.25);
-  color: #1f3014;
+  background-color: rgba(37, 99, 235, 0.22);
+  color: #1e3a8a;
 }
 
-/* Foco accesible — anillo sage, no outline default */
+/* Foco accesible — anillo azul */
 *:focus-visible {
-  outline: 2px solid #6b8a4a;
+  outline: 2px solid #2563eb;
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -48,7 +48,7 @@ body {
   pointer-events: none;
   opacity: 0.5;
   mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.45  0 0 0 0 0.40  0 0 0 0 0.32  0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.12  0 0 0 0 0.16  0 0 0 0 0.24  0 0 0 0.12 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   background-size: 160px 160px;
 }
 
@@ -85,9 +85,9 @@ body {
 .skeleton-shimmer {
   background: linear-gradient(
     90deg,
-    rgba(239, 228, 204, 0.4) 0%,
-    rgba(239, 228, 204, 0.8) 50%,
-    rgba(239, 228, 204, 0.4) 100%
+    rgba(226, 232, 240, 0.4) 0%,
+    rgba(226, 232, 240, 0.85) 50%,
+    rgba(226, 232, 240, 0.4) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 1.6s ease-in-out infinite;
@@ -96,10 +96,10 @@ body {
 /* Pulse sutil para día de hoy en calendario */
 @keyframes pulse-today {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(107, 138, 74, 0.4);
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
   }
   50% {
-    box-shadow: 0 0 0 4px rgba(107, 138, 74, 0);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0);
   }
 }
 .cell-today {
@@ -129,7 +129,7 @@ body {
   display: flex;
   align-items: center;
   gap: 1rem;
-  color: #8b7e6c;
+  color: #64748b;
   font-family: "Fraunces", serif;
   font-style: italic;
 }
@@ -141,7 +141,7 @@ body {
   background: linear-gradient(
     to right,
     transparent,
-    rgba(139, 126, 108, 0.4),
+    rgba(100, 116, 139, 0.4),
     transparent
   );
 }
@@ -149,8 +149,8 @@ body {
 /* Tarjeta "papel" — base de muchos componentes */
 .paper-card {
   background: #ffffff;
-  border: 1px solid #efe4cc;
+  border: 1px solid #e2e8f0;
   border-radius: 0.875rem;
-  box-shadow: 0 1px 2px rgba(58, 50, 42, 0.04),
-    0 4px 16px rgba(58, 50, 42, 0.05);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04),
+    0 4px 16px rgba(15, 23, 42, 0.06);
 }

@@ -53,7 +53,7 @@ export function AgendaList({ upcoming, recent }: Props) {
                   </span>
                   <Link
                     href={`/agendas/${a.id}`}
-                    className="text-xs font-medium text-brand-700 underline hover:text-brand-800"
+                    className="text-xs font-medium text-blue-700 underline hover:text-blue-800"
                   >
                     Ver
                   </Link>
@@ -92,7 +92,7 @@ export function AgendaList({ upcoming, recent }: Props) {
                   </span>
                   <Link
                     href={`/agendas/${a.id}`}
-                    className="text-xs font-medium text-brand-700 underline hover:text-brand-800"
+                    className="text-xs font-medium text-blue-700 underline hover:text-blue-800"
                   >
                     Ver
                   </Link>

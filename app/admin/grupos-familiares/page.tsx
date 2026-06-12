@@ -24,7 +24,7 @@ export default async function FamilyGroupsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">
+      <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
         Administración
       </p>
       <h1 className="mt-1 text-3xl font-bold text-slate-900">Grupos familiares</h1>

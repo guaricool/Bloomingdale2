@@ -1,23 +1,24 @@
 import { clsx } from "clsx";
 import type { ButtonHTMLAttributes, AnchorHTMLAttributes, ReactNode } from "react";
+import { Spinner } from "./Spinner";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger" | "subtle";
 type Size = "sm" | "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-pill font-sans font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream-50 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-pill font-sans font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 disabled:cursor-not-allowed disabled:opacity-50 active:transition-none";
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-sage-600 text-cream-50 shadow-soft hover:bg-sage-700 hover:shadow-lift focus-visible:ring-sage-400 active:scale-[0.98]",
+    "bg-blue-600 text-slate-50 shadow-soft hover:bg-blue-700 hover:shadow-lift hover:-translate-y-0.5 focus-visible:ring-blue-400 active:translate-y-0 active:scale-[0.97] active:shadow-soft",
   secondary:
-    "bg-cream-50 text-ink-900 border border-cream-300 hover:border-sage-400 hover:bg-sage-50 hover:text-sage-700 focus-visible:ring-sage-400",
+    "bg-slate-50 text-slate-900 border border-slate-300 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 hover:-translate-y-0.5 focus-visible:ring-blue-400 active:translate-y-0 active:scale-[0.97]",
   ghost:
-    "text-ink-700 hover:bg-cream-100 hover:text-ink-900 focus-visible:ring-sage-400",
+    "text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus-visible:ring-blue-400 active:scale-[0.97]",
   danger:
-    "bg-terracotta-600 text-cream-50 shadow-soft hover:bg-terracotta-500 focus-visible:ring-terracotta-400 active:scale-[0.98]",
+    "bg-red-600 text-slate-50 shadow-soft hover:bg-red-500 hover:shadow-lift hover:-translate-y-0.5 focus-visible:ring-red-400 active:translate-y-0 active:scale-[0.97] active:shadow-soft",
   subtle:
-    "bg-sage-50 text-sage-700 hover:bg-sage-100 focus-visible:ring-sage-400",
+    "bg-blue-50 text-blue-700 hover:bg-blue-100 focus-visible:ring-blue-400 active:scale-[0.97]",
 };
 
 const sizes: Record<Size, string> = {
@@ -26,11 +27,19 @@ const sizes: Record<Size, string> = {
   lg: "px-6 py-3 text-base",
 };
 
+const spinnerSize: Record<Size, "sm" | "md"> = {
+  sm: "sm",
+  md: "sm",
+  lg: "md",
+};
+
 interface BaseProps {
   variant?: Variant;
   size?: Size;
   className?: string;
   children: ReactNode;
+  /** Cuando true, muestra un spinner y deshabilita el botón. */
+  loading?: boolean;
 }
 
 type ButtonProps = BaseProps & ButtonHTMLAttributes<HTMLButtonElement> & { as?: "button" };
@@ -43,6 +52,7 @@ export function Button(props: ButtonProps | LinkButtonProps) {
     size = "md",
     className,
     children,
+    loading = false,
     ...rest
   } = props as BaseProps & Record<string, unknown>;
   const cls = clsx(base, variants[variant], sizes[size], className);
@@ -55,9 +65,23 @@ export function Button(props: ButtonProps | LinkButtonProps) {
       </a>
     );
   }
+
+  const buttonRest = rest as ButtonHTMLAttributes<HTMLButtonElement>;
   return (
-    <button className={cls} {...(rest as ButtonHTMLAttributes<HTMLButtonElement>)}>
-      {children}
+    <button
+      className={cls}
+      {...buttonRest}
+      disabled={loading || buttonRest.disabled}
+      aria-busy={loading || undefined}
+    >
+      {loading ? (
+        <>
+          <Spinner size={spinnerSize[size]} className="text-current" />
+          <span>{children}</span>
+        </>
+      ) : (
+        children
+      )}
     </button>
   );
 }

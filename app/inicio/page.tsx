@@ -66,13 +66,13 @@ export default async function DashboardPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
       <div className="reveal space-y-3">
-        <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-sage-600">
+        <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-blue-600">
           {greeting}
         </p>
-        <h1 className="font-display text-4xl font-medium tracking-tight text-ink-900 sm:text-5xl">
+        <h1 className="font-display text-4xl font-medium tracking-tight text-slate-900 sm:text-5xl">
           {displayName}
         </h1>
-        <p className="max-w-2xl font-display text-base italic text-ink-500">
+        <p className="max-w-2xl font-display text-base italic text-slate-500">
           {todayNote}
         </p>
       </div>
@@ -82,17 +82,17 @@ export default async function DashboardPage() {
         <Card interactive>
           <CardBody>
             <div className="flex items-start justify-between">
-              <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+              <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-blue-600">
                 Este domingo
               </p>
               <Badge tone={nextAgenda ? "sage" : "ink"}>
                 {nextAgenda ? "Publicada" : "Pendiente"}
               </Badge>
             </div>
-            <p className="mt-3 font-display text-2xl font-medium text-ink-900">
+            <p className="mt-3 font-display text-2xl font-medium text-slate-900">
               {formatSpanishDate(target)}
             </p>
-            <p className="mt-1 text-sm text-ink-500">
+            <p className="mt-1 text-sm text-slate-500">
               {nextAgenda
                 ? "La agenda ya está disponible para todos los miembros."
                 : "La agenda se publicará desde el panel de administración."}
@@ -118,13 +118,13 @@ export default async function DashboardPage() {
         {/* Miembros */}
         <Card interactive>
           <CardBody>
-            <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+            <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-blue-600">
               Comunidad
             </p>
-            <p className="mt-3 font-display text-5xl font-medium text-ink-900">
+            <p className="mt-3 font-display text-5xl font-medium text-slate-900">
               {memberCount}
             </p>
-            <p className="text-sm text-ink-500">miembros en la rama</p>
+            <p className="text-sm text-slate-500">miembros en la rama</p>
             <div className="mt-5 flex gap-2">
               <Button as="a" href="/miembros" variant="secondary" size="sm">
                 Ver directorio
@@ -141,13 +141,13 @@ export default async function DashboardPage() {
         {/* Eventos */}
         <Card interactive>
           <CardBody>
-            <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+            <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-blue-600">
               Próximos eventos
             </p>
-            <p className="mt-3 font-display text-5xl font-medium text-ink-900">
+            <p className="mt-3 font-display text-5xl font-medium text-slate-900">
               {eventCount}
             </p>
-            <p className="text-sm text-ink-500">eventos en el calendario</p>
+            <p className="text-sm text-slate-500">eventos en el calendario</p>
             <div className="mt-5">
               <Button as="a" href="/eventos" variant="secondary" size="sm">
                 Ver calendario
@@ -166,11 +166,11 @@ export default async function DashboardPage() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Card interactive>
               <CardBody>
-                <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+                <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-blue-600">
                   Miembros
                 </p>
-                <p className="mt-2 font-display text-lg text-ink-900">Directorio y grupos</p>
-                <p className="mt-1 text-sm text-ink-500">
+                <p className="mt-2 font-display text-lg text-slate-900">Directorio y grupos</p>
+                <p className="mt-1 text-sm text-slate-500">
                   Crea, edita y asigna miembros a grupos familiares.
                 </p>
                 <div className="mt-4">
@@ -183,11 +183,11 @@ export default async function DashboardPage() {
 
             <Card interactive>
               <CardBody>
-                <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+                <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-blue-600">
                   Agendas
                 </p>
-                <p className="mt-2 font-display text-lg text-ink-900">Dominicales</p>
-                <p className="mt-1 text-sm text-ink-500">
+                <p className="mt-2 font-display text-lg text-slate-900">Dominicales</p>
+                <p className="mt-1 text-sm text-slate-500">
                   Crea borradores, agrega himnos y orden público.
                 </p>
                 <div className="mt-4">
@@ -200,11 +200,11 @@ export default async function DashboardPage() {
 
             <Card interactive>
               <CardBody>
-                <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+                <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-blue-600">
                   Eventos
                 </p>
-                <p className="mt-2 font-display text-lg text-ink-900">Calendario</p>
-                <p className="mt-1 text-sm text-ink-500">
+                <p className="mt-2 font-display text-lg text-slate-900">Calendario</p>
+                <p className="mt-1 text-sm text-slate-500">
                   Crea eventos y controla los anuncios automáticos.
                 </p>
                 <div className="mt-4">

@@ -70,7 +70,7 @@ export default async function MembersDirectoryPage() {
             <Card key={`grp-${b.id}`}>
               <CardBody>
                 <div className="flex items-baseline justify-between">
-                  <h2 className="font-display text-xl font-medium text-ink-900">
+                  <h2 className="font-display text-xl font-medium text-slate-900">
                     {b.name}
                   </h2>
                   <Badge tone="sage">
@@ -81,7 +81,7 @@ export default async function MembersDirectoryPage() {
                   {b.members.map((m) => (
                     <li
                       key={m.id}
-                      className="font-sans text-sm text-ink-700"
+                      className="font-sans text-sm text-slate-700"
                     >
                       {fullName(m)}
                     </li>
@@ -95,7 +95,7 @@ export default async function MembersDirectoryPage() {
             <Card>
               <CardBody>
                 <div className="flex items-baseline justify-between">
-                  <h2 className="font-display text-xl font-medium text-ink-900">
+                  <h2 className="font-display text-xl font-medium text-slate-900">
                     Sin grupo
                   </h2>
                   <Badge tone="ink">
@@ -104,7 +104,7 @@ export default async function MembersDirectoryPage() {
                 </div>
                 <ul className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
                   {orphan.map((m) => (
-                    <li key={m.id} className="font-sans text-sm text-ink-700">
+                    <li key={m.id} className="font-sans text-sm text-slate-700">
                       {fullName(m)}
                     </li>
                   ))}

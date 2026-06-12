@@ -121,7 +121,7 @@ export function RegisterForm() {
 
       {error ? (
         <div
-          className="rounded-card border border-terracotta-100 bg-terracotta-50 px-3.5 py-2.5 font-sans text-sm text-terracotta-600"
+          className="rounded-card border border-red-100 bg-red-50 px-3.5 py-2.5 font-sans text-sm text-red-600"
           role="alert"
         >
           {error}
@@ -131,7 +131,7 @@ export function RegisterForm() {
       <Button
         type="submit"
         size="lg"
-        disabled={submitting}
+        loading={submitting}
         className="w-full"
       >
         {submitting ? "Creando cuenta…" : "Crear cuenta"}

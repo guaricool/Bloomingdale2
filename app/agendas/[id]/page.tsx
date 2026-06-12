@@ -75,14 +75,14 @@ export default async function PublicAgendaView({ params }: PageProps) {
               </span>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-brand-700">
+                  <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-blue-700">
                     {ITEM_TYPE_LABELS[item.type]}
                   </span>
                 </div>
                 <div className="mt-1 text-sm text-slate-900">
                   {item.type === "hymn" && item.hymn ? (
                     <details>
-                      <summary className="cursor-pointer text-brand-700 underline hover:text-brand-800">
+                      <summary className="cursor-pointer text-blue-700 underline hover:text-blue-800">
                         Himno {item.hymn.number} — {item.hymn.titleEs}
                       </summary>
                       <div className="mt-2 space-y-1 text-sm text-slate-700">
@@ -99,7 +99,7 @@ export default async function PublicAgendaView({ params }: PageProps) {
                             href={`https://www.churchofjesuschrist.org/study/library/hymns/${item.hymn.number}?lang=spa`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-brand-700 underline hover:text-brand-800"
+                            className="text-xs text-blue-700 underline hover:text-blue-800"
                           >
                             Ver letra completa (churchofjesuschrist.org) ↗
                           </a>

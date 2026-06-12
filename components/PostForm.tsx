@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { createPostAction } from "@/app/actions/posts";
 import { Button } from "@/components/ui/Button";
 import { Field, Textarea, Input } from "@/components/ui/Field";
+import { useToast } from "@/components/ui/Toast";
 
 interface PostFormProps {
   isAdmin: boolean;
@@ -17,6 +18,7 @@ interface PostFormProps {
 
 export function PostForm({ isAdmin, authorName }: PostFormProps) {
   const router = useRouter();
+  const toast = useToast();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [pinned, setPinned] = useState(false);
@@ -45,6 +47,7 @@ export function PostForm({ isAdmin, authorName }: PostFormProps) {
     setTitle("");
     setBody("");
     setPinned(false);
+    toast.success("Publicado");
     startTransition(() => router.refresh());
   }
 
@@ -52,7 +55,7 @@ export function PostForm({ isAdmin, authorName }: PostFormProps) {
     <form onSubmit={onSubmit} className="paper-card p-6">
       <div className="flex items-center gap-3">
         <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sage-700 font-display text-sm font-medium text-cream-50"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-700 font-display text-sm font-medium text-slate-50"
           aria-hidden
         >
           {authorName
@@ -61,10 +64,10 @@ export function PostForm({ isAdmin, authorName }: PostFormProps) {
             .map((s) => s[0]?.toUpperCase() ?? "")
             .join("")}
         </div>
-        <p className="font-sans text-sm text-ink-700">
-          Publicando como <strong className="text-ink-900">{authorName}</strong>
+        <p className="font-sans text-sm text-slate-700">
+          Publicando como <strong className="text-slate-900">{authorName}</strong>
           {isAdmin ? (
-            <span className="ml-2 rounded-pill border border-sage-200 bg-sage-50 px-2 py-0.5 font-sans text-[0.65rem] font-semibold uppercase tracking-wider text-sage-700">
+            <span className="ml-2 rounded-pill border border-blue-200 bg-blue-50 px-2 py-0.5 font-sans text-[0.65rem] font-semibold uppercase tracking-wider text-blue-700">
               Presidencia
             </span>
           ) : null}
@@ -98,12 +101,12 @@ export function PostForm({ isAdmin, authorName }: PostFormProps) {
         </Field>
 
         {isAdmin ? (
-          <label className="flex items-center gap-2 font-sans text-sm text-ink-700">
+          <label className="flex items-center gap-2 font-sans text-sm text-slate-700">
             <input
               type="checkbox"
               checked={pinned}
               onChange={(e) => setPinned(e.target.checked)}
-              className="h-4 w-4 rounded border-cream-300 text-sage-600 focus:ring-sage-400"
+              className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-400"
             />
             <span>Fijar este post al inicio del feed</span>
           </label>
@@ -111,13 +114,13 @@ export function PostForm({ isAdmin, authorName }: PostFormProps) {
       </div>
 
       {error ? (
-        <p className="mt-3 rounded-card border border-terracotta-100 bg-terracotta-50 px-3 py-2 font-sans text-xs text-terracotta-600" role="alert">
+        <p className="mt-3 rounded-card border border-red-100 bg-red-50 px-3 py-2 font-sans text-xs text-red-600" role="alert">
           {error}
         </p>
       ) : null}
 
       <div className="mt-4 flex items-center justify-end">
-        <Button type="submit" variant="primary" size="sm" disabled={submitting}>
+        <Button type="submit" variant="primary" size="sm" loading={submitting}>
           {submitting ? "Publicando…" : "Publicar"}
         </Button>
       </div>

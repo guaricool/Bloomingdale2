@@ -222,7 +222,7 @@ export function AgendaEditor({
               </span>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-brand-700">
+                  <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-blue-700">
                     {idx + 1}. {ITEM_TYPE_LABELS[it.type]}
                   </span>
                   <span className="truncate text-sm font-medium text-slate-900">
@@ -245,7 +245,7 @@ export function AgendaEditor({
                         ? "Tema de la oración (opcional)"
                         : "Detalle del anuncio (opcional)"
                     }
-                    className="mt-2 block w-full rounded-md border border-slate-300 px-2 py-1 text-xs shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:opacity-50"
+                    className="mt-2 block w-full rounded-md border border-slate-300 px-2 py-1 text-xs shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
                   />
                 ) : null}
               </div>
@@ -350,7 +350,7 @@ function AddItemBar({ active, setActive, onSubmit }: AddItemBarProps) {
             }}
             className={`rounded-md px-3 py-1.5 text-xs font-semibold shadow-sm ${
               active === t
-                ? "bg-brand-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
             }`}
           >
@@ -385,7 +385,7 @@ function AddItemBar({ active, setActive, onSubmit }: AddItemBarProps) {
                   ? "Tema o detalle (opcional)"
                   : "Texto del anuncio"
               }
-              className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           ) : null}
           <div className="flex items-center justify-end gap-2">
@@ -403,7 +403,7 @@ function AddItemBar({ active, setActive, onSubmit }: AddItemBarProps) {
               type="button"
               onClick={() => void submit()}
               disabled={submitting || (active === "hymn" && !hymn) || ((active === "speaker" || active === "prayer") && !member)}
-              className="rounded-md bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {submitting ? "Agregando…" : "Agregar item"}
             </button>

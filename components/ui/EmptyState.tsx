@@ -37,7 +37,7 @@ export function EmptyState({
         <div
           aria-hidden
           className={clsx(
-            "mb-4 flex items-center justify-center rounded-full bg-sage-50 text-sage-600",
+            "mb-4 flex items-center justify-center rounded-full bg-blue-50 text-blue-600",
             size === "sm" ? "h-12 w-12" : "h-16 w-16",
           )}
         >
@@ -46,7 +46,7 @@ export function EmptyState({
       ) : null}
       <h3
         className={clsx(
-          "font-display font-medium text-ink-900",
+          "font-display font-medium text-slate-900",
           size === "sm" ? "text-base" : "text-lg",
         )}
       >
@@ -55,7 +55,7 @@ export function EmptyState({
       {description ? (
         <p
           className={clsx(
-            "mt-1.5 max-w-sm font-sans text-ink-500",
+            "mt-1.5 max-w-sm font-sans text-slate-500",
             size === "sm" ? "text-xs" : "text-sm",
           )}
         >
