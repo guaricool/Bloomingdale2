@@ -58,7 +58,7 @@ export default async function DomingoPage() {
             <CardHeader title="Reunión Sacramental" eyebrow="1ra Hora" />
             <CardBody>
               <div className="space-y-6">
-                {agenda.items.map((item) => (
+                {agenda.items.map((item: any) => (
                   <div key={item.id} className="border-l-2 border-primary/20 pl-4 py-1">
                     <span className="text-xs font-semibold uppercase tracking-wider text-primary mb-1 block">
                       {item.type === "hymn_opening" && "Himno Inicial"}
