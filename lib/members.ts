@@ -182,7 +182,7 @@ export async function searchMembers(
     LIMIT $6
   `, term, term, term, exact, exact, limit);
 
-  return rows.map((r) => ({
+  return rows.map((r: any) => ({
     id: r.id,
     firstName: r.firstName,
     lastName: r.lastName,

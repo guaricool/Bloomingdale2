@@ -47,7 +47,7 @@ export async function searchHymns(q: string, limit = 10): Promise<HymnRow[]> {
     lim
   );
 
-  return rowsRaw.map((r) => ({
+  return rowsRaw.map((r: any) => ({
     number: r.number,
     titleEs: r.titleEs,
     titleEn: r.titleEn,
