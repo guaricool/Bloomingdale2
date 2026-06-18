@@ -137,7 +137,7 @@ export function HymnAutocomplete({
           onKeyDown={handleKeyDown}
           disabled={disabled}
           placeholder={placeholder}
-          className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50"
+          className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
           autoComplete="off"
           aria-autocomplete="list"
           aria-expanded={open}
@@ -188,7 +188,7 @@ export function HymnAutocomplete({
                   setOpen(false);
                 }}
                 className={`cursor-pointer px-3 py-2 text-sm ${
-                  idx === activeIdx ? "bg-brand-50 text-brand-900" : "text-slate-700"
+                  idx === activeIdx ? "bg-blue-50 text-blue-900" : "text-slate-700"
                 }`}
               >
                 <span className="font-mono font-semibold">{h.number}</span>{" "}

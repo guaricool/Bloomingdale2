@@ -38,13 +38,13 @@ export default async function HoyPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-12">
       <div className="reveal space-y-3">
-        <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-sage-600">
+        <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-blue-600">
           {isToday ? "Hoy" : isPast ? "Reunión pasada" : "Próximo domingo"}
         </p>
-        <h1 className="font-display text-4xl font-medium tracking-tight text-ink-900 sm:text-5xl">
+        <h1 className="font-display text-4xl font-medium tracking-tight text-slate-900 sm:text-5xl">
           {formatSpanishDate(target)}
         </h1>
-        <p className="max-w-xl text-base text-ink-500">
+        <p className="max-w-xl text-base text-slate-500">
           {agenda
             ? agenda.status === "published"
               ? "Esta es la agenda publicada para esta reunión."
@@ -59,13 +59,13 @@ export default async function HoyPage() {
         {agenda ? (
           <Card>
             <CardBody className="p-0">
-              <div className="border-b border-cream-200 px-6 py-4">
+              <div className="border-b border-slate-200 px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+                    <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-blue-600">
                       Programa
                     </p>
-                    <p className="mt-1 font-display text-base text-ink-900">
+                    <p className="mt-1 font-display text-base text-slate-900">
                       {agenda.items.length} {agenda.items.length === 1 ? "ítem" : "ítems"}
                     </p>
                   </div>
@@ -86,10 +86,10 @@ export default async function HoyPage() {
               title="Aún no hay agenda para este domingo"
               description={
                 <>
-                  <span className="font-display italic text-ink-500">
+                  <span className="font-display italic text-slate-500">
                     «Todo tiene su tiempo debajo del cielo».
                   </span>{" "}
-                  <span className="font-sans text-[0.7rem] uppercase tracking-wider text-ink-400">
+                  <span className="font-sans text-[0.7rem] uppercase tracking-wider text-slate-400">
                     — Eclesiastés 3:1
                   </span>
                 </>

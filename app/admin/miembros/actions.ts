@@ -75,6 +75,7 @@ export async function createMemberAction(
   try {
     const member = await createMember({
       firstName: parsed.data.firstName,
+      middleName: parsed.data.middleName ?? null,
       lastName: parsed.data.lastName,
       membershipNumber: parsed.data.membershipNumber ?? null,
       familyGroupId: parsed.data.familyGroupId ?? null,
@@ -115,6 +116,7 @@ export async function updateMemberAction(
     const member = await updateMember({
       id: parsed.data.id,
       firstName: parsed.data.firstName,
+      middleName: parsed.data.middleName ?? null,
       lastName: parsed.data.lastName,
       membershipNumber: parsed.data.membershipNumber ?? null,
       familyGroupId: parsed.data.familyGroupId ?? null,

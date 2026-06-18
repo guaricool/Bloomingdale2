@@ -41,6 +41,7 @@ CREATE INDEX IF NOT EXISTS idx_familygroup_headMemberId ON FamilyGroup(headMembe
 CREATE TABLE IF NOT EXISTS Member (
   id                  INTEGER PRIMARY KEY AUTOINCREMENT,
   firstName           TEXT NOT NULL,
+  middleName          TEXT,
   lastName            TEXT NOT NULL,
   membershipNumber    TEXT,
   familyGroupId       INTEGER,

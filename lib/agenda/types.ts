@@ -42,7 +42,7 @@ export interface AgendaItemWithJoins extends AgendaItemRow {
   /** Joined from Hymn (when type === 'hymn'). */
   hymn: { number: number; titleEs: string; titleEn: string | null } | null;
   /** Joined from Member (when type === 'speaker' or 'prayer'). */
-  member: { id: number; firstName: string; lastName: string } | null;
+  member: { id: number; firstName: string; middleName?: string | null; lastName: string } | null;
   /** Joined from Event (when type === 'announcement'). */
   event: { id: number; title: string; eventDate: string; type: string } | null;
 }
@@ -60,6 +60,7 @@ export interface HymnRow {
 export interface MemberRow {
   id: number;
   firstName: string;
+  middleName: string | null;
   lastName: string;
   membershipNumber: string | null;
   familyGroupId: number | null;

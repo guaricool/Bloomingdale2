@@ -77,11 +77,11 @@ export function PostCard({ post, currentUser }: PostCardProps) {
     <article
       className={clsx(
         "paper-card relative overflow-hidden p-6 transition-all",
-        post.pinned && "ring-1 ring-sage-300",
+        post.pinned && "ring-1 ring-blue-300",
       )}
     >
       {post.pinned ? (
-        <div className="absolute right-0 top-0 rounded-bl-card bg-sage-600 px-3 py-1 font-sans text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-cream-50">
+        <div className="absolute right-0 top-0 rounded-bl-card bg-blue-600 px-3 py-1 font-sans text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-slate-50">
           Fijado
         </div>
       ) : null}
@@ -91,8 +91,8 @@ export function PostCard({ post, currentUser }: PostCardProps) {
           className={clsx(
             "flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-display text-base font-medium shadow-soft",
             post.authorRole === "admin"
-              ? "bg-sage-700 text-cream-50"
-              : "bg-cream-200 text-ink-700",
+              ? "bg-blue-700 text-slate-50"
+              : "bg-slate-200 text-slate-700",
           )}
           aria-hidden
         >
@@ -100,43 +100,43 @@ export function PostCard({ post, currentUser }: PostCardProps) {
         </div>
         <div className="min-w-0 flex-1">
           <p className="flex items-center gap-2 font-sans text-sm">
-            <span className="font-semibold text-ink-900">{post.authorName}</span>
+            <span className="font-semibold text-slate-900">{post.authorName}</span>
             {post.authorRole === "admin" ? (
-              <span className="rounded-pill border border-sage-200 bg-sage-50 px-1.5 py-0.5 font-sans text-[0.6rem] font-semibold uppercase tracking-wider text-sage-700">
+              <span className="rounded-pill border border-blue-200 bg-blue-50 px-1.5 py-0.5 font-sans text-[0.6rem] font-semibold uppercase tracking-wider text-blue-700">
                 Presidencia
               </span>
             ) : null}
-            <span className="text-ink-400">·</span>
-            <time className="text-xs text-ink-500" dateTime={post.createdAt}>
+            <span className="text-slate-400">·</span>
+            <time className="text-xs text-slate-500" dateTime={post.createdAt}>
               {timeAgo(post.createdAt)}
             </time>
           </p>
           {post.title ? (
-            <h2 className="mt-1.5 font-display text-xl font-medium tracking-tight text-ink-900">
+            <h2 className="mt-1.5 font-display text-xl font-medium tracking-tight text-slate-900">
               {post.title}
             </h2>
           ) : null}
         </div>
       </header>
 
-      <div className="mt-4 whitespace-pre-line font-display text-base leading-relaxed text-ink-700">
+      <div className="mt-4 whitespace-pre-line font-display text-base leading-relaxed text-slate-700">
         {post.body}
       </div>
 
       {error ? (
-        <p className="mt-3 rounded-card border border-terracotta-100 bg-terracotta-50 px-3 py-2 font-sans text-xs text-terracotta-600" role="alert">
+        <p className="mt-3 rounded-card border border-red-100 bg-red-50 px-3 py-2 font-sans text-xs text-red-600" role="alert">
           {error}
         </p>
       ) : null}
 
       {(canDelete || canPin) ? (
-        <footer className="mt-4 flex items-center gap-2 border-t border-cream-200 pt-3">
+        <footer className="mt-4 flex items-center gap-2 border-t border-slate-200 pt-3">
           {canPin ? (
             <button
               type="button"
               onClick={onTogglePin}
               disabled={pending}
-              className="rounded-pill border border-cream-300 bg-white px-3 py-1 font-sans text-xs font-medium text-ink-700 transition-colors hover:border-sage-400 hover:bg-sage-50 hover:text-sage-700 disabled:opacity-50"
+              className="rounded-pill border border-slate-300 bg-white px-3 py-1 font-sans text-xs font-medium text-slate-700 transition-colors hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 disabled:opacity-50"
             >
               {post.pinned ? "Quitar fijado" : "Fijar"}
             </button>
@@ -146,7 +146,7 @@ export function PostCard({ post, currentUser }: PostCardProps) {
               type="button"
               onClick={onDelete}
               disabled={pending}
-              className="rounded-pill border border-terracotta-100 bg-white px-3 py-1 font-sans text-xs font-medium text-terracotta-500 transition-colors hover:bg-terracotta-50 disabled:opacity-50"
+              className="rounded-pill border border-red-100 bg-white px-3 py-1 font-sans text-xs font-medium text-red-500 transition-colors hover:bg-red-50 disabled:opacity-50"
             >
               {pending ? "Eliminando…" : "Eliminar"}
             </button>

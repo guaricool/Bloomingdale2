@@ -50,6 +50,7 @@ CREATE INDEX idx_familygroup_headMemberId ON "FamilyGroup"(headMemberId);
 CREATE TABLE "Member" (
   id                  INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   firstName           TEXT NOT NULL,
+  middleName          TEXT,
   lastName            TEXT NOT NULL,
   membershipNumber    TEXT,
   familyGroupId       INTEGER,

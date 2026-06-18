@@ -9,6 +9,7 @@
 export interface MemberRow {
   id: number;
   firstName: string;
+  middleName: string | null;
   lastName: string;
   membershipNumber: string | null;
   familyGroupId: number | null;
@@ -17,6 +18,9 @@ export interface MemberRow {
   updatedAt: string;
 }
 
-export function fullName(row: { firstName: string; lastName: string }): string {
-  return `${row.firstName} ${row.lastName}`.trim();
+export function fullName(row: { firstName: string; middleName?: string | null; lastName: string }): string {
+  return [row.firstName, row.middleName, row.lastName]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
 }

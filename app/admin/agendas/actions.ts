@@ -16,6 +16,7 @@ import { NextResponse } from "next/server";
 import { auth, type AppSessionUser } from "@/auth";
 import {
   createAgenda,
+  createAgendaItem,
   deleteAgenda,
   getAgendaById,
   transitionAgenda,
@@ -76,9 +77,38 @@ export async function createAgendaAction(
       return { ok: false, error: "Sesión inválida" };
     }
     const created = await createAgenda({ date, createdBy });
+
+    // Crear template estándar de la reunión sacramental:
+    // Guía oficial del himnario (El uso del himnario, pág. 273):
+    //   - Apertura: loor, agradecimiento o súplica (himnos 30-47 o similares)
+    //   - Santa Cena: tema de la Santa Cena o sacrificio expiatorio (himnos 101-120)
+    //   - Intermedio: relacionado con los discursos (opcional)
+    //   - Cierre: permite a la congregación responder a la reunión
+    const templateItems: { type: "hymn" | "prayer"; note: string }[] = [
+      { type: "hymn",   note: "Apertura" },
+      { type: "prayer", note: "Oración de apertura" },
+      { type: "hymn",   note: "Santa Cena" },
+      { type: "hymn",   note: "Intermedio (opcional)" },
+      { type: "hymn",   note: "Cierre" },
+      { type: "prayer", note: "Oración de cierre" },
+    ];
+
+    for (let i = 0; i < templateItems.length; i++) {
+      const item = templateItems[i]!;
+      await createAgendaItem({
+        agendaId: created.id,
+        type: item.type,
+        refId: null,
+        note: item.note,
+        order: i,
+      });
+    }
+
+    // Recargar la agenda con los items recién creados
+    const agendaWithItems = await getAgendaById(created.id);
     revalidatePath("/admin/agendas");
     revalidatePath("/agendas");
-    return { ok: true, agenda: created };
+    return { ok: true, agenda: agendaWithItems ?? created };
   } catch (err) {
     return {
       ok: false,

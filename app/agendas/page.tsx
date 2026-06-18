@@ -39,7 +39,7 @@ export default async function PublicAgendasPage() {
         <div className="mb-6">
           <Link
             href={`/agendas/${next.id}`}
-            className="font-display text-base italic text-sage-700 underline decoration-sage-200 underline-offset-4 transition-colors hover:text-sage-800 hover:decoration-sage-400"
+            className="font-display text-base italic text-blue-700 underline decoration-blue-200 underline-offset-4 transition-colors hover:text-blue-800 hover:decoration-blue-400"
           >
             Ver la agenda de este domingo →
           </Link>
@@ -51,7 +51,7 @@ export default async function PublicAgendasPage() {
         recent={recent}
       />
 
-      <p className="mt-6 font-sans text-xs text-ink-400">
+      <p className="mt-6 font-sans text-xs text-slate-400">
         Mostrando {upcoming.length} próxima(s) y {recent.length} pasada(s).
         Fechas: {formatShortDate(today)}.
       </p>

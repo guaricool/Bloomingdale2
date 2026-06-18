@@ -3,6 +3,8 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { EVENT_TYPES, EVENT_TYPE_LABELS, type EventType } from "@/lib/events-types";
+import { Button } from "@/components/ui/Button";
+import { useToast } from "@/components/ui/Toast";
 
 interface EventFormValues {
   title: string;
@@ -23,6 +25,7 @@ const TYPE_LABELS = EVENT_TYPE_LABELS;
 
 export function EventForm({ eventId, initial, redirectTo = "/admin/eventos" }: EventFormProps) {
   const router = useRouter();
+  const toast = useToast();
   const [title, setTitle] = useState(initial?.title ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [eventDate, setEventDate] = useState(initial?.eventDate ?? "");
@@ -66,6 +69,7 @@ export function EventForm({ eventId, initial, redirectTo = "/admin/eventos" }: E
         setError(data.error ?? "No se pudo guardar el evento.");
         return;
       }
+      toast.success(isEdit ? "Evento actualizado" : "Evento creado");
       router.push(redirectTo);
       router.refresh();
     } catch {
@@ -90,7 +94,7 @@ export function EventForm({ eventId, initial, redirectTo = "/admin/eventos" }: E
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="La Noche Internacional"
-          className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
         />
       </div>
 
@@ -106,7 +110,7 @@ export function EventForm({ eventId, initial, redirectTo = "/admin/eventos" }: E
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Detalles, hora, lugar, qué llevar..."
-          className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
         />
       </div>
 
@@ -122,7 +126,7 @@ export function EventForm({ eventId, initial, redirectTo = "/admin/eventos" }: E
             required
             value={eventDate}
             onChange={(e) => setEventDate(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
           <p className="mt-1 text-xs text-slate-500">
             YYYY-MM-DD. El evento se anunciará en los domingos previos.
@@ -138,7 +142,7 @@ export function EventForm({ eventId, initial, redirectTo = "/admin/eventos" }: E
             name="type"
             value={type}
             onChange={(e) => setType(e.target.value as EventType)}
-            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
             {EVENT_TYPES.map((t) => (
               <option key={t} value={t}>
@@ -150,26 +154,22 @@ export function EventForm({ eventId, initial, redirectTo = "/admin/eventos" }: E
       </div>
 
       {error ? (
-        <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+        <div className="rounded-card border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-600" role="alert">
           {error}
         </div>
       ) : null}
 
       <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {submitting ? "Guardando..." : isEdit ? "Guardar cambios" : "Crear evento"}
-        </button>
-        <button
+        <Button type="submit" variant="primary" loading={submitting}>
+          {submitting ? "Guardando…" : isEdit ? "Guardar cambios" : "Crear evento"}
+        </Button>
+        <Button
           type="button"
+          variant="secondary"
           onClick={() => router.push(redirectTo)}
-          className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
         >
           Cancelar
-        </button>
+        </Button>
       </div>
     </form>
   );

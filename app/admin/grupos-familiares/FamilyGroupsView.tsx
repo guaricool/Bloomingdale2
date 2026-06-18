@@ -24,6 +24,7 @@ import type { FamilyGroupRow } from "@/lib/family-groups";
 interface MemberOption {
   id: number;
   firstName: string;
+  middleName?: string | null;
   lastName: string;
 }
 
@@ -135,7 +136,7 @@ export function FamilyGroupsView({ initialGroups, allMembers }: FamilyGroupsView
               required
               {...register("name")}
               aria-invalid={Boolean(errors.name?.message ?? fieldErrors.name)}
-              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
             {errors.name?.message ?? fieldErrors.name ? (
               <p className="mt-1 text-xs text-red-600">
@@ -152,12 +153,12 @@ export function FamilyGroupsView({ initialGroups, allMembers }: FamilyGroupsView
               {...register("headMemberId", {
                 setValueAs: (v) => (v === "" || v == null ? null : Number(v)),
               })}
-              className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="">— Opcional —</option>
               {sortedMembers.map((m) => (
                 <option key={m.id} value={m.id}>
-                  {m.firstName} {m.lastName}
+                  {[m.firstName, m.middleName, m.lastName].filter(Boolean).join(" ")}
                 </option>
               ))}
             </select>
@@ -166,7 +167,7 @@ export function FamilyGroupsView({ initialGroups, allMembers }: FamilyGroupsView
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             >
               {isSubmitting ? "Creando..." : "Crear"}
             </button>
@@ -284,7 +285,7 @@ function EditRow({ group, members, busy, onCancel, onSave }: EditRowProps) {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
         <div>
@@ -295,12 +296,12 @@ function EditRow({ group, members, busy, onCancel, onSave }: EditRowProps) {
             id={`head-${group.id}`}
             value={headMemberId ?? ""}
             onChange={(e) => setHeadMemberId(e.target.value ? Number(e.target.value) : null)}
-            className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
             <option value="">— Opcional —</option>
             {members.map((m) => (
               <option key={m.id} value={m.id}>
-                {m.firstName} {m.lastName}
+                {[m.firstName, m.middleName, m.lastName].filter(Boolean).join(" ")}
               </option>
             ))}
           </select>
@@ -310,7 +311,7 @@ function EditRow({ group, members, busy, onCancel, onSave }: EditRowProps) {
             type="button"
             onClick={submit}
             disabled={busy}
-            className="rounded-md bg-brand-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-md bg-blue-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {busy ? "Guardando..." : "Guardar"}
           </button>

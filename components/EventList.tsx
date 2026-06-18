@@ -119,7 +119,7 @@ export function EventList({ initialEvents, initialFilter }: EventListProps) {
                 onClick={() => onFilterChange(opt)}
                 className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
                   filter === opt
-                    ? "bg-brand-600 text-white shadow-sm"
+                    ? "bg-blue-600 text-white shadow-sm"
                     : "text-slate-600 hover:bg-slate-50"
                 }`}
               >
@@ -133,7 +133,7 @@ export function EventList({ initialEvents, initialFilter }: EventListProps) {
           aria-label="Filtrar por tipo"
           value={typeFilter}
           onChange={(e) => onTypeFilterChange(e.target.value as EventType | "all")}
-          className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
         >
           <option value="all">Todos los tipos</option>
           {EVENT_TYPES.map((t) => (
@@ -145,7 +145,7 @@ export function EventList({ initialEvents, initialFilter }: EventListProps) {
 
         <Link
           href="/admin/eventos/nuevo"
-          className="ml-auto rounded-md bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
+          className="ml-auto rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
         >
           Nuevo evento
         </Link>
@@ -174,7 +174,7 @@ export function EventList({ initialEvents, initialFilter }: EventListProps) {
             return (
               <li
                 key={ev.id}
-                className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-brand-200"
+                className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-blue-200"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
