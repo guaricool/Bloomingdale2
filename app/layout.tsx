@@ -25,7 +25,12 @@ export default async function RootLayout({
 
   return (
     <html lang="es-MX">
-      <body className="paper-grain min-h-full font-sans antialiased">
+      <body className="paper-grain min-h-full font-sans antialiased bg-transparent">
+        {/* Fondo Global con animación suave y overlay para asegurar la legibilidad */}
+        <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-background">
+          <div className="temple-bg absolute inset-0 opacity-80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/80 to-background/95 dark:from-background/98 dark:via-background/90 dark:to-background/98 backdrop-blur-[2px]" />
+        </div>
         <SessionProvider session={session}>
           <ToastProvider>
             <div className="flex min-h-screen flex-col">

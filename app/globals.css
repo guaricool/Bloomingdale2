@@ -164,6 +164,24 @@
   }
 }
 
+/* Fondo animado premium (Templo) */
+.temple-bg {
+  background-image: url('/images/utah-temple.png');
+  background-size: cover;
+  background-position: center;
+  animation: slow-pan 45s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes slow-pan {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  100% {
+    transform: scale(1.05) translate(-1%, 1%);
+  }
+}
+
 /* Shimmer para loading states */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
