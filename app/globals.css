@@ -2,99 +2,92 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Outfit:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&display=swap");
 
 @layer base {
   :root {
     color-scheme: light;
     --reveal-step: 0.08s;
 
-    --background: 44 45% 96%; /* fdfaf4 */
-    --foreground: 33 21% 10%; /* 1f1a14 */
-    --card: 44 45% 96%;
-    --card-foreground: 33 21% 10%;
-    --border: 37 40% 86%; /* efe4cc */
+    --background: 0 0% 98%; /* Canvas Stone FAFAFA */
+    --foreground: 240 5% 10%; /* Charcoal 18181B */
+    --card: 0 0% 100%; /* Pure White */
+    --card-foreground: 240 5% 10%;
+    --border: 0 0% 90%; /* Light grey border */
 
-    --primary: 94 38% 28%; /* 3f5e2a */
-    --primary-foreground: 93 30% 95%; /* f1f5ee */
+    --primary: 224 76% 33%; /* Celestial Navy 1E3A8A */
+    --primary-foreground: 0 0% 100%;
 
-    /* Paleta Cream (Light) */
-    --cream-50: 44 45% 96%;
-    --cream-100: 43 46% 93%;
-    --cream-200: 37 40% 86%;
-    --cream-300: 37 41% 74%;
+    /* Canvas (Stone) */
+    --canvas-50: 0 0% 98%;
+    --canvas-100: 0 0% 96%;
+    --canvas-200: 0 0% 93%;
+    --canvas-300: 0 0% 89%;
 
-    /* Paleta Ink (Light) */
-    --ink-900: 33 21% 10%;
-    --ink-700: 30 16% 19%;
-    --ink-500: 33 14% 37%;
-    --ink-400: 34 13% 48%;
+    /* Charcoal */
+    --charcoal-900: 240 5% 10%; /* 18181B */
+    --charcoal-700: 240 5% 26%; /* 3F3F46 */
+    --charcoal-500: 240 5% 45%; /* 71717A */
+    --charcoal-400: 240 5% 65%; /* A1A1AA */
 
-    /* Paleta Sage (Light) */
-    --sage-50: 93 30% 95%;
-    --sage-100: 93 25% 86%;
-    --sage-200: 93 23% 71%;
-    --sage-400: 93 30% 41%;
-    --sage-600: 94 38% 28%;
-    --sage-700: 94 41% 21%;
-    --sage-800: 94 41% 13%;
+    /* Celestial Navy */
+    --celestial-50: 214 100% 97%;
+    --celestial-100: 214 94% 93%;
+    --celestial-200: 213 94% 87%;
+    --celestial-400: 217 91% 60%;
+    --celestial-600: 221 83% 53%;
+    --celestial-700: 224 76% 48%;
+    --celestial-800: 224 76% 33%;
 
-    /* Paleta Terracotta (Light) */
-    --terracotta-50: 21 63% 95%;
-    --terracotta-100: 21 63% 88%;
-    --terracotta-400: 21 53% 55%;
-    --terracotta-500: 21 54% 46%;
-    --terracotta-600: 21 58% 37%;
-
-    /* Paleta Gold (Light) */
-    --gold-400: 40 60% 56%;
-    --gold-500: 40 56% 44%;
+    /* Temple Gold */
+    --gold-50: 45 100% 96%;
+    --gold-100: 45 92% 89%;
+    --gold-400: 45 90% 55%;
+    --gold-500: 40 56% 56%;
+    --gold-600: 36 60% 45%;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
       color-scheme: dark;
       
-      /* Base Dark Mode: Sleek Slate */
-      --background: 224 20% 8%;
-      --foreground: 210 20% 98%;
-      --card: 224 20% 12%;
-      --card-foreground: 210 20% 98%;
-      --border: 224 20% 20%;
+      /* Base Dark Mode: Deep Slate */
+      --background: 222 47% 11%; /* 0F172A */
+      --foreground: 210 40% 98%;
+      --card: 222 47% 14%;
+      --card-foreground: 210 40% 98%;
+      --border: 215 28% 22%;
       
-      --primary: 94 45% 45%; 
-      --primary-foreground: 224 20% 8%;
+      --primary: 217 91% 60%; 
+      --primary-foreground: 222 47% 11%;
 
-      /* Cream invertido (Superficies en Dark Mode) */
-      --cream-50: 224 20% 8%;
-      --cream-100: 224 20% 12%;
-      --cream-200: 224 20% 20%;
-      --cream-300: 224 20% 26%;
+      /* Canvas in Dark Mode */
+      --canvas-50: 222 47% 11%;
+      --canvas-100: 222 47% 14%;
+      --canvas-200: 215 28% 22%;
+      --canvas-300: 215 28% 26%;
 
-      /* Ink invertido (Texto en Dark Mode) */
-      --ink-900: 210 20% 98%;
-      --ink-700: 210 15% 85%;
-      --ink-500: 210 10% 65%;
-      --ink-400: 210 10% 55%;
+      /* Charcoal inverted */
+      --charcoal-900: 210 40% 98%;
+      --charcoal-700: 210 30% 85%;
+      --charcoal-500: 210 20% 65%;
+      --charcoal-400: 210 15% 55%;
 
-      /* Sage vibrante para contraste oscuro */
-      --sage-50: 94 41% 13%;
-      --sage-100: 94 41% 21%;
-      --sage-200: 94 38% 28%;
-      --sage-400: 94 45% 45%;
-      --sage-600: 93 50% 65%;
-      --sage-700: 93 50% 75%;
-      --sage-800: 93 50% 85%;
+      /* Celestial vibrant for dark */
+      --celestial-50: 224 76% 33%;
+      --celestial-100: 224 76% 48%;
+      --celestial-200: 221 83% 53%;
+      --celestial-400: 217 91% 60%;
+      --celestial-600: 213 94% 87%;
+      --celestial-700: 214 94% 93%;
+      --celestial-800: 214 100% 97%;
 
-      /* Terracotta vibrante */
-      --terracotta-50: 21 58% 15%;
-      --terracotta-100: 21 58% 25%;
-      --terracotta-400: 21 80% 65%;
-      --terracotta-500: 21 80% 55%;
-      --terracotta-600: 21 80% 45%;
-
-      --gold-400: 40 90% 65%;
-      --gold-500: 40 90% 55%;
+      /* Temple Gold vibrant */
+      --gold-50: 36 60% 25%;
+      --gold-100: 36 60% 35%;
+      --gold-400: 45 90% 65%;
+      --gold-500: 45 90% 55%;
+      --gold-600: 40 56% 45%;
     }
   }
 
@@ -108,20 +101,20 @@
     background-color: hsl(var(--background));
     /* Gradiente dinámico sutil (Mesh gradient style) */
     background-image: 
-      radial-gradient(circle at 18% 8%, hsla(var(--gold-400), 0.08), transparent 40%),
-      radial-gradient(circle at 82% 92%, hsla(var(--sage-400), 0.08), transparent 42%);
+      radial-gradient(circle at 18% 8%, hsla(var(--gold-400), 0.05), transparent 40%),
+      radial-gradient(circle at 82% 92%, hsla(var(--celestial-400), 0.05), transparent 42%);
     background-attachment: fixed;
     color: hsl(var(--foreground));
     font-feature-settings: "ss01", "cv11";
   }
 
   ::selection {
-    background-color: hsla(var(--sage-400), 0.25);
+    background-color: hsla(var(--celestial-400), 0.25);
     color: hsl(var(--foreground));
   }
 
   *:focus-visible {
-    outline: 2px solid hsl(var(--sage-400));
+    outline: 2px solid hsl(var(--celestial-400));
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -190,17 +183,17 @@
 .skeleton-shimmer {
   background: linear-gradient(
     90deg,
-    hsla(var(--cream-200), 0.4) 0%,
-    hsla(var(--cream-200), 0.8) 50%,
-    hsla(var(--cream-200), 0.4) 100%
+    hsla(var(--canvas-200), 0.4) 0%,
+    hsla(var(--canvas-200), 0.8) 50%,
+    hsla(var(--canvas-200), 0.4) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 2s ease-in-out infinite;
 }
 
 @keyframes pulse-today {
-  0%, 100% { box-shadow: 0 0 0 0 hsla(var(--sage-400), 0.4); }
-  50% { box-shadow: 0 0 0 4px hsla(var(--sage-400), 0); }
+  0%, 100% { box-shadow: 0 0 0 0 hsla(var(--celestial-400), 0.4); }
+  50% { box-shadow: 0 0 0 4px hsla(var(--celestial-400), 0); }
 }
 .cell-today {
   animation: pulse-today 2.4s ease-out infinite;
@@ -221,7 +214,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  color: hsl(var(--ink-400));
+  color: hsl(var(--charcoal-400));
   font-family: "Fraunces", serif;
   font-style: italic;
 }
@@ -233,7 +226,7 @@
   background: linear-gradient(
     to right,
     transparent,
-    hsla(var(--ink-400), 0.4),
+    hsla(var(--charcoal-400), 0.4),
     transparent
   );
 }

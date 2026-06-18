@@ -74,8 +74,8 @@ export default async function DomingoPage() {
               <CardBody>
                 <div className="space-y-6">
                   {announcementsData.announcements.map((ann: any) => (
-                    <div key={`ann-${ann.id}`} className="border-l-2 border-sage-500 pl-4 py-1">
-                      <span className="text-xs font-semibold uppercase tracking-wider text-sage-600 mb-1 block">
+                    <div key={`ann-${ann.id}`} className="border-l-2 border-celestial-500 pl-4 py-1">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-celestial-600 mb-1 block">
                         Anuncio
                       </span>
                       <p className="text-foreground text-lg font-medium">{ann.title}</p>

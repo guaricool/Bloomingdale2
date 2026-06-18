@@ -98,10 +98,10 @@ export default async function HomePage() {
   return (
     <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
       {/* HERO */}
-      <section className="reveal relative overflow-hidden rounded-card border border-cream-200 bg-sunrise px-6 py-10 sm:px-10 sm:py-14">
+      <section className="reveal relative overflow-hidden rounded-card border border-canvas-200 bg-sunrise px-6 py-10 sm:px-10 sm:py-14">
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-sage-200/40 blur-3xl animate-subtle-float"
+          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-celestial-200/40 blur-3xl animate-subtle-float"
         />
         <div
           aria-hidden
@@ -111,13 +111,13 @@ export default async function HomePage() {
 
         <div className="relative grid grid-cols-1 items-center gap-8 lg:grid-cols-[1.4fr_1fr]">
           <div>
-            <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-sage-700">
+            <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-celestial-700">
               {session?.user ? "Bienvenido de vuelta" : "Bienvenido"}
             </p>
-            <h1 className="mt-2 font-display text-4xl font-medium tracking-tight text-ink-900 sm:text-5xl">
+            <h1 className="mt-2 font-display text-4xl font-medium tracking-tight text-charcoal-900 sm:text-5xl">
               {session?.user ? currentUserName : "Rama Bloomingdale 2nd"}
             </h1>
-            <p className="mt-3 max-w-xl font-display text-lg italic text-ink-500">
+            <p className="mt-3 max-w-xl font-display text-lg italic text-charcoal-500">
               {session?.user
                 ? "Aquí está la vida de la rama: las agendas, los eventos, y las noticias que queremos compartir."
                 : "Aquí encontrarás las agendas dominicales, el calendario de eventos, y las noticias de la presidencia."}
@@ -146,14 +146,14 @@ export default async function HomePage() {
           </div>
 
           <div className="hidden lg:block">
-            <div className="paper-card bg-cream-50/95 p-5">
-              <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+            <div className="paper-card bg-canvas-50/95 p-5">
+              <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-celestial-600">
                 Cita del día
               </p>
-              <p className="mt-2 font-display text-lg italic text-ink-700">
+              <p className="mt-2 font-display text-lg italic text-charcoal-700">
                 «Hagamos todo lo que el Señor nos ha mandado».
               </p>
-              <p className="mt-1 font-sans text-[0.7rem] uppercase tracking-wider text-ink-400">
+              <p className="mt-1 font-sans text-[0.7rem] uppercase tracking-wider text-charcoal-400">
                 — 1 Nefi 3:7
               </p>
             </div>
@@ -202,10 +202,10 @@ export default async function HomePage() {
           )}
 
           <div className="flex items-baseline justify-between">
-            <h2 className="font-display text-2xl font-medium text-ink-900">
+            <h2 className="font-display text-2xl font-medium text-charcoal-900">
               Novedades
             </h2>
-            <p className="font-sans text-xs text-ink-500">
+            <p className="font-sans text-xs text-charcoal-500">
               {posts.length} {posts.length === 1 ? "post" : "posts"}
             </p>
           </div>
@@ -240,21 +240,21 @@ export default async function HomePage() {
           <RadioPlayerCard />
           <Card>
             <CardBody>
-              <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+              <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-celestial-600">
                 La rama
               </p>
               <div className="mt-3 space-y-3">
                 <div>
-                  <p className="font-display text-3xl font-medium text-ink-900">
+                  <p className="font-display text-3xl font-medium text-charcoal-900">
                     {memberCount}
                   </p>
-                  <p className="font-sans text-xs text-ink-500">miembros</p>
+                  <p className="font-sans text-xs text-charcoal-500">miembros</p>
                 </div>
                 <div>
-                  <p className="font-display text-3xl font-medium text-ink-900">
+                  <p className="font-display text-3xl font-medium text-charcoal-900">
                     {upcomingEventCount}
                   </p>
-                  <p className="font-sans text-xs text-ink-500">eventos próximos</p>
+                  <p className="font-sans text-xs text-charcoal-500">eventos próximos</p>
                 </div>
               </div>
               <div className="mt-4 flex flex-col gap-2">
@@ -271,14 +271,14 @@ export default async function HomePage() {
           {session?.user ? (
             <Card>
               <CardBody>
-                <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+                <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-celestial-600">
                   Tu espacio
                 </p>
                 <ul className="mt-3 space-y-2 font-sans text-sm">
                   <li>
                     <Link
                       href="/inicio"
-                      className="text-ink-700 underline decoration-cream-300 underline-offset-4 transition-colors hover:text-sage-700 hover:decoration-sage-400"
+                      className="text-charcoal-700 underline decoration-canvas-300 underline-offset-4 transition-colors hover:text-celestial-700 hover:decoration-celestial-400"
                     >
                       Mi panel
                     </Link>
@@ -286,7 +286,7 @@ export default async function HomePage() {
                   <li>
                     <Link
                       href="/agendas"
-                      className="text-ink-700 underline decoration-cream-300 underline-offset-4 transition-colors hover:text-sage-700 hover:decoration-sage-400"
+                      className="text-charcoal-700 underline decoration-canvas-300 underline-offset-4 transition-colors hover:text-celestial-700 hover:decoration-celestial-400"
                     >
                       Historial de agendas
                     </Link>
@@ -295,7 +295,7 @@ export default async function HomePage() {
                     <li>
                       <Link
                         href="/admin/agendas"
-                        className="text-ink-700 underline decoration-cream-300 underline-offset-4 transition-colors hover:text-sage-700 hover:decoration-sage-400"
+                        className="text-charcoal-700 underline decoration-canvas-300 underline-offset-4 transition-colors hover:text-celestial-700 hover:decoration-celestial-400"
                       >
                         Panel de administración
                       </Link>
@@ -308,13 +308,13 @@ export default async function HomePage() {
 
           <Card>
             <CardBody>
-              <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
+              <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-celestial-600">
                 Himno destacado
               </p>
-              <p className="mt-3 font-display text-lg italic text-ink-700">
+              <p className="mt-3 font-display text-lg italic text-charcoal-700">
                 «Jehová, mi Pastor es» — me guía con cariño.
               </p>
-              <p className="mt-1 font-sans text-[0.7rem] uppercase tracking-wider text-ink-400">
+              <p className="mt-1 font-sans text-[0.7rem] uppercase tracking-wider text-charcoal-400">
                 Himno 99 · «The Lord Is My Shepherd»
               </p>
               <div className="mt-4">

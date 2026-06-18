@@ -16,45 +16,38 @@ module.exports = {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
         },
-        cream: {
-          50: "hsl(var(--cream-50))",
-          100: "hsl(var(--cream-100))",
-          200: "hsl(var(--cream-200))",
-          300: "hsl(var(--cream-300))",
+        canvas: {
+          50: "hsl(var(--canvas-50))",
+          100: "hsl(var(--canvas-100))",
+          200: "hsl(var(--canvas-200))",
+          300: "hsl(var(--canvas-300))",
         },
-        ink: {
-          900: "hsl(var(--ink-900))",
-          700: "hsl(var(--ink-700))",
-          500: "hsl(var(--ink-500))",
-          400: "hsl(var(--ink-400))",
+        charcoal: {
+          900: "hsl(var(--charcoal-900))",
+          700: "hsl(var(--charcoal-700))",
+          500: "hsl(var(--charcoal-500))",
+          400: "hsl(var(--charcoal-400))",
         },
-        sage: {
-          50: "hsl(var(--sage-50))",
-          100: "hsl(var(--sage-100))",
-          200: "hsl(var(--sage-200))",
-          400: "hsl(var(--sage-400))",
-          600: "hsl(var(--sage-600))",
-          700: "hsl(var(--sage-700))",
-          800: "hsl(var(--sage-800))",
-        },
-        terracotta: {
-          50: "hsl(var(--terracotta-50))",
-          100: "hsl(var(--terracotta-100))",
-          400: "hsl(var(--terracotta-400))",
-          500: "hsl(var(--terracotta-500))",
-          600: "hsl(var(--terracotta-600))",
+        celestial: {
+          50: "hsl(var(--celestial-50))",
+          100: "hsl(var(--celestial-100))",
+          200: "hsl(var(--celestial-200))",
+          400: "hsl(var(--celestial-400))",
+          600: "hsl(var(--celestial-600))",
+          700: "hsl(var(--celestial-700))",
+          800: "hsl(var(--celestial-800))",
         },
         gold: {
+          50: "hsl(var(--gold-50))",
+          100: "hsl(var(--gold-100))",
           400: "hsl(var(--gold-400))",
           500: "hsl(var(--gold-500))",
+          600: "hsl(var(--gold-600))",
         },
       },
       fontFamily: {
-        // Serif con carácter — Fraunces tiene personalidad cálida, no es "librería"
         display: ['"Fraunces"', "ui-serif", "Georgia", "Cambria", "serif"],
-        // Sans humanista para UI — Inter es la elección sólida para legibilidad
-        sans: ['"Inter"', "ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
-        // Para texto bíblico / himnos en versalitas
+        sans: ['"Outfit"', "ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
         script: ['"Cormorant Garamond"', "ui-serif", "Georgia", "serif"],
       },
       fontSize: {
@@ -69,10 +62,9 @@ module.exports = {
         "pill": "9999px",
       },
       boxShadow: {
-        // Sombras cálidas — no negro puro
-        "soft": "0 1px 2px rgba(58, 50, 42, 0.04), 0 4px 12px rgba(58, 50, 42, 0.06)",
-        "lift": "0 2px 4px rgba(58, 50, 42, 0.06), 0 12px 32px rgba(58, 50, 42, 0.10)",
-        "ring-sage": "0 0 0 3px rgba(107, 138, 74, 0.25)",
+        "soft": "0 1px 2px rgba(24, 24, 27, 0.04), 0 4px 12px rgba(24, 24, 27, 0.04)",
+        "lift": "0 2px 4px rgba(24, 24, 27, 0.05), 0 12px 32px rgba(24, 24, 27, 0.08)",
+        "ring-celestial": "0 0 0 3px rgba(30, 58, 138, 0.25)",
       },
       keyframes: {
         "reveal-up": {
@@ -94,9 +86,8 @@ module.exports = {
         "subtle-float": "subtle-float 6s ease-in-out infinite",
       },
       backgroundImage: {
-        // Textura sutil de papel para el fondo
         "paper-grain":
-          "radial-gradient(circle at 20% 10%, rgba(212, 166, 74, 0.06), transparent 40%), radial-gradient(circle at 80% 90%, rgba(107, 138, 74, 0.05), transparent 40%)",
+          "radial-gradient(circle at 20% 10%, rgba(30, 58, 138, 0.03), transparent 40%), radial-gradient(circle at 80% 90%, rgba(203, 160, 82, 0.03), transparent 40%)",
         "sunrise":
           "linear-gradient(135deg, #fdfaf4 0%, #f8f1e3 60%, #efe4cc 100%)",
       },

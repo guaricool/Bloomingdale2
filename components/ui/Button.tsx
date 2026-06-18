@@ -5,7 +5,7 @@ type Variant = "primary" | "secondary" | "ghost" | "danger" | "subtle";
 type Size = "sm" | "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-pill font-sans font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream-50 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-pill font-sans font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-50 disabled:cursor-not-allowed disabled:opacity-50";
 
 const variants: Record<Variant, string> = {
   primary:
@@ -15,7 +15,7 @@ const variants: Record<Variant, string> = {
   ghost:
     "text-foreground/80 hover:bg-foreground/5 hover:text-foreground focus-visible:ring-primary",
   danger:
-    "bg-terracotta-600 text-white shadow-soft hover:bg-terracotta-500 focus-visible:ring-terracotta-400 active:scale-[0.98]",
+    "bg-gold-600 text-white shadow-soft hover:bg-gold-500 focus-visible:ring-gold-400 active:scale-[0.98]",
   subtle:
     "bg-primary/10 text-primary hover:bg-primary/20 focus-visible:ring-primary",
 };

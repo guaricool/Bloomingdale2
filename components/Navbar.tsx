@@ -89,15 +89,15 @@ export function Navbar({ user }: NavbarProps) {
           {/* Pequeño sello decorativo — la inicial "B" en un círculo de color sage */}
           <span
             aria-hidden
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-sage-600 font-display text-base font-semibold text-cream-50 shadow-soft transition-transform group-hover:scale-105"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-celestial-600 font-display text-base font-semibold text-canvas-50 shadow-soft transition-transform group-hover:scale-105"
           >
             B
           </span>
           <span className="flex flex-col">
-            <span className="font-display text-lg font-medium tracking-tight text-ink-900">
+            <span className="font-display text-lg font-medium tracking-tight text-charcoal-900">
               Bloomingdale 2nd
             </span>
-            <span className="font-sans text-[0.65rem] uppercase tracking-[0.18em] text-ink-500">
+            <span className="font-sans text-[0.65rem] uppercase tracking-[0.18em] text-charcoal-500">
               Rama · La Iglesia de Jesucristo
             </span>
           </span>
@@ -117,15 +117,15 @@ export function Navbar({ user }: NavbarProps) {
                 className={clsx(
                   "relative rounded-md px-3 py-1.5 font-sans text-sm font-medium transition-colors",
                   active
-                    ? "text-sage-700"
-                    : "text-ink-700 hover:text-ink-900",
+                    ? "text-celestial-700"
+                    : "text-charcoal-700 hover:text-charcoal-900",
                 )}
               >
                 {link.label}
                 <span
                   aria-hidden
                   className={clsx(
-                    "absolute inset-x-3 -bottom-0.5 h-[2px] origin-left rounded-full bg-sage-600 transition-transform duration-300",
+                    "absolute inset-x-3 -bottom-0.5 h-[2px] origin-left rounded-full bg-celestial-600 transition-transform duration-300",
                     active ? "scale-x-100" : "scale-x-0",
                   )}
                 />
@@ -136,17 +136,17 @@ export function Navbar({ user }: NavbarProps) {
 
         <div className="flex items-center gap-3">
           <div className="hidden text-right sm:block">
-            <div className="font-sans text-sm font-medium text-ink-900">
+            <div className="font-sans text-sm font-medium text-charcoal-900">
               {displayName}
             </div>
-            <div className="font-sans text-[0.7rem] uppercase tracking-wider text-ink-500">
+            <div className="font-sans text-[0.7rem] uppercase tracking-wider text-charcoal-500">
               {user.role === "admin" ? "Administrador" : "Miembro"}
             </div>
           </div>
           <button
             type="button"
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="rounded-pill border border-cream-300 bg-white px-3.5 py-1.5 font-sans text-xs font-medium text-ink-700 transition-colors hover:border-sage-400 hover:bg-sage-50 hover:text-sage-700"
+            className="rounded-pill border border-canvas-300 bg-white px-3.5 py-1.5 font-sans text-xs font-medium text-charcoal-700 transition-colors hover:border-celestial-400 hover:bg-celestial-50 hover:text-celestial-700"
           >
             Salir
           </button>
@@ -155,7 +155,7 @@ export function Navbar({ user }: NavbarProps) {
 
       {/* Mobile nav — scroll horizontal con borde inferior sage */}
       <nav
-        className="flex items-center gap-1 overflow-x-auto border-t border-cream-200/60 px-4 py-2 md:hidden"
+        className="flex items-center gap-1 overflow-x-auto border-t border-canvas-200/60 px-4 py-2 md:hidden"
         aria-label="Navegación móvil"
       >
         {links.map((link) => {
@@ -167,8 +167,8 @@ export function Navbar({ user }: NavbarProps) {
               className={clsx(
                 "shrink-0 rounded-md px-3 py-1.5 font-sans text-sm font-medium",
                 active
-                  ? "bg-sage-100 text-sage-700"
-                  : "text-ink-700 hover:bg-cream-100",
+                  ? "bg-celestial-100 text-celestial-700"
+                  : "text-charcoal-700 hover:bg-canvas-100",
               )}
             >
               {link.label}

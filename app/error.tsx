@@ -18,10 +18,10 @@ export default function Error({
   return (
     <div className="flex h-[60vh] w-full flex-col items-center justify-center gap-6 px-4 text-center">
       <div className="space-y-2">
-        <h2 className="text-2xl font-display font-semibold text-ink-900">
+        <h2 className="text-2xl font-display font-semibold text-charcoal-900">
           Algo salió mal
         </h2>
-        <p className="max-w-md text-ink-500">
+        <p className="max-w-md text-charcoal-500">
           Ocurrió un error inesperado al intentar cargar esta página.
         </p>
       </div>

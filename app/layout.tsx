@@ -48,10 +48,10 @@ export default async function RootLayout({
               <main className="flex-1">{children}</main>
               <footer className="mt-16 border-t border-border bg-card/40 backdrop-blur-md">
                 <div className="mx-auto flex max-w-screen-2xl flex-col items-center justify-between gap-3 px-4 sm:px-6 lg:px-8 py-8 sm:flex-row">
-                  <p className="font-sans text-xs text-ink-500">
+                  <p className="font-sans text-xs text-charcoal-500">
                     Bloomingdale 2nd · Plataforma comunitaria · Rama local
                   </p>
-                  <p className="font-display text-xs italic text-ink-400">
+                  <p className="font-display text-xs italic text-charcoal-400">
                     «Sed uno; y si no sois uno, no sois míos». — Mosiah 18:21
                   </p>
                 </div>

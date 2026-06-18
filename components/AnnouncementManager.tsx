@@ -46,7 +46,7 @@ export function AnnouncementManager({ initialAnnouncements }: { initialAnnouncem
               <input type="date" value={activeUntil} onChange={e => setActiveUntil(e.target.value)} className="w-full rounded-md border p-2" />
             </div>
           </div>
-          <button type="submit" disabled={isSubmitting} className="rounded-md bg-sage-600 px-4 py-2 text-white disabled:opacity-50">
+          <button type="submit" disabled={isSubmitting} className="rounded-md bg-celestial-600 px-4 py-2 text-white disabled:opacity-50">
             Guardar Anuncio
           </button>
         </form>
@@ -55,17 +55,17 @@ export function AnnouncementManager({ initialAnnouncements }: { initialAnnouncem
       <div className="space-y-4">
         <h2 className="text-lg font-medium">Anuncios Actuales</h2>
         {initialAnnouncements.length === 0 ? (
-          <p className="text-ink-500 text-sm">No hay anuncios configurados.</p>
+          <p className="text-charcoal-500 text-sm">No hay anuncios configurados.</p>
         ) : null}
         {initialAnnouncements.map((ann, idx) => (
           <div key={ann.id} className="rounded-xl border bg-card p-4 flex justify-between items-start">
             <div>
               <h3 className="font-medium text-lg">
-                <span className="text-sage-600 mr-2">{idx + 1}.</span>
+                <span className="text-celestial-600 mr-2">{idx + 1}.</span>
                 {ann.title}
               </h3>
-              <p className="text-sm text-ink-600">{ann.body}</p>
-              <p className="text-xs text-ink-500 mt-2">
+              <p className="text-sm text-charcoal-600">{ann.body}</p>
+              <p className="text-xs text-charcoal-500 mt-2">
                 Visible: {ann.activeFrom} {ann.activeUntil ? `al ${ann.activeUntil}` : '(sin límite)'}
               </p>
             </div>
