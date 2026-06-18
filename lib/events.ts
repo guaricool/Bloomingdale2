@@ -56,6 +56,8 @@ export const createEventSchema = z.object({
   type: z.enum(EVENT_TYPES, {
     errorMap: () => ({ message: "Tipo de evento no válido" }),
   }),
+  isRecurring: z.boolean().default(false),
+  recurrenceRule: z.string().optional(),
 });
 
 export type CreateEventInput = z.infer<typeof createEventSchema>;

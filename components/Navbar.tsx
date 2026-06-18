@@ -51,7 +51,12 @@ export function Navbar({ user }: NavbarProps) {
           {
             href: "/admin/miembros",
             label: "Administrar",
-            match: (p: string) => p.startsWith("/admin/") && p !== "/admin/qr",
+            match: (p: string) => p.startsWith("/admin/") && p !== "/admin/qr" && p !== "/admin/anuncios",
+          },
+          {
+            href: "/admin/anuncios",
+            label: "Anuncios",
+            match: (p: string) => p.startsWith("/admin/anuncios"),
           },
           {
             href: "/admin/qr",

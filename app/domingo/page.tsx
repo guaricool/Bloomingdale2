@@ -5,6 +5,7 @@ import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import Link from "next/link";
 import { Suspense } from "react";
+import { getActiveAnnouncementsAndEvents } from "@/lib/announcements";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,10 @@ async function getNextSundayAgenda() {
 }
 
 export default async function DomingoPage() {
-  const agenda = await getNextSundayAgenda();
+  const [agenda, announcementsData] = await Promise.all([
+    getNextSundayAgenda(),
+    getActiveAnnouncementsAndEvents()
+  ]);
 
   const formattedDate = agenda 
     ? format(parseISO(agenda.date), "EEEE, d 'de' MMMM", { locale: es })
@@ -54,6 +58,38 @@ export default async function DomingoPage() {
         </Card>
       ) : (
         <div className="space-y-6">
+          {/* Anuncios Globales */}
+          {(!announcementsData.announcements.length && !announcementsData.events.length) ? null : (
+            <Card>
+              <CardHeader title="Anuncios y Eventos" eyebrow="Avisos Importantes" />
+              <CardBody>
+                <div className="space-y-6">
+                  {announcementsData.announcements.map((ann: any) => (
+                    <div key={`ann-${ann.id}`} className="border-l-2 border-sage-500 pl-4 py-1">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-sage-600 mb-1 block">
+                        Anuncio
+                      </span>
+                      <p className="text-foreground text-lg font-medium">{ann.title}</p>
+                      {ann.body && <p className="text-foreground/80 mt-1">{ann.body}</p>}
+                    </div>
+                  ))}
+                  {announcementsData.events.map((ev: any) => (
+                    <div key={`ev-${ev.id}`} className="border-l-2 border-blue-400 pl-4 py-1">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-blue-500 mb-1 block">
+                        Próximo Evento {ev.isRecurring ? '(Recurrente)' : ''}
+                      </span>
+                      <p className="text-foreground text-lg font-medium">{ev.title}</p>
+                      <p className="text-foreground/80 mt-1">
+                        {ev.isRecurring ? ev.recurrenceRule : format(parseISO(ev.eventDate), "EEEE, d 'de' MMMM", { locale: es })}
+                      </p>
+                      {ev.description && <p className="text-foreground/70 mt-1 text-sm">{ev.description}</p>}
+                    </div>
+                  ))}
+                </div>
+              </CardBody>
+            </Card>
+          )}
+
           <Card>
             <CardHeader title="Reunión Sacramental" eyebrow="1ra Hora" />
             <CardBody>
@@ -63,7 +99,9 @@ export default async function DomingoPage() {
                     <span className="text-xs font-semibold uppercase tracking-wider text-primary mb-1 block">
                       {item.type === "hymn_opening" && "Himno Inicial"}
                       {item.type === "prayer_opening" && "Primera Oración"}
+                      {item.type === "business" && "Asuntos"}
                       {item.type === "sacrament_hymn" && "Himno Sacramental"}
+                      {item.type === "sacrament" && "Santa Cena"}
                       {item.type === "speaker" && "Discursante"}
                       {item.type === "hymn_closing" && "Himno Final"}
                       {item.type === "prayer_closing" && "Última Oración"}

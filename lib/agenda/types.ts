@@ -8,7 +8,7 @@
 
 export type AgendaStatus = "draft" | "published" | "completed";
 
-export type AgendaItemType = "hymn" | "speaker" | "prayer" | "announcement";
+export type AgendaItemType = "hymn" | "speaker" | "prayer" | "announcement" | "business" | "sacrament" | "other" | "hymn_opening" | "prayer_opening" | "sacrament_hymn" | "hymn_closing" | "prayer_closing";
 
 /**
  * Row shape straight from the Agenda table.
@@ -91,12 +91,19 @@ export const AGENDA_SLOT_ORDER: AgendaItemType[] = [
   "prayer", // 8. Bendición
 ];
 
-/** Human-readable labels for slot types (Spanish). */
 export const ITEM_TYPE_LABELS: Record<AgendaItemType, string> = {
   hymn: "Himno",
   speaker: "Discurso",
   prayer: "Oración",
   announcement: "Anuncio",
+  business: "Asuntos",
+  sacrament: "Santa Cena",
+  other: "Otro",
+  hymn_opening: "Himno de apertura",
+  prayer_opening: "Oración de apertura",
+  sacrament_hymn: "Himno sacramental",
+  hymn_closing: "Himno de cierre",
+  prayer_closing: "Oración de cierre",
 };
 
 // Re-export the pending-announcement shape from the events module so the

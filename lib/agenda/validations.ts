@@ -49,6 +49,14 @@ export const agendaItemTypeSchema = z.enum([
   "speaker",
   "prayer",
   "announcement",
+  "business",
+  "sacrament",
+  "other",
+  "hymn_opening",
+  "prayer_opening",
+  "sacrament_hymn",
+  "hymn_closing",
+  "prayer_closing",
 ]);
 
 export const createAgendaItemSchema = z.object({

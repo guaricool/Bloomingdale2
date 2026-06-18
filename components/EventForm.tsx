@@ -11,6 +11,8 @@ interface EventFormValues {
   description: string;
   eventDate: string; // YYYY-MM-DD
   type: EventType;
+  isRecurring: boolean;
+  recurrenceRule: string;
 }
 
 interface EventFormProps {
@@ -30,6 +32,8 @@ export function EventForm({ eventId, initial, redirectTo = "/admin/eventos" }: E
   const [description, setDescription] = useState(initial?.description ?? "");
   const [eventDate, setEventDate] = useState(initial?.eventDate ?? "");
   const [type, setType] = useState<EventType>(initial?.type ?? "actividad");
+  const [isRecurring, setIsRecurring] = useState(initial?.isRecurring ?? false);
+  const [recurrenceRule, setRecurrenceRule] = useState(initial?.recurrenceRule ?? "");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -43,8 +47,8 @@ export function EventForm({ eventId, initial, redirectTo = "/admin/eventos" }: E
       setError("El título debe tener al menos 2 caracteres.");
       return;
     }
-    if (!eventDate) {
-      setError("La fecha del evento es obligatoria.");
+    if (!eventDate && !isRecurring) {
+      setError("La fecha del evento es obligatoria para eventos únicos.");
       return;
     }
 
@@ -53,6 +57,8 @@ export function EventForm({ eventId, initial, redirectTo = "/admin/eventos" }: E
       description: description.trim(),
       eventDate,
       type,
+      isRecurring,
+      recurrenceRule: isRecurring ? recurrenceRule.trim() : "",
     };
 
     setSubmitting(true);
@@ -152,6 +158,18 @@ export function EventForm({ eventId, initial, redirectTo = "/admin/eventos" }: E
           </select>
         </div>
       </div>
+
+      <div className="flex items-center gap-2">
+        <input type="checkbox" id="isRecurring" checked={isRecurring} onChange={e => setIsRecurring(e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+        <label htmlFor="isRecurring" className="text-sm font-medium text-slate-700">Es un evento recurrente</label>
+      </div>
+
+      {isRecurring && (
+        <div>
+          <label htmlFor="recurrenceRule" className="block text-sm font-medium text-slate-700">Regla de recurrencia</label>
+          <input id="recurrenceRule" value={recurrenceRule} onChange={e => setRecurrenceRule(e.target.value)} placeholder="Ej. Todos los viernes a las 6pm" className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm" />
+        </div>
+      )}
 
       {error ? (
         <div className="rounded-card border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-600" role="alert">

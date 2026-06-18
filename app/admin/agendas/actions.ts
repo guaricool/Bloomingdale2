@@ -78,19 +78,19 @@ export async function createAgendaAction(
     }
     const created = await createAgenda({ date, createdBy });
 
-    // Crear template estándar de la reunión sacramental:
-    // Guía oficial del himnario (El uso del himnario, pág. 273):
-    //   - Apertura: loor, agradecimiento o súplica (himnos 30-47 o similares)
-    //   - Santa Cena: tema de la Santa Cena o sacrificio expiatorio (himnos 101-120)
-    //   - Intermedio: relacionado con los discursos (opcional)
-    //   - Cierre: permite a la congregación responder a la reunión
-    const templateItems: { type: "hymn" | "prayer"; note: string }[] = [
-      { type: "hymn",   note: "Apertura" },
-      { type: "prayer", note: "Oración de apertura" },
-      { type: "hymn",   note: "Santa Cena" },
-      { type: "hymn",   note: "Intermedio (opcional)" },
-      { type: "hymn",   note: "Cierre" },
-      { type: "prayer", note: "Oración de cierre" },
+    // Crear template de la reunión sacramental actualizado:
+    const isFirstSunday = Number(date.split("-")[2]) <= 7;
+    const templateItems: { type: any; note: string }[] = [
+      { type: "other",          note: "Bienvenida" },
+      { type: "announcement",   note: "Anuncios" },
+      { type: "hymn_opening",   note: "Primer himno" },
+      { type: "prayer_opening", note: "Primera oración" },
+      { type: "business",       note: "Asuntos de rama o estaca (Opcional)" },
+      { type: "sacrament_hymn", note: "Segundo himno" },
+      { type: "sacrament",      note: "Bendición y repartición de la Santa Cena" },
+      { type: "speaker",        note: isFirstSunday ? "Testimonios" : "Discursantes" },
+      { type: "hymn_closing",   note: "Tercer himno" },
+      { type: "prayer_closing", note: "Segunda oración" },
     ];
 
     for (let i = 0; i < templateItems.length; i++) {
