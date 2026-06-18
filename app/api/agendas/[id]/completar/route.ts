@@ -46,7 +46,7 @@ export async function POST(
 
   if (speakers.length > 0) {
     await prisma.discourseLog.createMany({
-      data: speakers.map((item) => ({
+      data: speakers.map((item: any) => ({
         agendaId: id,
         memberId: item.refId!,
         discourseDate: result.agenda.date,
