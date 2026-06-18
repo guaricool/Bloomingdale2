@@ -124,6 +124,8 @@ export function HymnAutocomplete({
     <div ref={containerRef} className="relative">
       <div className="flex items-center gap-2">
         <input
+          role="combobox"
+          aria-controls={open ? "hymn-options" : undefined}
           id={id}
           type="text"
           value={query}
@@ -160,6 +162,7 @@ export function HymnAutocomplete({
       </div>
       {open ? (
         <ul
+          id="hymn-options"
           role="listbox"
           className="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-md border border-slate-200 bg-white shadow-lg"
         >

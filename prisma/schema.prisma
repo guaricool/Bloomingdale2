@@ -44,8 +44,26 @@ model Member {
   discourseLogs    DiscourseLog[]
   classesTaught    ClassSchedule[] @relation("ClassTeacher")
 
+  callings         Calling[]
+
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+}
+
+model Calling {
+  id             Int           @id @default(autoincrement())
+  title          String
+  memberId       Int
+  member         Member        @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  organizationId Int?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  
+  // Permisos derivados del llamamiento
+  canEditAgendas Boolean       @default(false)
+  canEditClasses Boolean       @default(false)
+  
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 }
 
 model Organization {
@@ -54,6 +72,7 @@ model Organization {
   description String?
   
   classSchedules ClassSchedule[]
+  callings       Calling[]
 }
 
 model ClassSchedule {
