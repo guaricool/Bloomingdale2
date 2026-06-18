@@ -190,7 +190,7 @@ export async function deleteEvent(id: number): Promise<{
   agendaItemsDeleted: number;
 }> {
   try {
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       const itemDel = await tx.agendaItem.deleteMany({
         where: { type: 'announcement', refId: id },
       });

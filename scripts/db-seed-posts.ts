@@ -56,7 +56,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: any) => {
     for (const p of SAMPLE) {
       await tx.post.create({
         data: {

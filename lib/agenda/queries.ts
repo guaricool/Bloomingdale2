@@ -335,7 +335,7 @@ export async function reorderAgendaItems(
     return false;
   }
   
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: any) => {
     for (const it of orderedItems) {
       await tx.agendaItem.update({
         where: { id: it.id },

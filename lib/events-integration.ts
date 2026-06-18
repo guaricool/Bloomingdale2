@@ -47,7 +47,7 @@ export async function insertAnnouncementIntoExistingAgendas(
   let skipped = 0;
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       const agendas = await tx.agenda.findMany({
         where: {
           date: { gte: today, lte: upper },
@@ -58,7 +58,7 @@ export async function insertAnnouncementIntoExistingAgendas(
 
       consideredAgendas = agendas.length;
 
-      const sundayAgendas = agendas.filter((a) => {
+      const sundayAgendas = agendas.filter((a: any) => {
         const d = new Date(a.date + "T00:00:00");
         return d.getDay() === 0;
       });
