@@ -30,11 +30,13 @@ declare module "@auth/core/types" {
     user: {
       role: "admin" | "member";
       memberId: number | null;
+      calling?: string | null;
     } & DefaultSession["user"];
   }
   interface User {
     role?: "admin" | "member";
     memberId?: number | null;
+    calling?: string | null;
   }
 }
 
@@ -42,6 +44,7 @@ declare module "@auth/core/jwt" {
   interface JWT {
     role?: "admin" | "member";
     memberId?: number | null;
+    calling?: string | null;
   }
 }
 
@@ -99,6 +102,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               equals: email.toLowerCase(),
               mode: 'insensitive'
             }
+          },
+          include: {
+            member: {
+              include: { callings: true }
+            }
           }
         });
 
@@ -116,9 +124,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         // NextAuth's User.id is typed as string; we encode our int as string here
         // and let appUserIdToNumber() decode it on the consuming side.
+        let name = null;
+        let calling = null;
+        if (row.member) {
+          name = [row.member.firstName, row.member.lastName].filter(Boolean).join(" ");
+          if (row.member.callings && row.member.callings.length > 0) {
+            calling = row.member.callings[0].title;
+          }
+        }
+
         return {
           id: String(row.id),
           email: row.email,
+          name: name,
+          calling: calling,
           role: row.role as "admin" | "member",
           memberId: row.memberId,
         };
@@ -129,9 +148,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     ...baseConfig.callbacks,
     async jwt({ token, user }) {
       if (user) {
-        const u = user as { role?: "admin" | "member"; memberId?: number | null };
+        const u = user as { role?: "admin" | "member"; memberId?: number | null; calling?: string | null; name?: string | null };
         token.role = u.role ?? "member";
         token.memberId = u.memberId ?? null;
+        token.calling = u.calling ?? null;
+        if (u.name) token.name = u.name;
       }
       return token;
     },
@@ -140,6 +161,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (token.sub) session.user.id = token.sub;
         session.user.role = (token.role as "admin" | "member" | undefined) ?? "member";
         session.user.memberId = (token.memberId as number | null | undefined) ?? null;
+        session.user.calling = (token.calling as string | null | undefined) ?? null;
+        if (token.name) session.user.name = token.name as string;
       }
       return session;
     },

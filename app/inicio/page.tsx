@@ -24,16 +24,7 @@ export default async function DashboardPage() {
 
   const { prisma } = await import("@/lib/db");
 
-  let displayName = session.user.email ?? "hermano/a";
-  if (session.user.memberId) {
-    const row = await prisma.member.findUnique({
-      where: { id: session.user.memberId },
-      select: { firstName: true, lastName: true }
-    });
-    if (row) displayName = `${row.firstName} ${row.lastName}`;
-  } else if (session.user.email) {
-    displayName = session.user.email.split("@")[0] ?? displayName;
-  }
+  let displayName = session.user.name ?? session.user.email?.split("@")[0] ?? "hermano/a";
 
   // Saludo según la hora del día (UTC, no importa mucho para v0.1)
   const hour = new Date().getUTCHours();

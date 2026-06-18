@@ -14,9 +14,10 @@ import { useToast } from "@/components/ui/Toast";
 interface PostFormProps {
   isAdmin: boolean;
   authorName: string;
+  authorCalling?: string | null;
 }
 
-export function PostForm({ isAdmin, authorName }: PostFormProps) {
+export function PostForm({ isAdmin, authorName, authorCalling }: PostFormProps) {
   const router = useRouter();
   const toast = useToast();
   const [title, setTitle] = useState("");
@@ -66,7 +67,11 @@ export function PostForm({ isAdmin, authorName }: PostFormProps) {
         </div>
         <p className="font-sans text-sm text-slate-700">
           Publicando como <strong className="text-slate-900">{authorName}</strong>
-          {isAdmin ? (
+          {authorCalling ? (
+            <span className="ml-2 rounded-pill border border-blue-200 bg-blue-50 px-2 py-0.5 font-sans text-[0.65rem] font-semibold uppercase tracking-wider text-blue-700">
+              {authorCalling}
+            </span>
+          ) : isAdmin ? (
             <span className="ml-2 rounded-pill border border-blue-200 bg-blue-50 px-2 py-0.5 font-sans text-[0.65rem] font-semibold uppercase tracking-wider text-blue-700">
               Presidencia
             </span>

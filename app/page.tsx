@@ -86,7 +86,8 @@ export default async function HomePage() {
   // Current user for the post form
   const currentUserId = appUserIdToNumber(session?.user as AppSessionUser | undefined) ?? null;
   const currentUserRole = session?.user?.role;
-  const currentUserName = session?.user?.name ?? session?.user?.email ?? "Tú";
+  const currentUserName = session?.user?.name ?? session?.user?.email?.split("@")[0] ?? "Tú";
+  const currentUserCalling = session?.user?.calling;
 
   // Total counts for the right sidebar
   const { prisma } = await import("@/lib/db");
@@ -180,6 +181,7 @@ export default async function HomePage() {
             <PostForm
               isAdmin={currentUserRole === "admin"}
               authorName={currentUserName}
+              authorCalling={currentUserCalling}
             />
           ) : (
             <Card>
