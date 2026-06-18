@@ -13,6 +13,7 @@ function mapRow(m: any): MemberRow {
   return {
     id: m.id,
     firstName: m.firstName,
+    middleName: m.middleName ?? null,
     lastName: m.lastName,
     membershipNumber: m.membershipNumber,
     familyGroupId: m.familyGroupId,
@@ -83,6 +84,7 @@ export async function listMembers(
 
 export interface CreateMemberInput {
   firstName: string;
+  middleName: string | null;
   lastName: string;
   membershipNumber: string | null;
   familyGroupId: number | null;
@@ -92,6 +94,7 @@ export async function createMember(input: CreateMemberInput): Promise<MemberRow>
   const row = await prisma.member.create({
     data: {
       firstName: input.firstName.trim(),
+      middleName: input.middleName ? input.middleName.trim() : null,
       lastName: input.lastName.trim(),
       membershipNumber: input.membershipNumber,
       familyGroupId: input.familyGroupId,
@@ -104,6 +107,7 @@ export async function createMember(input: CreateMemberInput): Promise<MemberRow>
 export interface UpdateMemberInput {
   id: number;
   firstName: string;
+  middleName: string | null;
   lastName: string;
   membershipNumber: string | null;
   familyGroupId: number | null;
@@ -115,6 +119,7 @@ export async function updateMember(input: UpdateMemberInput): Promise<MemberRow>
       where: { id: input.id },
       data: {
         firstName: input.firstName.trim(),
+        middleName: input.middleName ? input.middleName.trim() : null,
         lastName: input.lastName.trim(),
         membershipNumber: input.membershipNumber,
         familyGroupId: input.familyGroupId,
@@ -165,7 +170,7 @@ export async function searchMembers(
   const exact = trimmed.toLowerCase();
   
   const rows: any[] = await prisma.$queryRawUnsafe(`
-    SELECT id, firstName, lastName, membershipNumber
+    SELECT id, "firstName", "middleName", "lastName", "membershipNumber"
     FROM "Member"
     WHERE LOWER(firstName) LIKE $1
        OR LOWER(lastName)  LIKE $2

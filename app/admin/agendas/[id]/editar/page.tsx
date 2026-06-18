@@ -46,7 +46,7 @@ export default async function EditAgendaPage({ params }: PageProps) {
     },
   });
   
-  const memberSuggestions = memberSuggestionsRaw.map((m) => ({
+  const memberSuggestions = memberSuggestionsRaw.map((m: any) => ({
     id: m.id,
     firstName: m.firstName,
     lastName: m.lastName,

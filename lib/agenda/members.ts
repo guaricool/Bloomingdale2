@@ -8,6 +8,7 @@ function toMember(r: any): MemberRow {
   return {
     id: r.id,
     firstName: r.firstName,
+    middleName: r.middleName ?? null,
     lastName: r.lastName,
     membershipNumber: r.membershipNumber,
     familyGroupId: r.familyGroupId,

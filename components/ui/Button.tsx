@@ -30,6 +30,7 @@ interface BaseProps {
   variant?: Variant;
   size?: Size;
   className?: string;
+  loading?: boolean;
   children: ReactNode;
 }
 
