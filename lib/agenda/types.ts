@@ -8,7 +8,7 @@
 
 export type AgendaStatus = "draft" | "published" | "completed";
 
-export type AgendaItemType = "hymn" | "speaker" | "prayer" | "announcement" | "business" | "sacrament" | "other" | "hymn_opening" | "prayer_opening" | "sacrament_hymn" | "hymn_closing" | "prayer_closing";
+export type AgendaItemType = "hymn" | "speaker" | "prayer" | "announcement" | "business_rama" | "business_estaca" | "sacrament" | "other" | "hymn_opening" | "prayer_opening" | "sacrament_hymn" | "hymn_closing" | "prayer_closing";
 
 /**
  * Row shape straight from the Agenda table.
@@ -96,7 +96,8 @@ export const ITEM_TYPE_LABELS: Record<AgendaItemType, string> = {
   speaker: "Discurso",
   prayer: "Oración",
   announcement: "Anuncio",
-  business: "Asuntos",
+  business_rama: "Asuntos de Rama",
+  business_estaca: "Asuntos de Estaca",
   sacrament: "Santa Cena",
   other: "Otro",
   hymn_opening: "Himno de apertura",

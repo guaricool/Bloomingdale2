@@ -15,6 +15,7 @@ export function RegisterForm() {
   const [email, setEmail]           = useState("");
   const [password, setPassword]     = useState("");
   const [confirm, setConfirm]       = useState("");
+  const [jurisdiction, setJurisdiction] = useState("rama");
   const [error, setError]           = useState<string | null>(null);
   const [registered, setRegistered] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -43,6 +44,7 @@ export function RegisterForm() {
           lastName: lastName.trim(),
           email: email.trim().toLowerCase(),
           password,
+          jurisdiction,
         }),
       });
 
@@ -177,6 +179,19 @@ export function RegisterForm() {
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
         />
+      </Field>
+
+      <Field label="Jurisdicción (Para Administradores)" htmlFor="jurisdiction" required>
+        <select
+          id="jurisdiction"
+          value={jurisdiction}
+          onChange={(e) => setJurisdiction(e.target.value)}
+          className="block w-full rounded-md border-slate-300 py-2.5 text-slate-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+        >
+          <option value="rama">Rama</option>
+          <option value="estaca">Estaca</option>
+          <option value="barrio">Barrio</option>
+        </select>
       </Field>
 
       {error ? (

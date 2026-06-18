@@ -17,6 +17,7 @@ const registerSchema = z.object({
   lastName: z.string().min(2, "El apellido debe tener al menos 2 caracteres").max(50),
   email: z.string().email("Correo electrónico no válido").max(200),
   password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres").max(200),
+  jurisdiction: z.string().optional().default("rama"),
 });
 
 export async function POST(req: NextRequest) {
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { firstName, middleName, lastName, email, password } = parsed.data;
+  const { firstName, middleName, lastName, email, password, jurisdiction } = parsed.data;
   const normalizedEmail = email.toLowerCase();
 
   // Reject duplicate email
@@ -70,6 +71,7 @@ export async function POST(req: NextRequest) {
         email: normalizedEmail,
         passwordHash,
         role,
+        jurisdiction,
         memberId: createdMember.id
       }
     });

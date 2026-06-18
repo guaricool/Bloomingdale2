@@ -11,6 +11,7 @@ model User {
   email        String   @unique
   passwordHash String
   role         String   @default("member")
+  jurisdiction String   @default("rama") // rama, estaca, barrio
   memberId     Int?     @unique
   member       Member?  @relation(fields: [memberId], references: [id])
   createdAt    DateTime @default(now())

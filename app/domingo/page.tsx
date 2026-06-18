@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/Badge";
 import Link from "next/link";
 import { Suspense } from "react";
 import { getActiveAnnouncementsAndEvents } from "@/lib/announcements";
+import { auth } from "@/auth";
+import { RadioPlayerCard } from "@/components/RadioPlayerCard";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +32,9 @@ async function getNextSundayAgenda() {
 }
 
 export default async function DomingoPage() {
+  const session = await auth();
+  const isAdmin = session?.user?.role === "admin";
+
   const [agenda, announcementsData] = await Promise.all([
     getNextSundayAgenda(),
     getActiveAnnouncementsAndEvents()
@@ -47,6 +52,10 @@ export default async function DomingoPage() {
           {formattedDate}
         </h1>
         <p className="mt-2 text-foreground/60">Rama Bloomingdale 2nd</p>
+      </div>
+
+      <div className="mb-8">
+        <RadioPlayerCard />
       </div>
 
       {!agenda ? (
@@ -94,12 +103,19 @@ export default async function DomingoPage() {
             <CardHeader title="Reunión Sacramental" eyebrow="1ra Hora" />
             <CardBody>
               <div className="space-y-6">
-                {agenda.items.map((item: any) => (
+                {agenda.items.map((item: any) => {
+                  if ((item.type === "business_rama" || item.type === "business_estaca")) {
+                    if (!isAdmin) return null; // Nunca mostrar Asuntos a no-administradores
+                    if (!item.note) return null; // No mostrar ni a administradores si está vacío
+                  }
+
+                  return (
                   <div key={item.id} className="border-l-2 border-primary/20 pl-4 py-1">
                     <span className="text-xs font-semibold uppercase tracking-wider text-primary mb-1 block">
                       {item.type === "hymn_opening" && "Himno Inicial"}
                       {item.type === "prayer_opening" && "Primera Oración"}
-                      {item.type === "business" && "Asuntos"}
+                      {item.type === "business_rama" && "Asuntos de Rama"}
+                      {item.type === "business_estaca" && "Asuntos de Estaca"}
                       {item.type === "sacrament_hymn" && "Himno Sacramental"}
                       {item.type === "sacrament" && "Santa Cena"}
                       {item.type === "speaker" && "Discursante"}
@@ -112,7 +128,8 @@ export default async function DomingoPage() {
                       {item.note || "Sin detalle"}
                     </p>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </CardBody>
           </Card>

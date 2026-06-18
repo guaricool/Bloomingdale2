@@ -237,9 +237,11 @@ export function AgendaEditor({
                       {it.note}
                     </span>
                   )}
-                  <span className={`truncate text-sm font-medium ${it.refId ? "text-slate-900" : "text-slate-400 italic"}`}>
-                    {it.refId ? it.displayLabel : "Sin himno seleccionado"}
-                  </span>
+                  {["hymn", "hymn_opening", "hymn_closing", "sacrament_hymn", "speaker", "prayer", "prayer_opening", "prayer_closing"].includes(it.type) ? (
+                    <span className={`truncate text-sm font-medium ${it.refId ? "text-slate-900" : "text-slate-400 italic"}`}>
+                      {it.refId ? it.displayLabel : (it.type.includes("hymn") ? "Sin himno seleccionado" : "Aún no asignado")}
+                    </span>
+                  ) : null}
                 </div>
                 {/* Selector inline para himnos del template (sin himno asignado) */}
                 {it.type === "hymn" && !it.refId && !readOnly && (
@@ -257,9 +259,9 @@ export function AgendaEditor({
                     }}
                   />
                 )}
-                {(it.type === "announcement" || it.type === "prayer") ? (
+                {(it.type === "announcement" || it.type.includes("prayer") || it.type.includes("business") || it.type === "other") ? (
                   <textarea
-                    defaultValue={it.type === "prayer" ? "" : (it.note ?? "")}
+                    defaultValue={it.type.includes("prayer") ? "" : (it.note ?? "")}
                     onBlur={(e) => {
                       const v = e.target.value;
                       if (v !== (it.note ?? "")) {
@@ -269,9 +271,11 @@ export function AgendaEditor({
                     disabled={readOnly}
                     rows={2}
                     placeholder={
-                      it.type === "prayer"
+                      it.type.includes("prayer")
                         ? "Nombre de quien ora (opcional)"
-                        : "Detalle del anuncio (opcional)"
+                        : it.type.includes("business")
+                        ? "Detalle del asunto (opcional)"
+                        : "Detalle (opcional)"
                     }
                     className="mt-2 block w-full rounded-md border border-slate-300 px-2 py-1 text-xs shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
                   />

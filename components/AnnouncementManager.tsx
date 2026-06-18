@@ -17,8 +17,7 @@ export function AnnouncementManager({ initialAnnouncements }: { initialAnnouncem
       await createAnnouncement({ title, body, activeFrom, activeUntil });
       setTitle("");
       setBody("");
-      setActiveFrom("");
-      setActiveUntil("");
+      // No limpiamos activeFrom y activeUntil para facilitar múltiples entradas para las mismas fechas
     } finally {
       setIsSubmitting(false);
     }
@@ -58,10 +57,13 @@ export function AnnouncementManager({ initialAnnouncements }: { initialAnnouncem
         {initialAnnouncements.length === 0 ? (
           <p className="text-ink-500 text-sm">No hay anuncios configurados.</p>
         ) : null}
-        {initialAnnouncements.map(ann => (
+        {initialAnnouncements.map((ann, idx) => (
           <div key={ann.id} className="rounded-xl border bg-card p-4 flex justify-between items-start">
             <div>
-              <h3 className="font-medium">{ann.title}</h3>
+              <h3 className="font-medium text-lg">
+                <span className="text-sage-600 mr-2">{idx + 1}.</span>
+                {ann.title}
+              </h3>
               <p className="text-sm text-ink-600">{ann.body}</p>
               <p className="text-xs text-ink-500 mt-2">
                 Visible: {ann.activeFrom} {ann.activeUntil ? `al ${ann.activeUntil}` : '(sin límite)'}
