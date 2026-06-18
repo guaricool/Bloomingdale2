@@ -36,6 +36,8 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState, IconFeed, IconSparkle } from "@/components/ui/EmptyState";
 
+import { RadioPlayerCard } from "@/components/RadioPlayerCard";
+
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
@@ -235,6 +237,7 @@ export default async function HomePage() {
 
         {/* Sidebar derecho */}
         <aside className="space-y-4 xl:block">
+          <RadioPlayerCard />
           <Card>
             <CardBody>
               <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sage-600">
