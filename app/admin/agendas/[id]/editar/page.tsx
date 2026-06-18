@@ -13,7 +13,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdminForPage } from "@/lib/authz";
 import { getAgendaById } from "@/lib/agenda/queries";
-import { getDb } from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { formatSpanishDate } from "@/lib/agenda/dates";
 import { AgendaEditor } from "@/components/admin/agendas/AgendaEditor";
 import type { MemberOption } from "@/components/admin/agendas/SpeakerPicker";
@@ -33,7 +33,6 @@ export default async function EditAgendaPage({ params }: PageProps) {
 
   // Pre-load a small roster of members so the speaker picker has suggestions
   // even before the user types. Cheap on small branches.
-  const { prisma } = await import("@/lib/db");
   const memberSuggestionsRaw = await prisma.member.findMany({
     take: 50,
     orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
@@ -46,7 +45,7 @@ export default async function EditAgendaPage({ params }: PageProps) {
     },
   });
   
-  const memberSuggestions = memberSuggestionsRaw.map((m) => ({
+  const memberSuggestions = memberSuggestionsRaw.map((m: any) => ({
     id: m.id,
     firstName: m.firstName,
     lastName: m.lastName,
