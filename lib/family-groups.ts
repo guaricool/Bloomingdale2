@@ -1,14 +1,11 @@
 /**
- * Data access layer for the FamilyGroup module.
+ * Data access layer for the FamilyGroup module using Prisma.
  *
  * Pure DB functions. Authorization and validation happen in the
  * server action / API route that calls these helpers.
- *
- * Async: all functions return Promises. The DB layer can be SQLite (sync
- * semantics wrapped in a resolved Promise) or Postgres (native async). The
- * call sites `await` everything uniformly.
  */
-import { getDb } from "@/lib/db";
+import { prisma } from "@/lib/db";
+import { fullName } from "@/lib/member-types";
 
 export interface FamilyGroupRow {
   id: number;
@@ -19,38 +16,37 @@ export interface FamilyGroupRow {
   createdAt: string;
 }
 
-interface RawFamilyGroupRow {
-  id: number;
-  name: string;
-  headMemberId: number | null;
-  headMemberName: string | null;
-  memberCount: number;
-  createdAt: string;
+function mapRow(fg: any): FamilyGroupRow {
+  return {
+    id: fg.id,
+    name: fg.name,
+    headMemberId: fg.headMemberId,
+    headMemberName: fg.headMember ? fullName(fg.headMember) : null,
+    memberCount: fg._count?.members ?? 0,
+    createdAt: fg.createdAt.toISOString(),
+  };
 }
 
-const SELECT_JOIN = `
-  SELECT
-    fg.id              AS id,
-    fg.name            AS name,
-    fg.headMemberId    AS "headMemberId",
-    h.firstName || ' ' || h.lastName AS "headMemberName",
-    (SELECT COUNT(*) FROM "Member" m WHERE m.familyGroupId = fg.id) AS "memberCount",
-    fg.createdAt       AS "createdAt"
-  FROM "FamilyGroup" fg
-  LEFT JOIN "Member" h ON h.id = fg.headMemberId
-`;
-
 export async function getFamilyGroupById(id: number): Promise<FamilyGroupRow | null> {
-  const row = (await getDb()
-    .prepare(`${SELECT_JOIN} WHERE fg.id = ?`)
-    .get(id)) as RawFamilyGroupRow | undefined;
-  return row ?? null;
+  const row = await prisma.familyGroup.findUnique({
+    where: { id },
+    include: {
+      headMember: true,
+      _count: { select: { members: true } },
+    },
+  });
+  return row ? mapRow(row) : null;
 }
 
 export async function listFamilyGroups(): Promise<FamilyGroupRow[]> {
-  return (await getDb()
-    .prepare(`${SELECT_JOIN} ORDER BY LOWER(fg.name) ASC`)
-    .all()) as RawFamilyGroupRow[];
+  const rowsRaw = await prisma.familyGroup.findMany({
+    orderBy: { name: 'asc' },
+    include: {
+      headMember: true,
+      _count: { select: { members: true } },
+    },
+  });
+  return rowsRaw.map(mapRow);
 }
 
 export interface CreateFamilyGroupInput {
@@ -61,22 +57,17 @@ export interface CreateFamilyGroupInput {
 export async function createFamilyGroup(
   input: CreateFamilyGroupInput,
 ): Promise<FamilyGroupRow> {
-  const db = getDb();
-  const result = await db
-    .prepare(`INSERT INTO "FamilyGroup" (name, headMemberId) VALUES (?, ?)`)
-    .run(input.name.trim(), input.headMemberId);
-  let id = Number(result.lastInsertRowid);
-  if (!Number.isFinite(id) || id <= 0) {
-    // Postgres path: re-SELECT the most recent matching row.
-    const recent = (await listFamilyGroups()).find(
-      (g) => g.name === input.name.trim(),
-    );
-    if (!recent) throw new Error("No se pudo crear el grupo familiar");
-    return recent;
-  }
-  const row = await getFamilyGroupById(id);
-  if (!row) throw new Error("No se pudo crear el grupo familiar");
-  return row;
+  const row = await prisma.familyGroup.create({
+    data: {
+      name: input.name.trim(),
+      headMemberId: input.headMemberId,
+    },
+    include: {
+      headMember: true,
+      _count: { select: { members: true } },
+    },
+  });
+  return mapRow(row);
 }
 
 export interface UpdateFamilyGroupInput {
@@ -88,23 +79,25 @@ export interface UpdateFamilyGroupInput {
 export async function updateFamilyGroup(
   input: UpdateFamilyGroupInput,
 ): Promise<FamilyGroupRow> {
-  const db = getDb();
-  const result = await db
-    .prepare(
-      `UPDATE "FamilyGroup"
-       SET name = ?, headMemberId = ?
-       WHERE id = ?`,
-    )
-    .run(input.name.trim(), input.headMemberId, input.id);
-  if (result.changes === 0) {
-    // Postgres path: 0 changes can mean a no-op update or a missing row.
-    const existing = await getFamilyGroupById(input.id);
-    if (!existing) throw new Error("Grupo familiar no encontrado");
-    return existing;
+  try {
+    const row = await prisma.familyGroup.update({
+      where: { id: input.id },
+      data: {
+        name: input.name.trim(),
+        headMemberId: input.headMemberId,
+      },
+      include: {
+        headMember: true,
+        _count: { select: { members: true } },
+      },
+    });
+    return mapRow(row);
+  } catch (error: any) {
+    if (error.code === 'P2025') {
+      throw new Error("Grupo familiar no encontrado");
+    }
+    throw error;
   }
-  const row = await getFamilyGroupById(input.id);
-  if (!row) throw new Error("Grupo familiar no encontrado");
-  return row;
 }
 
 /**
@@ -115,19 +108,28 @@ export async function updateFamilyGroup(
 export async function deleteFamilyGroup(
   id: number,
 ): Promise<{ ok: boolean; reason?: string }> {
-  const group = await getFamilyGroupById(id);
+  const group = await prisma.familyGroup.findUnique({
+    where: { id },
+    include: { _count: { select: { members: true } } },
+  });
   if (!group) return { ok: false, reason: "Grupo familiar no encontrado" };
-  if (group.memberCount > 0) {
+  
+  if (group._count.members > 0) {
     return {
       ok: false,
-      reason: `El grupo tiene ${group.memberCount} miembro(s) asignado(s). Reasígnalos antes de eliminarlo.`,
+      reason: `El grupo tiene ${group._count.members} miembro(s) asignado(s). Reasígnalos antes de eliminarlo.`,
     };
   }
-  const result = await getDb().prepare(`DELETE FROM "FamilyGroup" WHERE id = ?`).run(id);
-  if (result.changes === 0) {
-    // Postgres: 0 changes with a confirmed existing row is unusual; report
-    // as a soft failure so the caller can re-check.
-    return { ok: false, reason: "No se pudo eliminar el grupo" };
+  
+  try {
+    await prisma.familyGroup.delete({
+      where: { id },
+    });
+    return { ok: true };
+  } catch (error: any) {
+    if (error.code === 'P2025') {
+      return { ok: false, reason: "No se pudo eliminar el grupo" };
+    }
+    throw error;
   }
-  return { ok: true };
 }

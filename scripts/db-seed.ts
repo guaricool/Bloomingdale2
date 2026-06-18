@@ -1,5 +1,5 @@
 /**
- * Seed the Hymn table from a static list of all 341 Spanish hymns.
+ * Seed the Hymn table from a static list of all 341 Spanish hymns using Prisma.
  *
  * Source strategy:
  *  - Numbers 1-209 were extracted from the official churchofjesuschrist.org
@@ -13,49 +13,45 @@
  *    official hymnal once the church website exposes the full list or we
  *    ship a small worker that fetches the music SPA's data endpoint.
  *
- * The seed is idempotent: it uses INSERT ... ON CONFLICT(number) DO UPDATE
- * so re-running it overwrites stale titles without duplicating rows.
+ * The seed is idempotent: it uses upsert so re-running it overwrites stale 
+ * titles without duplicating rows.
  */
-import { getDb, closeDb } from "../lib/db";
+import { PrismaClient } from "@prisma/client";
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { HYMNS } from "../db/hymns-data";
+import "dotenv/config";
 
-interface HymnRow {
-  number: number;
-  titleEs: string;
-  titleEn?: string;
-}
+const connectionString = process.env.DATABASE_URL;
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
-const insert = (db: ReturnType<typeof getDb>) =>
-  db.prepare(
-    `INSERT INTO "Hymn" (number, titleEs, titleEn)
-     VALUES (@number, @titleEs, @titleEn)
-     ON CONFLICT(number) DO UPDATE SET
-       titleEs = excluded.titleEs,
-       titleEn = excluded.titleEn`,
-  );
-
-async function main(): Promise<void> {
-  const db = getDb();
-  const tx = db.transaction(async (rows: HymnRow[]) => {
-    const stmt = insert(db);
-    let n = 0;
-    for (const row of rows) {
-      await stmt.run({ number: row.number, titleEs: row.titleEs, titleEn: row.titleEn ?? null });
-      n += 1;
-    }
-    return n;
-  });
-  const inserted = await tx(HYMNS);
-  const total = (
-    (await db.prepare(`SELECT COUNT(*) AS c FROM "Hymn"`).get()) as { c: number }
-  ).c;
-  console.log(`[seed] hymns: wrote/updated ${inserted}, total in DB: ${total}`);
+async function main() {
+  let n = 0;
+  for (const row of HYMNS) {
+    await prisma.hymn.upsert({
+      where: { number: row.number },
+      update: { titleEs: row.titleEs, titleEn: row.titleEn ?? null },
+      create: { number: row.number, titleEs: row.titleEs, titleEn: row.titleEn ?? null },
+    });
+    n++;
+  }
+  
+  const total = await prisma.hymn.count();
+  console.log(`[seed] hymns: wrote/updated ${n}, total in DB: ${total}`);
   if (total < 341) {
     console.warn(
-      `[seed] WARN: total hymns (${total}) is less than 341. See db/hymns-data.ts TODO.`,
+      `[seed] WARN: total hymns (${total}) is less than 341. See db/hymns-data.ts TODO.`
     );
   }
-  closeDb();
 }
 
-main();
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

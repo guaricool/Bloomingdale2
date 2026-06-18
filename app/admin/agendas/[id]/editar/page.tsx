@@ -33,17 +33,26 @@ export default async function EditAgendaPage({ params }: PageProps) {
 
   // Pre-load a small roster of members so the speaker picker has suggestions
   // even before the user types. Cheap on small branches.
-  const db = getDb();
-  const memberSuggestions = (await db
-    .prepare(
-      `SELECT m.id, m.firstName, m.lastName, m.membershipNumber,
-              g.name AS familyGroupName
-       FROM "Member" m
-       LEFT JOIN "FamilyGroup" g ON m.familyGroupId = g.id
-       ORDER BY m.firstName ASC, m.lastName ASC
-       LIMIT 50`,
-    )
-    .all()) as MemberOption[];
+  const { prisma } = await import("@/lib/db");
+  const memberSuggestionsRaw = await prisma.member.findMany({
+    take: 50,
+    orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      membershipNumber: true,
+      familyGroup: { select: { name: true } },
+    },
+  });
+  
+  const memberSuggestions = memberSuggestionsRaw.map((m) => ({
+    id: m.id,
+    firstName: m.firstName,
+    lastName: m.lastName,
+    membershipNumber: m.membershipNumber,
+    familyGroupName: m.familyGroup?.name ?? null,
+  })) as MemberOption[];
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">

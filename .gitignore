@@ -67,3 +67,5 @@ data/
 scripts/.trash*.json
 scripts/fix-author.js
 .vercel
+
+/generated/prisma

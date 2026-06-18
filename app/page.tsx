@@ -87,16 +87,11 @@ export default async function HomePage() {
   const currentUserName = session?.user?.name ?? session?.user?.email ?? "Tú";
 
   // Total counts for the right sidebar
-  const { getDb } = await import("@/lib/db");
-  const db = getDb();
-  const memberCount = (
-    (await db.prepare(`SELECT COUNT(*) AS n FROM "Member"`).get()) as { n: number }
-  ).n;
-  const upcomingEventCount = (
-    (await db
-      .prepare(`SELECT COUNT(*) AS n FROM "Event" WHERE eventDate >= ?`)
-      .get(today)) as { n: number }
-  ).n;
+  const { prisma } = await import("@/lib/db");
+  const memberCount = await prisma.member.count();
+  const upcomingEventCount = await prisma.event.count({
+    where: { eventDate: { gte: today } }
+  });
 
   return (
     <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">

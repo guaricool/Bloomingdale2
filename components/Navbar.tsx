@@ -27,7 +27,8 @@ interface NavbarProps {
 
 const baseLinks = [
   { href: "/", label: "Inicio" },
-  { href: "/inicio", label: "Mi panel" },
+  { href: "/domingo", label: "Programa" },
+  { href: "/inicio", label: "Panel" },
   { href: "/miembros", label: "Miembros" },
   { href: "/agendas", label: "Agendas" },
   { href: "/eventos", label: "Eventos" },
@@ -70,8 +71,8 @@ export function Navbar({ user }: NavbarProps) {
       className={clsx(
         "sticky top-0 z-40 w-full transition-all duration-300",
         scrolled
-          ? "border-b border-cream-200 bg-cream-50/90 backdrop-blur-md"
-          : "border-b border-transparent bg-cream-50/70",
+          ? "border-b border-border/60 bg-background/70 backdrop-blur-xl"
+          : "border-b border-transparent bg-background/40 backdrop-blur-sm",
       )}
     >
       <div className="mx-auto flex max-w-screen-2xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8 py-4">

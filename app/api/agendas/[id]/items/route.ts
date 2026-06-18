@@ -55,7 +55,7 @@ export async function POST(
   const { type, refId, note } = parsed.data;
 
   // Validate refId against the relevant table.
-  const db = getDb();
+  const { prisma } = await import("@/lib/db");
   if (type === "hymn") {
     if (!refId || refId < 1 || refId > 341) {
       return NextResponse.json(
@@ -77,9 +77,7 @@ export async function POST(
         { status: 400 },
       );
     }
-    const member = (await db
-      .prepare(`SELECT id FROM "Member" WHERE id = ?`)
-      .get(refId)) as { id: number } | undefined;
+    const member = await prisma.member.findUnique({ where: { id: refId } });
     if (!member) {
       return NextResponse.json(
         { error: `Miembro ${refId} no encontrado` },
@@ -93,9 +91,7 @@ export async function POST(
         { status: 400 },
       );
     }
-    const event = (await db
-      .prepare(`SELECT id FROM "Event" WHERE id = ?`)
-      .get(refId)) as { id: number } | undefined;
+    const event = await prisma.event.findUnique({ where: { id: refId } });
     if (!event) {
       return NextResponse.json(
         { error: `Evento ${refId} no encontrado` },

@@ -65,6 +65,7 @@ export interface MemberRow {
   familyGroupId: number | null;
   createdAt: string;
   updatedAt: string;
+  lastDiscourseDate?: string | null;
 }
 
 export interface EventRow {

@@ -8,12 +8,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { requireSession } from "@/lib/agenda/auth-helpers";
-import { searchMembers } from "@/lib/agenda/members";
+import { searchMembers, getMemberById } from "@/lib/agenda/members";
 
 export const dynamic = "force-dynamic";
 
 const querySchema = z.object({
-  q: z.string().min(1).max(120),
+  q: z.string().max(120).optional(),
+  id: z.coerce.number().int().positive().optional(),
   limit: z.coerce.number().int().min(1).max(50).optional().default(10),
 });
 
@@ -23,7 +24,8 @@ export async function GET(req: NextRequest) {
 
   const url = new URL(req.url);
   const raw = {
-    q: url.searchParams.get("q") ?? "",
+    q: url.searchParams.get("q") ?? undefined,
+    id: url.searchParams.get("id") ?? undefined,
     limit: url.searchParams.get("limit") ?? undefined,
   };
   const parsed = querySchema.safeParse(raw);
@@ -33,6 +35,12 @@ export async function GET(req: NextRequest) {
       { status: 400 },
     );
   }
-  const results = await searchMembers(parsed.data.q, parsed.data.limit);
+
+  if (parsed.data.id) {
+    const member = await getMemberById(parsed.data.id);
+    return NextResponse.json({ member });
+  }
+
+  const results = await searchMembers(parsed.data.q ?? "", parsed.data.limit);
   return NextResponse.json({ results });
 }

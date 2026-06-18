@@ -4,80 +4,167 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&display=swap");
 
-:root {
-  color-scheme: light;
-  --reveal-step: 0.08s;
+@layer base {
+  :root {
+    color-scheme: light;
+    --reveal-step: 0.08s;
+
+    --background: 44 45% 96%; /* fdfaf4 */
+    --foreground: 33 21% 10%; /* 1f1a14 */
+    --card: 44 45% 96%;
+    --card-foreground: 33 21% 10%;
+    --border: 37 40% 86%; /* efe4cc */
+
+    --primary: 94 38% 28%; /* 3f5e2a */
+    --primary-foreground: 93 30% 95%; /* f1f5ee */
+
+    /* Paleta Cream (Light) */
+    --cream-50: 44 45% 96%;
+    --cream-100: 43 46% 93%;
+    --cream-200: 37 40% 86%;
+    --cream-300: 37 41% 74%;
+
+    /* Paleta Ink (Light) */
+    --ink-900: 33 21% 10%;
+    --ink-700: 30 16% 19%;
+    --ink-500: 33 14% 37%;
+    --ink-400: 34 13% 48%;
+
+    /* Paleta Sage (Light) */
+    --sage-50: 93 30% 95%;
+    --sage-100: 93 25% 86%;
+    --sage-200: 93 23% 71%;
+    --sage-400: 93 30% 41%;
+    --sage-600: 94 38% 28%;
+    --sage-700: 94 41% 21%;
+    --sage-800: 94 41% 13%;
+
+    /* Paleta Terracotta (Light) */
+    --terracotta-50: 21 63% 95%;
+    --terracotta-100: 21 63% 88%;
+    --terracotta-400: 21 53% 55%;
+    --terracotta-500: 21 54% 46%;
+    --terracotta-600: 21 58% 37%;
+
+    /* Paleta Gold (Light) */
+    --gold-400: 40 60% 56%;
+    --gold-500: 40 56% 44%;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      
+      /* Base Dark Mode: Sleek Slate */
+      --background: 224 20% 8%;
+      --foreground: 210 20% 98%;
+      --card: 224 20% 12%;
+      --card-foreground: 210 20% 98%;
+      --border: 224 20% 20%;
+      
+      --primary: 94 45% 45%; 
+      --primary-foreground: 224 20% 8%;
+
+      /* Cream invertido (Superficies en Dark Mode) */
+      --cream-50: 224 20% 8%;
+      --cream-100: 224 20% 12%;
+      --cream-200: 224 20% 20%;
+      --cream-300: 224 20% 26%;
+
+      /* Ink invertido (Texto en Dark Mode) */
+      --ink-900: 210 20% 98%;
+      --ink-700: 210 15% 85%;
+      --ink-500: 210 10% 65%;
+      --ink-400: 210 10% 55%;
+
+      /* Sage vibrante para contraste oscuro */
+      --sage-50: 94 41% 13%;
+      --sage-100: 94 41% 21%;
+      --sage-200: 94 38% 28%;
+      --sage-400: 94 45% 45%;
+      --sage-600: 93 50% 65%;
+      --sage-700: 93 50% 75%;
+      --sage-800: 93 50% 85%;
+
+      /* Terracotta vibrante */
+      --terracotta-50: 21 58% 15%;
+      --terracotta-100: 21 58% 25%;
+      --terracotta-400: 21 80% 65%;
+      --terracotta-500: 21 80% 55%;
+      --terracotta-600: 21 80% 45%;
+
+      --gold-400: 40 90% 65%;
+      --gold-500: 40 90% 55%;
+    }
+  }
+
+  * {
+    @apply border-border;
+  }
+  
+  html,
+  body {
+    height: 100%;
+    background-color: hsl(var(--background));
+    /* Gradiente dinámico sutil (Mesh gradient style) */
+    background-image: 
+      radial-gradient(circle at 18% 8%, hsla(var(--gold-400), 0.08), transparent 40%),
+      radial-gradient(circle at 82% 92%, hsla(var(--sage-400), 0.08), transparent 42%);
+    background-attachment: fixed;
+    color: hsl(var(--foreground));
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  ::selection {
+    background-color: hsla(var(--sage-400), 0.25);
+    color: hsl(var(--foreground));
+  }
+
+  *:focus-visible {
+    outline: 2px solid hsl(var(--sage-400));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 }
 
-html,
-body {
-  height: 100%;
-  /* Fondo "papel" — crema con grano sutil, no blanco clínico */
-  background-color: #fdfaf4;
-  background-image: radial-gradient(
-      circle at 18% 8%,
-      rgba(212, 166, 74, 0.08),
-      transparent 40%
-    ),
-    radial-gradient(circle at 82% 92%, rgba(107, 138, 74, 0.06), transparent 42%);
-  background-attachment: fixed;
-  color: #1f1a14;
-  font-feature-settings: "ss01", "cv11";
-}
-
-/* Selección con color de marca */
-::selection {
-  background-color: rgba(107, 138, 74, 0.25);
-  color: #1f3014;
-}
-
-/* Foco accesible — anillo sage, no outline default */
-*:focus-visible {
-  outline: 2px solid #6b8a4a;
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-/* Textura de papel — SVG noise inline, no requiere assets externos.
-   Aplicada a un pseudo-elemento fixed para no repintar en scroll. */
+/* Textura de papel moderna — Ruido sutil para dar textura mate / premium */
 .paper-grain::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.5;
-  mix-blend-mode: multiply;
+  opacity: 0.4;
+  mix-blend-mode: overlay; /* overlay works better in dark mode */
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.45  0 0 0 0 0.40  0 0 0 0 0.32  0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   background-size: 160px 160px;
 }
 
-/* Reveal escalonado — al cargar, los hijos aparecen uno tras otro */
+/* Reveal escalonado — transiciones premium */
 .reveal > * {
   opacity: 0;
-  animation: reveal-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: reveal-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 .reveal > *:nth-child(1) { animation-delay: calc(var(--reveal-step) * 1); }
 .reveal > *:nth-child(2) { animation-delay: calc(var(--reveal-step) * 2); }
 .reveal > *:nth-child(3) { animation-delay: calc(var(--reveal-step) * 3); }
 .reveal > *:nth-child(4) { animation-delay: calc(var(--reveal-step) * 4); }
 .reveal > *:nth-child(5) { animation-delay: calc(var(--reveal-step) * 5); }
-.reveal > *:nth-child(6) { animation-delay: calc(var(--reveal-step) * 6); }
-.reveal > *:nth-child(7) { animation-delay: calc(var(--reveal-step) * 7); }
-.reveal > *:nth-child(8) { animation-delay: calc(var(--reveal-step) * 8); }
 
 @keyframes reveal-up {
   0% {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
+    filter: blur(8px);
   }
   100% {
     opacity: 1;
     transform: translateY(0);
+    filter: blur(0px);
   }
 }
 
-/* Shimmer para loading states — gradiente cálido moviéndose */
+/* Shimmer para loading states */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -85,51 +172,38 @@ body {
 .skeleton-shimmer {
   background: linear-gradient(
     90deg,
-    rgba(239, 228, 204, 0.4) 0%,
-    rgba(239, 228, 204, 0.8) 50%,
-    rgba(239, 228, 204, 0.4) 100%
+    hsla(var(--cream-200), 0.4) 0%,
+    hsla(var(--cream-200), 0.8) 50%,
+    hsla(var(--cream-200), 0.4) 100%
   );
   background-size: 200% 100%;
-  animation: shimmer 1.6s ease-in-out infinite;
+  animation: shimmer 2s ease-in-out infinite;
 }
 
-/* Pulse sutil para día de hoy en calendario */
 @keyframes pulse-today {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(107, 138, 74, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 0 4px rgba(107, 138, 74, 0);
-  }
+  0%, 100% { box-shadow: 0 0 0 0 hsla(var(--sage-400), 0.4); }
+  50% { box-shadow: 0 0 0 4px hsla(var(--sage-400), 0); }
 }
 .cell-today {
   animation: pulse-today 2.4s ease-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal > * {
-    animation: none;
-    opacity: 1;
-  }
-  .skeleton-shimmer,
-  .cell-today {
-    animation: none;
-  }
-  *,
-  *::before,
-  *::after {
+  .reveal > * { animation: none; opacity: 1; filter: none; }
+  .skeleton-shimmer, .cell-today { animation: none; }
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
 
-/* Divider decorativo — para separadores con personalidad */
+/* Divider decorativo */
 .divider-leaf {
   display: flex;
   align-items: center;
   gap: 1rem;
-  color: #8b7e6c;
+  color: hsl(var(--ink-400));
   font-family: "Fraunces", serif;
   font-style: italic;
 }
@@ -141,16 +215,18 @@ body {
   background: linear-gradient(
     to right,
     transparent,
-    rgba(139, 126, 108, 0.4),
+    hsla(var(--ink-400), 0.4),
     transparent
   );
 }
 
-/* Tarjeta "papel" — base de muchos componentes */
+/* Glassmorphism Card (sustituye a la antigua paper-card) */
 .paper-card {
-  background: #ffffff;
-  border: 1px solid #efe4cc;
+  background: hsla(var(--card), 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid hsla(var(--border), 0.6);
   border-radius: 0.875rem;
-  box-shadow: 0 1px 2px rgba(58, 50, 42, 0.04),
-    0 4px 16px rgba(58, 50, 42, 0.05);
+  box-shadow: 
+    0 4px 24px -2px hsla(0, 0%, 0%, 0.05),
+    0 1px 2px hsla(0, 0%, 0%, 0.04);
 }

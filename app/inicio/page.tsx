@@ -22,11 +22,14 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
+  const { prisma } = await import("@/lib/db");
+
   let displayName = session.user.email ?? "hermano/a";
   if (session.user.memberId) {
-    const row = (await getDb()
-      .prepare(`SELECT firstName, lastName FROM "Member" WHERE id = ?`)
-      .get(session.user.memberId)) as { firstName: string; lastName: string } | undefined;
+    const row = await prisma.member.findUnique({
+      where: { id: session.user.memberId },
+      select: { firstName: true, lastName: true }
+    });
     if (row) displayName = `${row.firstName} ${row.lastName}`;
   } else if (session.user.email) {
     displayName = session.user.email.split("@")[0] ?? displayName;
@@ -45,14 +48,10 @@ export default async function DashboardPage() {
   const target = isSunday(today) ? today : nextSunday(today);
   const nextAgenda = await getNextPublishedAgenda(today);
 
-  const memberCount = (
-    (await getDb().prepare(`SELECT COUNT(*) AS n FROM "Member"`).get()) as { n: number }
-  ).n;
-  const eventCount = (
-    (await getDb()
-      .prepare(`SELECT COUNT(*) AS n FROM "Event" WHERE eventDate >= ?`)
-      .get(today)) as { n: number }
-  ).n;
+  const memberCount = await prisma.member.count();
+  const eventCount = await prisma.event.count({
+    where: { eventDate: { gte: today } }
+  });
 
   // "Spiritual note" for the day — a small rotating line of scripture-like reflection.
   // Not real scripture — these are short quotes the user can rotate later.

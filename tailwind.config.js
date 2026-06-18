@@ -7,40 +7,46 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Papel / superficies — tonos cálidos, no blanco clínico
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        card: "hsl(var(--card))",
+        "card-foreground": "hsl(var(--card-foreground))",
+        border: "hsl(var(--border))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
         cream: {
-          50: "#fdfaf4",   // superficie principal
-          100: "#f8f1e3",  // superficie elevada (cards)
-          200: "#efe4cc",  // bordes sutiles cálidos
-          300: "#d8c5a0",  // bordes más fuertes / separadores
+          50: "hsl(var(--cream-50))",
+          100: "hsl(var(--cream-100))",
+          200: "hsl(var(--cream-200))",
+          300: "hsl(var(--cream-300))",
         },
         ink: {
-          900: "#1f1a14",  // texto principal — casi negro pero cálido
-          700: "#3a322a",  // texto secundario
-          500: "#6b5f50",  // texto muted
-          400: "#8b7e6c",  // hints
+          900: "hsl(var(--ink-900))",
+          700: "hsl(var(--ink-700))",
+          500: "hsl(var(--ink-500))",
+          400: "hsl(var(--ink-400))",
         },
-        // Verde profundo — vida, esperanza, higuera/fruto
         sage: {
-          50: "#f1f5ee",
-          100: "#dde6d2",
-          200: "#b9c8a4",
-          400: "#6b8a4a",
-          600: "#3f5e2a",  // primary brand
-          700: "#2f4a1f",
-          800: "#1f3014",
+          50: "hsl(var(--sage-50))",
+          100: "hsl(var(--sage-100))",
+          200: "hsl(var(--sage-200))",
+          400: "hsl(var(--sage-400))",
+          600: "hsl(var(--sage-600))",
+          700: "hsl(var(--sage-700))",
+          800: "hsl(var(--sage-800))",
         },
-        // Terracota — acentos cálidos (anuncios, CTA secundarias)
         terracotta: {
-          50: "#fbf2ec",
-          100: "#f3ddcc",
-          400: "#c97a52",
-          500: "#b35d36",
-          600: "#944a28",  // danger / advertencia
+          50: "hsl(var(--terracotta-50))",
+          100: "hsl(var(--terracotta-100))",
+          400: "hsl(var(--terracotta-400))",
+          500: "hsl(var(--terracotta-500))",
+          600: "hsl(var(--terracotta-600))",
         },
         gold: {
-          400: "#d4a64a",  // highlights decorativos
-          500: "#b08a32",
+          400: "hsl(var(--gold-400))",
+          500: "hsl(var(--gold-500))",
         },
       },
       fontFamily: {

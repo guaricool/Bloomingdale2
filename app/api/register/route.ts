@@ -9,7 +9,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
-import { getDb } from "@/lib/db";
+import { prisma } from "@/lib/db";
 
 const registerSchema = z.object({
   name: z.string().min(2, "El nombre debe tener al menos 2 caracteres").max(120),
@@ -35,12 +35,11 @@ export async function POST(req: NextRequest) {
 
   const { name, email, password } = parsed.data;
   const normalizedEmail = email.toLowerCase();
-  const db = getDb();
 
   // Reject duplicate email
-  const existing = await db
-    .prepare(`SELECT id FROM "User" WHERE email = ?`)
-    .get(normalizedEmail);
+  const existing = await prisma.user.findUnique({
+    where: { email: normalizedEmail }
+  });
   if (existing) {
     return NextResponse.json(
       { error: "Ya existe una cuenta con ese correo electrónico" },
@@ -51,10 +50,8 @@ export async function POST(req: NextRequest) {
   const passwordHash = await bcrypt.hash(password, 10);
 
   // First user wins admin; everyone else is member.
-  const userCountRow = (await db
-    .prepare(`SELECT COUNT(*) AS c FROM "User"`)
-    .get()) as { c: number };
-  const isFirstUser = userCountRow.c === 0;
+  const userCount = await prisma.user.count();
+  const isFirstUser = userCount === 0;
   const role: "admin" | "member" = isFirstUser ? "admin" : "member";
 
   // Split name into first/last (best-effort). Empty lastName is allowed (e.g. single given name).
@@ -62,30 +59,25 @@ export async function POST(req: NextRequest) {
   const firstName = parts[0] ?? name.trim();
   const lastName = parts.length > 1 ? parts.slice(1).join(" ") : "—";
 
-  const tx = db.transaction(async () => {
-    const memberResult = await db
-      .prepare(`INSERT INTO "Member" (firstName, lastName) VALUES (?, ?)`)
-      .run(firstName, lastName);
-    let memberId = Number(memberResult.lastInsertRowid);
-    if (!Number.isFinite(memberId) || memberId <= 0) {
-      // Postgres path: re-SELECT the freshly inserted member row.
-      const row = (await db
-        .prepare(`SELECT id FROM "Member" WHERE firstName = ? AND lastName = ? ORDER BY id DESC LIMIT 1`)
-        .get(firstName, lastName)) as { id: number } | undefined;
-      if (!row) {
-        throw new Error("No se pudo obtener el ID del miembro recién creado");
+  const member = await prisma.$transaction(async (tx) => {
+    const createdMember = await tx.member.create({
+      data: {
+        firstName,
+        lastName,
       }
-      memberId = row.id;
-    }
+    });
 
-    await db.prepare(
-      `INSERT INTO "User" (email, passwordHash, role, memberId) VALUES (?, ?, ?, ?)`,
-    ).run(normalizedEmail, passwordHash, role, memberId);
+    await tx.user.create({
+      data: {
+        email: normalizedEmail,
+        passwordHash,
+        role,
+        memberId: createdMember.id
+      }
+    });
 
-    return memberId;
+    return createdMember;
   });
-
-  const memberId = await tx();
 
   return NextResponse.json(
     {
@@ -93,7 +85,7 @@ export async function POST(req: NextRequest) {
       user: {
         email: normalizedEmail,
         role,
-        memberId,
+        memberId: member.id,
         isFirstUser,
       },
     },

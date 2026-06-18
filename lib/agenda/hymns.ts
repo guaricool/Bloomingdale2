@@ -1,29 +1,15 @@
 /**
- * DB access layer for the Hymn table.
- *
- * Async: all functions return Promises. The DB layer can be SQLite (sync
- * semantics wrapped in a resolved Promise) or Postgres (native async). The
- * call sites `await` everything uniformly.
+ * DB access layer for the Hymn table using Prisma.
  */
-import { getDb } from "@/lib/db";
+import { prisma } from "@/lib/db";
 import type { HymnRow } from "./types";
 
-interface RawHymn {
-  number: number;
-  titleEs: string;
-  titleEn: string | null;
-}
-
-function toHymn(r: RawHymn): HymnRow {
-  return { number: r.number, titleEs: r.titleEs, titleEn: r.titleEn };
-}
-
 export async function getHymn(number: number): Promise<HymnRow | null> {
-  const db = getDb();
-  const row = (await db
-    .prepare(`SELECT number, titleEs, titleEn FROM "Hymn" WHERE number = ?`)
-    .get(number)) as RawHymn | undefined;
-  return row ? toHymn(row) : null;
+  const row = await prisma.hymn.findUnique({
+    where: { number },
+  });
+  if (!row) return null;
+  return { number: row.number, titleEs: row.titleEs, titleEn: row.titleEn };
 }
 
 /**
@@ -32,38 +18,38 @@ export async function getHymn(number: number): Promise<HymnRow | null> {
  * number-asc, then title-asc.
  */
 export async function searchHymns(q: string, limit = 10): Promise<HymnRow[]> {
-  const db = getDb();
   const trimmed = q.trim();
   if (!trimmed) return [];
 
   const num = Number(trimmed);
-  const conditions: string[] = [];
-  const params: unknown[] = [];
-  if (Number.isInteger(num) && num > 0) {
-    conditions.push("number = ?");
-    params.push(num);
-  }
-  // Add a partial-number match: "10" should also surface 100, 101, ...
-  if (Number.isInteger(num) && num > 0) {
-    // Cast number to text for prefix matching (works on SQLite)
-    conditions.push("CAST(number AS TEXT) LIKE ?");
-    params.push(`${num}%`);
-  }
-  conditions.push("LOWER(titleEs) LIKE ?");
-  params.push(`%${trimmed.toLowerCase()}%`);
+  const exactNum = (Number.isInteger(num) && num > 0) ? num : -1;
+  const numPrefix = exactNum > 0 ? `${num}%` : "NONE";
+  const titleMatch = `%${trimmed.toLowerCase()}%`;
+  const lim = Math.max(1, Math.min(50, limit));
 
+  // Postgres native placeholders
   const sql = `
-    SELECT number, titleEs, titleEn FROM "Hymn"
-    WHERE ${conditions.join(" OR ")}
+    SELECT number, "titleEs", "titleEn" FROM "Hymn"
+    WHERE (number = $1 OR CAST(number AS TEXT) LIKE $2 OR LOWER("titleEs") LIKE $3)
     ORDER BY
-      CASE WHEN number = ? THEN 0 ELSE 1 END,
+      CASE WHEN number = $4 THEN 0 ELSE 1 END,
       number ASC,
-      titleEs ASC
-    LIMIT ?
+      "titleEs" ASC
+    LIMIT $5
   `;
-  // First ? is the exact-match hint, repeated for ORDER BY.
-  const rows = (await db
-    .prepare(sql)
-    .all(num, ...params, Math.max(1, Math.min(50, limit)))) as RawHymn[];
-  return rows.map(toHymn);
+  
+  const rowsRaw: any[] = await prisma.$queryRawUnsafe(
+    sql,
+    exactNum,
+    numPrefix,
+    titleMatch,
+    exactNum,
+    lim
+  );
+
+  return rowsRaw.map((r) => ({
+    number: r.number,
+    titleEs: r.titleEs,
+    titleEn: r.titleEn,
+  }));
 }

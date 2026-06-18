@@ -249,14 +249,28 @@ export function AgendaEditor({
                   />
                 ) : null}
               </div>
-              <button
-                type="button"
-                onClick={() => void deleteItem(it.id)}
-                disabled={readOnly}
-                className="rounded-md border border-red-200 bg-white px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Eliminar
-              </button>
+              <div className="flex flex-col gap-2 shrink-0">
+                {(it.type === "speaker" || it.type === "prayer") ? (
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(
+                      `Hola ${it.displayLabel.split(' ')[0]},\n\nLa presidencia de la rama Bloomingdale 2nd te extiende una invitación para participar en la reunión sacramental el próximo ${agenda.date} como ${it.type === "speaker" ? "discursante" : "encargado de la oración"}.\n\n¡Gracias por tu disposición a servir!`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-100 text-center flex items-center justify-center"
+                  >
+                    Notificar (WA)
+                  </a>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => void deleteItem(it.id)}
+                  disabled={readOnly}
+                  className="rounded-md border border-red-200 bg-white px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Eliminar
+                </button>
+              </div>
             </li>
           ))
         )}

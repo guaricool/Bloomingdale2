@@ -4,11 +4,11 @@ import type { ReactNode } from "react";
 type Tone = "sage" | "amber" | "rose" | "ink" | "gold";
 
 const tones: Record<Tone, string> = {
-  sage: "bg-sage-50 text-sage-700 border-sage-200",
-  amber: "bg-amber-50 text-amber-800 border-amber-200",
-  rose: "bg-terracotta-50 text-terracotta-600 border-terracotta-100",
-  ink: "bg-ink-900/5 text-ink-700 border-ink-900/10",
-  gold: "bg-gold-400/15 text-gold-500 border-gold-400/30",
+  sage: "bg-primary/15 text-primary border-primary/20",
+  amber: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/20",
+  rose: "bg-terracotta-500/15 text-terracotta-600 dark:text-terracotta-400 border-terracotta-500/20",
+  ink: "bg-foreground/5 text-foreground/80 border-foreground/10",
+  gold: "bg-gold-500/15 text-gold-600 dark:text-gold-400 border-gold-500/30",
 };
 
 interface BadgeProps {

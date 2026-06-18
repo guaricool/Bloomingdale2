@@ -9,15 +9,15 @@ const base =
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-sage-600 text-cream-50 shadow-soft hover:bg-sage-700 hover:shadow-lift focus-visible:ring-sage-400 active:scale-[0.98]",
+    "bg-primary text-primary-foreground shadow-[0_2px_12px_hsla(var(--primary),0.3)] hover:opacity-90 hover:shadow-[0_4px_16px_hsla(var(--primary),0.5)] focus-visible:ring-primary active:scale-[0.98]",
   secondary:
-    "bg-cream-50 text-ink-900 border border-cream-300 hover:border-sage-400 hover:bg-sage-50 hover:text-sage-700 focus-visible:ring-sage-400",
+    "bg-card text-card-foreground border border-border/50 hover:border-primary/40 hover:bg-primary/10 hover:text-primary focus-visible:ring-primary backdrop-blur-sm",
   ghost:
-    "text-ink-700 hover:bg-cream-100 hover:text-ink-900 focus-visible:ring-sage-400",
+    "text-foreground/80 hover:bg-foreground/5 hover:text-foreground focus-visible:ring-primary",
   danger:
-    "bg-terracotta-600 text-cream-50 shadow-soft hover:bg-terracotta-500 focus-visible:ring-terracotta-400 active:scale-[0.98]",
+    "bg-terracotta-600 text-white shadow-soft hover:bg-terracotta-500 focus-visible:ring-terracotta-400 active:scale-[0.98]",
   subtle:
-    "bg-sage-50 text-sage-700 hover:bg-sage-100 focus-visible:ring-sage-400",
+    "bg-primary/10 text-primary hover:bg-primary/20 focus-visible:ring-primary",
 };
 
 const sizes: Record<Size, string> = {

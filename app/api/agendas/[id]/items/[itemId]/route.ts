@@ -56,6 +56,7 @@ export async function PUT(
   }
 
   // When changing refId, validate the new refId matches the (possibly new) type.
+  const { prisma } = await import("@/lib/db");
   const nextType = parsed.data.type ?? existing.type;
   const nextRefId = parsed.data.refId !== undefined ? parsed.data.refId : existing.refId;
   if (nextType === "hymn") {
@@ -78,10 +79,7 @@ export async function PUT(
         { status: 400 },
       );
     }
-    const db = getDb();
-    const member = (await db
-      .prepare(`SELECT id FROM "Member" WHERE id = ?`)
-      .get(nextRefId)) as { id: number } | undefined;
+    const member = await prisma.member.findUnique({ where: { id: nextRefId } });
     if (!member) {
       return NextResponse.json(
         { error: `Miembro ${nextRefId} no encontrado` },
@@ -95,10 +93,7 @@ export async function PUT(
         { status: 400 },
       );
     }
-    const db = getDb();
-    const event = (await db
-      .prepare(`SELECT id FROM "Event" WHERE id = ?`)
-      .get(nextRefId)) as { id: number } | undefined;
+    const event = await prisma.event.findUnique({ where: { id: nextRefId } });
     if (!event) {
       return NextResponse.json(
         { error: `Evento ${nextRefId} no encontrado` },

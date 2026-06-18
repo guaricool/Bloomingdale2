@@ -12,6 +12,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { requireAdmin } from "@/lib/agenda/auth-helpers";
 import { transitionAgenda } from "@/lib/agenda/queries";
+import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +39,22 @@ export async function POST(
       { status: 400 },
     );
   }
-  // TODO(agendas-module→discourse-tracking): emit DiscourseLog rows here
-  // for every AgendaItem where type = 'speaker'.
+
+  const speakers = await prisma.agendaItem.findMany({
+    where: { agendaId: id, type: "speaker", refId: { not: null } }
+  });
+
+  if (speakers.length > 0) {
+    await prisma.discourseLog.createMany({
+      data: speakers.map((item) => ({
+        agendaId: id,
+        memberId: item.refId!,
+        discourseDate: result.agenda.date,
+        topic: item.note
+      })),
+      skipDuplicates: true
+    });
+  }
+
   return NextResponse.json({ agenda: result.agenda });
 }

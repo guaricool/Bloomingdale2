@@ -69,10 +69,8 @@ export async function POST(req: NextRequest) {
   }
 
   // Uniqueness: one agenda per Sunday. The DB has UNIQUE(date) on Agenda.
-  const db = getDb();
-  const existing = (await db
-    .prepare(`SELECT id FROM "Agenda" WHERE date = ?`)
-    .get(date)) as { id: number } | undefined;
+  const { prisma } = await import("@/lib/db");
+  const existing = await prisma.agenda.findUnique({ where: { date } });
   if (existing) {
     return NextResponse.json(
       { error: "Ya existe una agenda para ese domingo" },

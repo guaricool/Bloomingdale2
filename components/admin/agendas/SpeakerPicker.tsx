@@ -14,6 +14,7 @@ export interface MemberOption {
   lastName: string;
   membershipNumber: string | null;
   familyGroupName?: string | null;
+  lastDiscourseDate?: string | null;
 }
 
 interface SpeakerPickerProps {
@@ -56,7 +57,7 @@ export function SpeakerPicker({
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(`/api/miembros/rapido?id=${value}`);
+        const res = await fetch(`/api/miembros/buscar?id=${value}`);
         if (!res.ok) return;
         const data = (await res.json()) as { member: MemberOption | null };
         if (!cancelled && data.member) {
@@ -83,7 +84,7 @@ export function SpeakerPicker({
     debounceRef.current = setTimeout(async () => {
       try {
         const res = await fetch(
-          `/api/miembros/rapido?q=${encodeURIComponent(trimmed)}&limit=8`,
+          `/api/miembros/buscar?q=${encodeURIComponent(trimmed)}&limit=8`,
         );
         if (!res.ok) {
           setResults([]);
@@ -209,11 +210,22 @@ export function SpeakerPicker({
                 <span className="font-medium">
                   {m.firstName} {m.lastName}
                 </span>
-                {m.familyGroupName ? (
-                  <span className="ml-2 text-xs text-slate-500">
-                    {m.familyGroupName}
-                  </span>
-                ) : null}
+                <div className="flex justify-between items-center mt-1">
+                  {m.familyGroupName ? (
+                    <span className="text-xs text-slate-500">
+                      {m.familyGroupName}
+                    </span>
+                  ) : <span />}
+                  {m.lastDiscourseDate ? (
+                    <span className="text-xs font-semibold text-brand-600">
+                      Último: {m.lastDiscourseDate}
+                    </span>
+                  ) : (
+                    <span className="text-xs italic text-slate-400">
+                      Nunca ha discursado
+                    </span>
+                  )}
+                </div>
               </li>
             ))
           )}

@@ -92,12 +92,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!parsed.success) return null;
         const { email, password } = parsed.data;
 
-        const db = getDb();
-        const row = (await db
-          .prepare(
-            `SELECT id, email, passwordHash, role, memberId FROM "User" WHERE email = ?`,
-          )
-          .get(email.toLowerCase())) as UserRow | undefined;
+        const { prisma } = await import("@/lib/db");
+        const row = await prisma.user.findFirst({
+          where: {
+            email: {
+              equals: email.toLowerCase(),
+              mode: 'insensitive'
+            }
+          }
+        });
 
         if (!row) {
           // Constant-time-ish: still run bcrypt to avoid trivial timing oracle.
@@ -116,7 +119,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return {
           id: String(row.id),
           email: row.email,
-          role: row.role,
+          role: row.role as "admin" | "member",
           memberId: row.memberId,
         };
       },

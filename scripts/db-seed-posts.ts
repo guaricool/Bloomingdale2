@@ -6,7 +6,7 @@
  * The first User (admin) is used as the author. If no user exists, the
  * script just logs a hint and exits.
  */
-import { getDb, closeDb } from "../lib/db";
+import { prisma } from "../lib/db";
 
 interface SamplePost {
   title: string | null;
@@ -38,42 +38,39 @@ const SAMPLE: SamplePost[] = [
 ];
 
 async function main(): Promise<void> {
-  const db = getDb();
-  const existing = (
-    (await db.prepare(`SELECT COUNT(*) AS c FROM "Post"`).get()) as { c: number }
-  ).c;
+  const existing = await prisma.post.count();
   if (existing > 0) {
     console.log(`[seed-posts] skip: ${existing} posts already in DB`);
-    closeDb();
     return;
   }
 
-  const admin = (await db
-    .prepare(`SELECT id FROM "User" WHERE role = 'admin' ORDER BY id ASC LIMIT 1`)
-    .get()) as { id: number } | undefined;
+  const admin = await prisma.user.findFirst({
+    where: { role: 'admin' },
+    orderBy: { id: 'asc' }
+  });
 
   if (!admin) {
     console.log(
       "[seed-posts] no admin user found — register the first user via /register, then re-run this script.",
     );
-    closeDb();
     return;
   }
 
-  const insert = db.prepare(
-    `INSERT INTO "Post" (authorId, title, body, pinned) VALUES (?, ?, ?, ?)`,
-  );
-  const tx = db.transaction(async () => {
+  await prisma.$transaction(async (tx) => {
     for (const p of SAMPLE) {
-      await insert.run(admin.id, p.title, p.body, p.pinned ? 1 : 0);
+      await tx.post.create({
+        data: {
+          authorId: admin.id,
+          title: p.title,
+          body: p.body,
+          pinned: p.pinned ? 1 : 0
+        }
+      });
     }
   });
-  await tx();
-  const total = (
-    (await db.prepare(`SELECT COUNT(*) AS c FROM "Post"`).get()) as { c: number }
-  ).c;
+
+  const total = await prisma.post.count();
   console.log(`[seed-posts] inserted ${SAMPLE.length}, total: ${total}`);
-  closeDb();
 }
 
-main();
+main().catch(console.error);

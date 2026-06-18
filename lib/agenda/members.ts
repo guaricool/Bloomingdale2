@@ -1,76 +1,64 @@
 /**
  * Members lookup helpers used by the agenda editor's speaker picker.
- *
- * We don't depend on the members-module (parallel track) yet — define the
- * queries locally and re-use them so the editor works standalone. The
- * members-module will eventually own these and we can swap the
- * implementation transparently.
- *
- * Async: all functions return Promises. The DB layer can be SQLite (sync
- * semantics wrapped in a resolved Promise) or Postgres (native async). The
- * call sites `await` everything uniformly.
  */
-import { getDb } from "@/lib/db";
+import { prisma } from "@/lib/db";
 import type { MemberRow } from "./types";
 
-interface RawMember {
-  id: number;
-  firstName: string;
-  lastName: string;
-  membershipNumber: string | null;
-  familyGroupId: number | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-function toMember(r: RawMember): MemberRow {
+function toMember(r: any): MemberRow {
   return {
     id: r.id,
     firstName: r.firstName,
     lastName: r.lastName,
     membershipNumber: r.membershipNumber,
     familyGroupId: r.familyGroupId,
-    createdAt: r.createdAt,
-    updatedAt: r.updatedAt,
+    createdAt: typeof r.createdAt === 'string' ? r.createdAt : r.createdAt.toISOString(),
+    updatedAt: typeof r.updatedAt === 'string' ? r.updatedAt : r.updatedAt.toISOString(),
+    lastDiscourseDate: r.lastDiscourseDate ?? null,
   };
 }
 
 export async function searchMembers(q: string, limit = 10): Promise<MemberRow[]> {
-  const db = getDb();
   const trimmed = q.trim();
   if (!trimmed) return [];
-  // Search by firstName, lastName, or `firstName + ' ' + lastName` (LIKE)
+  
   const like = `%${trimmed.toLowerCase()}%`;
-  const rows = (await db
-    .prepare(
-      `SELECT * FROM "Member"
-       WHERE LOWER(firstName) LIKE ? OR LOWER(lastName) LIKE ?
-         OR LOWER(firstName || ' ' || lastName) LIKE ?
-       ORDER BY
-         CASE WHEN LOWER(firstName) = ? THEN 0
-              WHEN LOWER(lastName)  = ? THEN 1
-              ELSE 2 END,
-         firstName ASC,
-         lastName ASC
-       LIMIT ?`,
-    )
-    .all(
-      like,
-      like,
-      like,
-      trimmed.toLowerCase(),
-      trimmed.toLowerCase(),
-      Math.max(1, Math.min(50, limit)),
-    )) as RawMember[];
-  return rows.map(toMember);
+  const exact = trimmed.toLowerCase();
+  
+  const sql = `
+    SELECT m.*, MAX(d."discourseDate") as "lastDiscourseDate"
+    FROM "Member" m
+    LEFT JOIN "DiscourseLog" d ON d."memberId" = m.id
+    WHERE LOWER(m."firstName") LIKE $1 OR LOWER(m."lastName") LIKE $2
+       OR LOWER(m."firstName" || ' ' || m."lastName") LIKE $3
+    GROUP BY m.id
+    ORDER BY
+      CASE WHEN LOWER(m."firstName") = $4 THEN 0
+           WHEN LOWER(m."lastName")  = $5 THEN 1
+           ELSE 2 END,
+      m."firstName" ASC,
+      m."lastName" ASC
+    LIMIT $6
+  `;
+  
+  const rowsRaw: any[] = await prisma.$queryRawUnsafe(sql, like, like, like, exact, exact, limit);
+  return rowsRaw.map(toMember);
 }
 
 export async function getMemberById(id: number): Promise<MemberRow | null> {
-  const db = getDb();
-  const row = (await db
-    .prepare(`SELECT * FROM "Member" WHERE id = ?`)
-    .get(id)) as RawMember | undefined;
-  return row ? toMember(row) : null;
+  const row = await prisma.member.findUnique({
+    where: { id },
+    include: {
+      discourseLogs: {
+        orderBy: { discourseDate: 'desc' },
+        take: 1
+      }
+    }
+  });
+  if (!row) return null;
+  return toMember({
+    ...row,
+    lastDiscourseDate: row.discourseLogs.length > 0 ? row.discourseLogs[0].discourseDate : null
+  });
 }
 
 export async function createMember(input: {
@@ -79,32 +67,13 @@ export async function createMember(input: {
   membershipNumber?: string | null;
   familyGroupId?: number | null;
 }): Promise<MemberRow> {
-  const db = getDb();
-  const result = await db
-    .prepare(
-      `INSERT INTO "Member" (firstName, lastName, membershipNumber, familyGroupId)
-       VALUES (?, ?, ?, ?)`,
-    )
-    .run(
-      input.firstName,
-      input.lastName,
-      input.membershipNumber ?? null,
-      input.familyGroupId ?? null,
-    );
-  let id = Number(result.lastInsertRowid);
-  if (!Number.isFinite(id) || id <= 0) {
-    // Postgres path: re-SELECT the freshly inserted member row.
-    const row = (await db
-      .prepare(`SELECT id FROM "Member" WHERE firstName = ? AND lastName = ? ORDER BY id DESC LIMIT 1`)
-      .get(input.firstName, input.lastName)) as { id: number } | undefined;
-    id = row ? row.id : 0;
-    if (id <= 0) {
-      throw new Error("No se pudo crear el miembro");
+  const row = await prisma.member.create({
+    data: {
+      firstName: input.firstName,
+      lastName: input.lastName,
+      membershipNumber: input.membershipNumber ?? null,
+      familyGroupId: input.familyGroupId ?? null,
     }
-  }
-  const created = await getMemberById(id);
-  if (!created) {
-    throw new Error("Failed to load newly-created Member");
-  }
-  return created;
+  });
+  return toMember(row);
 }
