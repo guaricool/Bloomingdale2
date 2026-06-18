@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
   const firstName = parts[0] ?? name.trim();
   const lastName = parts.length > 1 ? parts.slice(1).join(" ") : "—";
 
-  const member = await prisma.$transaction(async (tx) => {
+  const member = await prisma.$transaction(async (tx: any) => {
     const createdMember = await tx.member.create({
       data: {
         firstName,
