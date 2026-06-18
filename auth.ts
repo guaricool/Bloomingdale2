@@ -154,6 +154,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.calling = u.calling ?? null;
         if (u.name) token.name = u.name;
       }
+
+      if (!token.name && token.email) {
+        const { prisma } = await import("@/lib/db");
+        const row = await prisma.user.findFirst({
+          where: { email: { equals: token.email, mode: 'insensitive' } },
+          include: { member: { include: { callings: true } } }
+        });
+        if (row && row.member) {
+          token.name = [row.member.firstName, row.member.lastName].filter(Boolean).join(" ");
+          if (row.member.callings && row.member.callings.length > 0) {
+            token.calling = row.member.callings[0].title;
+          }
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
