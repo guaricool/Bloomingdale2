@@ -12,7 +12,9 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 
 const registerSchema = z.object({
-  name: z.string().min(2, "El nombre debe tener al menos 2 caracteres").max(120),
+  firstName: z.string().min(2, "El primer nombre debe tener al menos 2 caracteres").max(50),
+  middleName: z.string().max(50).nullable().optional(),
+  lastName: z.string().min(2, "El apellido debe tener al menos 2 caracteres").max(50),
   email: z.string().email("Correo electrónico no válido").max(200),
   password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres").max(200),
 });
@@ -33,7 +35,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { name, email, password } = parsed.data;
+  const { firstName, middleName, lastName, email, password } = parsed.data;
   const normalizedEmail = email.toLowerCase();
 
   // Reject duplicate email
@@ -54,15 +56,11 @@ export async function POST(req: NextRequest) {
   const isFirstUser = userCount === 0;
   const role: "admin" | "member" = isFirstUser ? "admin" : "member";
 
-  // Split name into first/last (best-effort). Empty lastName is allowed (e.g. single given name).
-  const parts = name.trim().split(/\s+/);
-  const firstName = parts[0] ?? name.trim();
-  const lastName = parts.length > 1 ? parts.slice(1).join(" ") : "—";
-
   const member = await prisma.$transaction(async (tx: any) => {
     const createdMember = await tx.member.create({
       data: {
         firstName,
+        middleName,
         lastName,
       }
     });
