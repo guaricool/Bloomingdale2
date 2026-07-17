@@ -244,9 +244,35 @@ export function AgendaEditor({
                     </span>
                   )}
                   {["hymn", "hymn_opening", "hymn_closing", "sacrament_hymn", "speaker", "prayer", "prayer_opening", "prayer_closing"].includes(it.type) ? (
-                    <span className={`truncate text-sm font-medium ${it.refId ? "text-slate-900" : "text-slate-400 italic"}`}>
-                      {it.refId ? it.displayLabel : (it.type.includes("hymn") ? "Sin himno seleccionado" : "Aún no asignado")}
-                    </span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`truncate text-sm font-medium ${it.refId ? "text-slate-900" : "text-slate-400 italic"}`}>
+                        {it.refId ? it.displayLabel : (it.type.includes("hymn") ? "Sin himno seleccionado" : "Aún no asignado")}
+                      </span>
+                      {it.refId && !readOnly && (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const res = await fetch(`/api/agendas/${agenda.id}/items/${it.id}`, {
+                              method: "PUT",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ refId: null }),
+                            });
+                            if (res.ok) {
+                              setItems(prev => prev.map(x =>
+                                x.id === it.id
+                                  ? { ...x, refId: null, displayLabel: x.type.includes("hymn") ? "Sin himno seleccionado" : "Aún no asignado", member: null, hymn: null }
+                                  : x
+                              ));
+                              startTransition(() => router.refresh());
+                            }
+                          }}
+                          className="text-red-600 hover:text-red-800 font-sans text-xs underline font-medium"
+                          title="Quitar asignación"
+                        >
+                          Quitar
+                        </button>
+                      )}
+                    </div>
                   ) : null}
                 </div>
                 {/* Selector inline para himnos del template (sin himno asignado) */}
@@ -272,6 +298,32 @@ export function AgendaEditor({
                       startTransition(() => router.refresh());
                     }}
                   />
+                )}
+                {/* Selector inline para oradores y oraciones (sin orador/oración asignado) */}
+                {(it.type === "speaker" || it.type.includes("prayer")) && !it.refId && !readOnly && (
+                  <div className="mt-2 max-w-md">
+                    <SpeakerPicker
+                      value={null}
+                      placeholder={it.type === "speaker" ? "Asignar discursante…" : "Asignar persona para la oración…"}
+                      onSelect={async (m) => {
+                        if (m.id <= 0) return;
+                        const newLabel = `${it.type === "speaker" ? "Discurso" : "Oración"}: ${[m.firstName, m.middleName, m.lastName].filter(Boolean).join(" ")}`;
+                        const res = await fetch(`/api/agendas/${agenda.id}/items/${it.id}`, {
+                          method: "PUT",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ refId: m.id }),
+                        });
+                        if (res.ok) {
+                          setItems(prev => prev.map(x =>
+                            x.id === it.id
+                              ? { ...x, refId: m.id, displayLabel: newLabel, member: m }
+                              : x
+                          ));
+                          startTransition(() => router.refresh());
+                        }
+                      }}
+                    />
+                  </div>
                 )}
                 {(it.type === "announcement" || it.type.includes("prayer") || it.type.includes("business") || it.type === "other") ? (
                   <textarea
