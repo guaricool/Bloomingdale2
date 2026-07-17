@@ -36,10 +36,10 @@ const STATUS_LABEL: Record<AgendaStatusFilter, string> = {
 };
 
 const STATUS_BADGE: Record<AgendaStatusFilter, string> = {
-  all: "bg-slate-100 text-slate-700",
-  draft: "bg-amber-50 text-amber-800",
-  published: "bg-blue-50 text-blue-700",
-  completed: "bg-slate-900/5 text-slate-500",
+  all: "bg-charcoal-500/10 text-charcoal-700 dark:text-charcoal-400",
+  draft: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
+  published: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+  completed: "bg-charcoal-500/10 text-charcoal-500",
 };
 
 export function AgendasTable({
@@ -88,10 +88,10 @@ export function AgendasTable({
     <div className="mt-6 space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
-          <span className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
+          <span className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-charcoal-500">
             Rango
           </span>
-          <div className="inline-flex rounded-pill border border-slate-200 bg-white p-0.5 text-xs shadow-soft">
+          <div className="inline-flex rounded-pill border border-border bg-card p-0.5 text-xs shadow-soft">
             {(["upcoming", "past", "all"] as const).map((r) => (
               <button
                 key={r}
@@ -99,8 +99,8 @@ export function AgendasTable({
                 onClick={() => setFilter({ range: r })}
                 className={`rounded-pill px-3 py-1 font-medium transition-colors ${
                   initialRange === r
-                    ? "bg-blue-600 text-slate-50"
-                    : "text-slate-700 hover:bg-slate-100"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-charcoal-700 hover:bg-canvas-100 dark:text-charcoal-400 dark:hover:bg-canvas-200"
                 }`}
               >
                 {r === "upcoming" ? "Próximas" : r === "past" ? "Pasadas" : "Todas"}
@@ -109,7 +109,7 @@ export function AgendasTable({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
+          <span className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-charcoal-500">
             Estado
           </span>
           <select
@@ -117,50 +117,50 @@ export function AgendasTable({
             onChange={(e) =>
               setFilter({ status: e.target.value as AgendaStatusFilter })
             }
-            className="rounded-card border border-slate-300 bg-white px-2.5 py-1 text-xs shadow-soft focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
+            className="rounded-card border border-border bg-card text-charcoal-900 px-2.5 py-1 text-xs shadow-soft focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           >
             {(Object.keys(STATUS_LABEL) as AgendaStatusFilter[]).map((s) => (
-              <option key={s} value={s}>
+              <option key={s} value={s} className="bg-card text-charcoal-900">
                 {STATUS_LABEL[s]}
               </option>
             ))}
           </select>
         </div>
         {isPending ? (
-          <span className="font-sans text-xs text-slate-500">Actualizando…</span>
+          <span className="font-sans text-xs text-charcoal-500">Actualizando…</span>
         ) : null}
       </div>
 
       <div className="paper-card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200 text-sm">
-            <thead className="bg-slate-100/60 text-left">
+          <table className="min-w-full divide-y divide-border text-sm">
+            <thead className="bg-canvas-100 text-left">
               <tr>
-                <th scope="col" className="px-5 py-3 font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                <th scope="col" className="px-5 py-3 font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-charcoal-500">
                   Fecha
                 </th>
-                <th scope="col" className="px-5 py-3 font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                <th scope="col" className="px-5 py-3 font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-charcoal-500">
                   Estado
                 </th>
-                <th scope="col" className="px-5 py-3 font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                <th scope="col" className="px-5 py-3 font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-charcoal-500">
                   Actualizada
                 </th>
-                <th scope="col" className="px-5 py-3 text-right font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                <th scope="col" className="px-5 py-3 text-right font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-charcoal-500">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-border">
               {initialRows.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-5 py-10 text-center font-sans text-sm text-slate-500">
+                  <td colSpan={4} className="px-5 py-10 text-center font-sans text-sm text-charcoal-500">
                     No hay agendas para los filtros aplicados.
                   </td>
                 </tr>
               ) : (
                 initialRows.map((row) => (
-                  <tr key={row.id} className="transition-colors hover:bg-slate-50">
-                    <td className="px-5 py-3 font-display text-base font-medium text-slate-900">
+                  <tr key={row.id} className="transition-colors hover:bg-canvas-50/50">
+                    <td className="px-5 py-3 font-display text-base font-medium text-charcoal-900">
                       {formatShortDate(row.date)}
                     </td>
                     <td className="px-5 py-3">
@@ -170,12 +170,12 @@ export function AgendasTable({
                         {STATUS_LABEL[row.status]}
                       </span>
                     </td>
-                    <td className="px-5 py-3 font-sans text-sm text-slate-500">{row.updatedAt}</td>
+                    <td className="px-5 py-3 font-sans text-sm text-charcoal-500">{row.updatedAt}</td>
                     <td className="px-5 py-3 text-right">
                       <div className="inline-flex items-center gap-2">
                         <Link
                           href={`/admin/agendas/${row.id}/editar`}
-                          className="rounded-pill border border-slate-300 bg-white px-3 py-1 font-sans text-xs font-medium text-slate-700 transition-colors hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700"
+                          className="rounded-pill border border-border bg-card px-3 py-1 font-sans text-xs font-medium text-charcoal-700 transition-colors hover:border-primary hover:bg-primary/10 hover:text-primary dark:text-charcoal-400"
                         >
                           Editar
                         </Link>
@@ -183,7 +183,7 @@ export function AgendasTable({
                           <button
                             type="button"
                             onClick={() => onDelete(row)}
-                            className="rounded-pill border border-red-100 bg-white px-3 py-1 font-sans text-xs font-medium text-red-500 transition-colors hover:bg-red-50"
+                            className="rounded-pill border border-red-200 bg-card px-3 py-1 font-sans text-xs font-medium text-red-500 transition-colors hover:bg-red-500/10 hover:text-red-600 dark:border-red-900/50"
                           >
                             Eliminar
                           </button>
