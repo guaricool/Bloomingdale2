@@ -41,7 +41,12 @@ function toAgendaItemWithJoins(r: any): AgendaItemWithJoins {
       r.refId !== null &&
       r.member_firstName !== null &&
       r.member_lastName !== null
-        ? { id: r.refId, firstName: r.member_firstName, lastName: r.member_lastName }
+        ? {
+            id: r.refId,
+            firstName: r.member_firstName,
+            middleName: r.member_middleName ?? null,
+            lastName: r.member_lastName,
+          }
         : null,
     event:
       r.type === "announcement" && r.refId !== null && r.event_title !== null
@@ -65,7 +70,7 @@ export async function getAgendaById(id: number): Promise<AgendaWithItems | null>
        SELECT
          ai.id, ai."agendaId", ai.type, ai."order", ai."refId", ai.note,
          h."titleEs" AS "hymn_titleEs", h."titleEn" AS "hymn_titleEn",
-         m."firstName" AS "member_firstName", m."lastName" AS "member_lastName",
+         m."firstName" AS "member_firstName", m."middleName" AS "member_middleName", m."lastName" AS "member_lastName",
          e.title AS "event_title", e."eventDate" AS "event_eventDate", e.type AS "event_type"
        FROM "AgendaItem" ai
        LEFT JOIN "Hymn" h ON ai.type = 'hymn' AND h.number = ai."refId"
@@ -219,7 +224,7 @@ export async function getAgendaItem(
        SELECT
          ai.id, ai."agendaId", ai.type, ai."order", ai."refId", ai.note,
          h."titleEs" AS "hymn_titleEs", h."titleEn" AS "hymn_titleEn",
-         m."firstName" AS "member_firstName", m."lastName" AS "member_lastName",
+         m."firstName" AS "member_firstName", m."middleName" AS "member_middleName", m."lastName" AS "member_lastName",
          e.title AS "event_title", e."eventDate" AS "event_eventDate", e.type AS "event_type"
        FROM "AgendaItem" ai
        LEFT JOIN "Hymn" h ON ai.type = 'hymn' AND h.number = ai."refId"

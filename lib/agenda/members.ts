@@ -26,12 +26,20 @@ export async function searchMembers(q: string, limit = 10): Promise<MemberRow[]>
   const exact = trimmed.toLowerCase();
   
   const sql = `
-    SELECT m.*, MAX(d."discourseDate") as "lastDiscourseDate"
+    SELECT m.id,
+           m."firstName" AS "firstName",
+           m."middleName" AS "middleName",
+           m."lastName" AS "lastName",
+           m."membershipNumber" AS "membershipNumber",
+           m."familyGroupId" AS "familyGroupId",
+           m."createdAt" AS "createdAt",
+           m."updatedAt" AS "updatedAt",
+           MAX(d."discourseDate") as "lastDiscourseDate"
     FROM "Member" m
     LEFT JOIN "DiscourseLog" d ON d."memberId" = m.id
     WHERE LOWER(m."firstName") LIKE $1 OR LOWER(m."lastName") LIKE $2
        OR LOWER(m."firstName" || ' ' || m."lastName") LIKE $3
-    GROUP BY m.id
+    GROUP BY m.id, m."firstName", m."middleName", m."lastName", m."membershipNumber", m."familyGroupId", m."createdAt", m."updatedAt"
     ORDER BY
       CASE WHEN LOWER(m."firstName") = $4 THEN 0
            WHEN LOWER(m."lastName")  = $5 THEN 1

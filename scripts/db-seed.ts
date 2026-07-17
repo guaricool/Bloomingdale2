@@ -21,24 +21,68 @@ import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { HYMNS } from "../db/hymns-data";
 import "dotenv/config";
+import * as path from "node:path";
 
-const connectionString = process.env.DATABASE_URL;
-const pool = new Pool({ connectionString });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+const connectionString = process.env.DATABASE_URL || "./data/bloomingdale.db";
+const isPostgres = connectionString.startsWith("postgres://") || connectionString.startsWith("postgresql://");
 
 async function main() {
   let n = 0;
-  for (const row of HYMNS) {
-    await prisma.hymn.upsert({
-      where: { number: row.number },
-      update: { titleEs: row.titleEs, titleEn: row.titleEn ?? null },
-      create: { number: row.number, titleEs: row.titleEs, titleEn: row.titleEn ?? null },
+  let total = 0;
+
+  if (isPostgres) {
+    console.log(`[seed] PostgreSQL DB via Prisma adapter`);
+    const pool = new Pool({ connectionString });
+    const adapter = new PrismaPg(pool);
+    const prisma = new PrismaClient({ adapter });
+
+    try {
+      for (const row of HYMNS) {
+        await prisma.hymn.upsert({
+          where: { number: row.number },
+          update: { titleEs: row.titleEs, titleEn: row.titleEn ?? null },
+          create: { number: row.number, titleEs: row.titleEs, titleEn: row.titleEn ?? null },
+        });
+        n++;
+      }
+      total = await prisma.hymn.count();
+    } finally {
+      await prisma.$disconnect();
+      await pool.end();
+    }
+  } else {
+    // Seed SQLite via better-sqlite3 directly
+    const Database = require("better-sqlite3");
+    const cleanedPath = connectionString
+      .replace(/^sqlite:\/\//, "")
+      .replace(/^file:/, "");
+    const resolvedDbPath = path.isAbsolute(cleanedPath)
+      ? cleanedPath
+      : path.resolve(process.cwd(), cleanedPath);
+
+    console.log(`[seed] SQLite DB directly: ${resolvedDbPath}`);
+    const db = new Database(resolvedDbPath);
+
+    const insertStmt = db.prepare(`
+      INSERT INTO Hymn (number, titleEs, titleEn)
+      VALUES (?, ?, ?)
+      ON CONFLICT(number) DO UPDATE SET
+        titleEs = excluded.titleEs,
+        titleEn = excluded.titleEn
+    `);
+
+    const tx = db.transaction(() => {
+      for (const row of HYMNS) {
+        insertStmt.run(row.number, row.titleEs, row.titleEn ?? null);
+        n++;
+      }
     });
-    n++;
+
+    tx();
+    total = (db.prepare("SELECT COUNT(*) as count").get() as { count: number }).count;
+    db.close();
   }
-  
-  const total = await prisma.hymn.count();
+
   console.log(`[seed] hymns: wrote/updated ${n}, total in DB: ${total}`);
   if (total < 341) {
     console.warn(
@@ -51,7 +95,4 @@ main()
   .catch((e) => {
     console.error(e);
     process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
   });

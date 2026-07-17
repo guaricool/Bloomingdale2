@@ -53,7 +53,7 @@ export async function requireAdmin(): Promise<AppSessionUser> {
 export async function requireAdminForPage(): Promise<AppSessionUser> {
   const u = await currentUser();
   if (!u) redirect("/login?callbackUrl=%2Fadmin%2Fmiembros");
-  if (u.role !== "admin") redirect("/dashboard?forbidden=admin");
+  if (u.role !== "admin") redirect("/inicio?forbidden=admin");
   return u;
 }
 
