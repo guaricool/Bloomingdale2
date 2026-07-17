@@ -41,22 +41,28 @@ export function AgendaPublicView({ agenda, formattedDate }: AgendaPublicViewProp
                     {ITEM_TYPE_LABELS[item.type]}
                   </span>
                   {/* Rol del himno (Apertura, Santa Cena, etc.) */}
-                  {item.type === "hymn" && item.note && (
+                  {item.type.includes("hymn") && (
                     <span className={`inline-flex items-center rounded-pill px-2 py-0.5 font-sans text-[0.65rem] font-semibold uppercase tracking-[0.12em] ${
-                      item.note === "Santa Cena"
+                      item.type === "sacrament_hymn" || item.note === "Santa Cena"
                         ? "bg-amber-50 text-amber-700"
-                        : item.note.startsWith("Intermedio")
+                        : item.note?.startsWith("Intermedio")
                         ? "bg-slate-100 text-slate-500"
                         : "bg-blue-100 text-blue-800"
                     }`}>
-                      {item.note}
+                      {item.type === "hymn_opening"
+                        ? "Apertura"
+                        : item.type === "sacrament_hymn"
+                        ? "Santa Cena"
+                        : item.type === "hymn_closing"
+                        ? "Cierre"
+                        : item.note || "Himno"}
                     </span>
                   )}
                 </div>
 
                 <div className="mt-1.5">
                   {/* HIMNO — botón clickeable que abre el modal */}
-                  {item.type === "hymn" && item.hymn ? (
+                  {item.type.includes("hymn") && item.hymn ? (
                     <button
                       type="button"
                       onClick={() => setActiveHymn({
@@ -73,7 +79,7 @@ export function AgendaPublicView({ agenda, formattedDate }: AgendaPublicViewProp
                         Ver letra
                       </span>
                     </button>
-                  ) : item.type === "hymn" && !item.hymn ? (
+                  ) : item.type.includes("hymn") && !item.hymn ? (
                     <p className="font-sans text-sm italic text-slate-400">
                       Himno por confirmar
                     </p>

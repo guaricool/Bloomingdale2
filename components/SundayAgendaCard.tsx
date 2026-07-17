@@ -167,23 +167,26 @@ function AgendaFullBody({
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center rounded-pill border border-blue-200 bg-blue-50 px-2 py-0.5 font-sans text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-blue-700">
-                {item.type === "hymn" ? "Himno"
+                {item.type.includes("hymn") ? "Himno"
                   : item.type === "speaker" ? "Discurso"
                   : item.type === "prayer" ? "Oración"
                   : "Anuncio"}
               </span>
-              {item.type === "hymn" && item.note && (
+              {item.type.includes("hymn") && (
                 <span className={`inline-flex items-center rounded-pill px-2 py-0.5 font-sans text-[0.65rem] font-semibold uppercase tracking-[0.12em] ${
-                  item.note === "Santa Cena" ? "bg-amber-50 text-amber-700"
-                  : item.note.startsWith("Intermedio") ? "bg-slate-100 text-slate-500"
+                  item.type === "sacrament_hymn" || item.note === "Santa Cena" ? "bg-amber-50 text-amber-700"
+                  : item.note?.startsWith("Intermedio") ? "bg-slate-100 text-slate-500"
                   : "bg-blue-100 text-blue-800"
                 }`}>
-                  {item.note}
+                  {item.type === "hymn_opening" ? "Apertura"
+                    : item.type === "sacrament_hymn" ? "Santa Cena"
+                    : item.type === "hymn_closing" ? "Cierre"
+                    : item.note || "Himno"}
                 </span>
               )}
             </div>
             <div className="mt-1.5 font-display text-lg text-slate-900">
-              {item.type === "hymn" && item.hymn ? (
+              {item.type.includes("hymn") && item.hymn ? (
                 <button
                   type="button"
                   onClick={() => onHymnClick({

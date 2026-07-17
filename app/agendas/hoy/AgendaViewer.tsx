@@ -32,7 +32,7 @@ export function AgendaViewer({ agenda }: { agenda: AgendaWithItems }) {
               </span>
             </div>
             <div className="mt-1.5 font-display text-lg text-slate-900">
-              {item.type === "hymn" && item.hymn ? (
+              {item.type.includes("hymn") && item.hymn ? (
                 <details className="group/hymn">
                   <summary className="cursor-pointer list-none">
                     <span className="underline decoration-blue-200 decoration-2 underline-offset-4 transition-colors group-open/hymn:text-blue-700 hover:decoration-blue-400">

@@ -56,7 +56,7 @@ export async function POST(
 
   // Validate refId against the relevant table.
   const { prisma } = await import("@/lib/db");
-  if (type === "hymn") {
+  if (type.includes("hymn")) {
     if (!refId || refId < 1 || refId > 341) {
       return NextResponse.json(
         { error: "Número de himno fuera de rango (1..341)" },

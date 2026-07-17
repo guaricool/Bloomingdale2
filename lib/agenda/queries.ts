@@ -33,7 +33,7 @@ function toAgendaItemWithJoins(r: any): AgendaItemWithJoins {
   return {
     ...base,
     hymn:
-      r.type === "hymn" && r.refId !== null && r.hymn_titleEs !== null
+      r.type.includes("hymn") && r.refId !== null && r.hymn_titleEs !== null
         ? { number: r.refId, titleEs: r.hymn_titleEs, titleEn: r.hymn_titleEn }
         : null,
     member:
@@ -73,7 +73,7 @@ export async function getAgendaById(id: number): Promise<AgendaWithItems | null>
          m."firstName" AS "member_firstName", m."middleName" AS "member_middleName", m."lastName" AS "member_lastName",
          e.title AS "event_title", e."eventDate" AS "event_eventDate", e.type AS "event_type"
        FROM "AgendaItem" ai
-       LEFT JOIN "Hymn" h ON ai.type = 'hymn' AND h.number = ai."refId"
+       LEFT JOIN "Hymn" h ON ai.type IN ('hymn', 'hymn_opening', 'sacrament_hymn', 'hymn_closing') AND h.number = ai."refId"
        LEFT JOIN "Member" m ON (ai.type = 'speaker' OR ai.type = 'prayer') AND m.id = ai."refId"
        LEFT JOIN "Event" e ON ai.type = 'announcement' AND e.id = ai."refId"
        WHERE ai."agendaId" = $1
@@ -227,7 +227,7 @@ export async function getAgendaItem(
          m."firstName" AS "member_firstName", m."middleName" AS "member_middleName", m."lastName" AS "member_lastName",
          e.title AS "event_title", e."eventDate" AS "event_eventDate", e.type AS "event_type"
        FROM "AgendaItem" ai
-       LEFT JOIN "Hymn" h ON ai.type = 'hymn' AND h.number = ai."refId"
+       LEFT JOIN "Hymn" h ON ai.type IN ('hymn', 'hymn_opening', 'sacrament_hymn', 'hymn_closing') AND h.number = ai."refId"
        LEFT JOIN "Member" m ON (ai.type = 'speaker' OR ai.type = 'prayer') AND m.id = ai."refId"
        LEFT JOIN "Event" e ON ai.type = 'announcement' AND e.id = ai."refId"
        WHERE ai."agendaId" = $1 AND ai.id = $2

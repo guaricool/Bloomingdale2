@@ -59,7 +59,7 @@ export async function PUT(
   const { prisma } = await import("@/lib/db");
   const nextType = parsed.data.type ?? existing.type;
   const nextRefId = parsed.data.refId !== undefined ? parsed.data.refId : existing.refId;
-  if (nextType === "hymn") {
+  if (nextType.includes("hymn")) {
     if (!nextRefId || nextRefId < 1 || nextRefId > 341) {
       return NextResponse.json(
         { error: "Número de himno fuera de rango (1..341)" },

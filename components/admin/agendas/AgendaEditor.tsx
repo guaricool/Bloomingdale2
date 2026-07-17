@@ -51,7 +51,7 @@ interface DraftItem {
 
 function itemToDraft(item: AgendaItemWithJoins): DraftItem {
   let label = "—";
-  if (item.type === "hymn" && item.hymn) {
+  if (item.type.includes("hymn") && item.hymn) {
     label = `${item.hymn.number} — ${item.hymn.titleEs}`;
   } else if ((item.type === "speaker" || item.type === "prayer") && item.member) {
     label = `${[item.member.firstName, item.member.middleName, item.member.lastName].filter(Boolean).join(" ")}`;
@@ -226,15 +226,21 @@ export function AgendaEditor({
                     {idx + 1}. {ITEM_TYPE_LABELS[it.type]}
                   </span>
                   {/* Mostrar rol del himno como badge diferenciado */}
-                  {it.type === "hymn" && it.note && (
+                  {it.type.includes("hymn") && (
                     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ${
-                      it.note === "Santa Cena"
+                      it.type === "sacrament_hymn" || it.note === "Santa Cena"
                         ? "bg-amber-50 text-amber-700"
-                        : it.note.startsWith("Intermedio")
+                        : it.note?.startsWith("Intermedio")
                         ? "bg-slate-100 text-slate-500"
                         : "bg-blue-100 text-blue-800"
                     }`}>
-                      {it.note}
+                      {it.type === "hymn_opening"
+                        ? "Apertura"
+                        : it.type === "sacrament_hymn"
+                        ? "Santa Cena"
+                        : it.type === "hymn_closing"
+                        ? "Cierre"
+                        : it.note || "Himno"}
                     </span>
                   )}
                   {["hymn", "hymn_opening", "hymn_closing", "sacrament_hymn", "speaker", "prayer", "prayer_opening", "prayer_closing"].includes(it.type) ? (
@@ -244,11 +250,19 @@ export function AgendaEditor({
                   ) : null}
                 </div>
                 {/* Selector inline para himnos del template (sin himno asignado) */}
-                {it.type === "hymn" && !it.refId && !readOnly && (
+                {it.type.includes("hymn") && !it.refId && !readOnly && (
                   <InlineHymnPicker
                     agendaId={agenda.id}
                     itemId={it.id}
-                    role={it.note}
+                    role={
+                      it.type === "hymn_opening"
+                        ? "Apertura"
+                        : it.type === "sacrament_hymn"
+                        ? "Santa Cena"
+                        : it.type === "hymn_closing"
+                        ? "Cierre"
+                        : it.note
+                    }
                     onSelected={(hymn) => {
                       setItems(prev => prev.map(x =>
                         x.id === it.id
