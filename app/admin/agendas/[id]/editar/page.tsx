@@ -69,13 +69,19 @@ export default async function EditAgendaPage({ params }: PageProps) {
           <h1 className="mt-1 text-3xl font-bold text-slate-900">
             {formatSpanishDate(agenda.date)}
           </h1>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-slate-600 flex items-center gap-1.5">
             Estado:{" "}
-            <span className="font-medium uppercase tracking-wide">
+            <span className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ${
+              agenda.status === "draft"
+                ? "bg-slate-100 text-slate-700 border border-slate-200"
+                : agenda.status === "published"
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  : "bg-blue-50 text-blue-700 border border-blue-200"
+            }`}>
               {agenda.status === "draft"
                 ? "Borrador"
                 : agenda.status === "published"
-                  ? "Publicada"
+                  ? "Publicada (Edición en vivo)"
                   : "Completada"}
             </span>
           </p>
@@ -110,7 +116,7 @@ export default async function EditAgendaPage({ params }: PageProps) {
         <AgendaEditor
           agenda={agenda}
           memberSuggestions={memberSuggestions}
-          readOnly={agenda.status !== "draft"}
+          readOnly={agenda.status !== "draft" && agenda.status !== "published"}
         />
       </div>
     </div>
